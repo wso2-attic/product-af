@@ -16,24 +16,36 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import io.fabric8.kubernetes.api.model.extensions.IngressBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -114,12 +126,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         for (String containerName : applicationContext.getContainerList()) {
 
-            HttpGet httpGet = KubernetesProvisioningUtils.getHttpGETForKubernetes();
             try {
                 uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/"
                         + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
                         + "/pods/" + containerName + "/log?follow=" + query.getFollowing() + "&previous=" + query
                         .getPreviousRecords() + "&timestamps=" + query.getTimeStamp());
+
+                HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
                 httpGet.setURI(uri);
                 HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                 HttpResponse response = httpclient.execute(httpGet);
@@ -162,7 +175,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         URI uri = null;
 
         if (query != null) {
-            HttpGet httpGet = KubernetesProvisioningUtils.getHttpGETForKubernetes();
 
             for (String containerName : applicationContext.getContainerList()) {
                 try {
@@ -170,6 +182,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
                             + "/pods/" + containerName + "/log?&previous=" + query.getPreviousRecords() + "&timestamps="
                             + query.getTimeStamp());
+                    HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
                     httpGet.setURI(uri);
                     HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                     HttpResponse response = httpclient.execute(httpGet);
@@ -275,8 +288,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
 
                 StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/" + applicationContext
-                        .getNameSpace().getMetadata().getNamespace() + "/ingresses/");
+                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                              +KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                              + "/ingresses/");
 
                 HttpPost httpPost = (HttpPost) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_POST, uri);
                 httpPost.addHeader("Content-Type", "application/json");
@@ -363,8 +377,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             ingJson = objectMapper.writeValueAsString(ing);
             StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/" + applicationContext
-                    .getNameSpace().getMetadata().getNamespace() + "/ingresses/" + ingressName);
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                          + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                          + "/ingresses/" + ingressName);
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
             HttpPut httpPut = (HttpPut) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_PUT, uri);
@@ -427,8 +442,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         try {
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/" + applicationContext
-                    .getNameSpace().getMetadata().getNamespace() + "/ingresses/");
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                          + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                          + "/ingresses/");
 
             HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
             httpGet.addHeader("Content-Type", "application/json");
@@ -481,8 +497,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         try {
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/" + applicationContext
-                    .getNameSpace().getMetadata().getNamespace() + "/ingresses/");
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                          + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                          + "/ingresses/");
             HttpDelete httpDelete = (HttpDelete) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_DELETE, uri);
             httpDelete.addHeader("Content-Type", "application/json");
 
