@@ -16,18 +16,29 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import io.fabric8.kubernetes.api.model.extensions.IngressBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -115,12 +126,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         for (String containerName : applicationContext.getContainerList()) {
 
-            HttpGet httpGet = KubernetesProvisioningUtils.getHttpGETForKubernetes();
             try {
                 uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/"
                         + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
                         + "/pods/" + containerName + "/log?follow=" + query.getFollowing() + "&previous=" + query
                         .getPreviousRecords() + "&timestamps=" + query.getTimeStamp());
+
+                HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
                 httpGet.setURI(uri);
                 HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                 HttpResponse response = httpclient.execute(httpGet);
@@ -163,7 +175,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         URI uri = null;
 
         if (query != null) {
-            HttpGet httpGet = KubernetesProvisioningUtils.getHttpGETForKubernetes();
 
             for (String containerName : applicationContext.getContainerList()) {
                 try {
@@ -171,6 +182,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
                             + "/pods/" + containerName + "/log?&previous=" + query.getPreviousRecords() + "&timestamps="
                             + query.getTimeStamp());
+                    HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
                     httpGet.setURI(uri);
                     HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                     HttpResponse response = httpclient.execute(httpGet);
@@ -240,20 +252,292 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public void addCustomDomain(Set<String> domains) throws RuntimeProvisioningException {
 
+        HttpClient httpclient = null;
+        URI uri = null;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String ingJson = null;
+
+        for (String domain : domains) {
+            Ingress ing = new IngressBuilder()
+                    .withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
+                    .withKind("Ingress")
+                    .withNewMetadata()
+                    .withName("ingress")
+                    .withNamespace("dev-tom")
+                    .endMetadata()
+                    .withNewSpec().addNewRule()
+                    .withHost(domain)
+                    .withNewHttp().addNewPath()
+                    .withNewBackend()
+                    .withServiceName("tomcat-service")
+                    .withServicePort(new IntOrString(80))
+                    .endBackend()
+                    .endPath()
+                    .endHttp()
+                    .endRule()
+                    .endSpec()
+                    .build();
+
+            try {
+                httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+                ingJson = objectMapper.writeValueAsString(ing);
+                if (log.isDebugEnabled()) {
+                    log.debug(ingJson);
+                }
+
+
+                StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
+                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                              +KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                              + "/ingresses/");
+
+                HttpPost httpPost = (HttpPost) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_POST, uri);
+                httpPost.addHeader("Content-Type", "application/json");
+                httpPost.setEntity(stringEntity);
+
+                HttpResponse response = httpclient.execute(httpPost);
+
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    throw new RuntimeProvisioningException("Failed to add domain mapping Domain: " + domains + "HTTP error code : "
+                                                           + response.getStatusLine().getStatusCode());
+                }
+
+                if (log.isDebugEnabled()) {
+                    log.debug("addCustomDomain response: " + response.getEntity().getContent());
+                }
+
+                httpclient.getConnectionManager().shutdown();
+
+            } catch (JsonProcessingException e) {
+                String msg = "Exception in converting the ingress object to json";
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(e);
+            } catch (KeyStoreException e) {
+                String msg = "Error in keystore while connecting to Kubernetes cluster";
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(msg, e);
+            } catch (NoSuchAlgorithmException e) {
+                String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
+                log.error(msg, e);
+            } catch (KeyManagementException e) {
+                String msg = "Exception in key management while while connecting to Kubernetes cluster";
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(e);
+            } catch (URISyntaxException e) {
+                String msg = "Error in url syntax : " + uri;
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(e);
+            } catch (UnsupportedEncodingException e) {
+                String msg = "Character encoding used is not supported";
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(e);
+            } catch (ClientProtocolException e) {
+                String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(e);
+            } catch (IOException e) {
+                String msg = "Connection exception while connecting to Kubernetes cluster";
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(e);
+            }
+        }
     }
 
     @Override
     public void updateCustomDomain(String domain) throws RuntimeProvisioningException {
 
+        HttpClient httpclient = null;
+        URI uri = null;
+        String ingressName = null;
+        String ingJson = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Ingress ing = new IngressBuilder()
+                .withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
+                .withKind("Ingress")
+                .withNewMetadata()
+                .withName("ingress")
+                .withNamespace("dev-tom")
+                .endMetadata()
+                .withNewSpec().addNewRule()
+                .withHost(domain)
+                .withNewHttp().addNewPath()
+                .withNewBackend()
+                .withServiceName("tomcat-service")
+                .withServicePort(new IntOrString(80))
+                .endBackend()
+                .endPath()
+                .endHttp()
+                .endRule()
+                .endSpec()
+                .build();
+
+        try {
+
+            ingJson = objectMapper.writeValueAsString(ing);
+            StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                          + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                          + "/ingresses/" + ingressName);
+
+            httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+            HttpPut httpPut = (HttpPut) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_PUT, uri);
+            httpPut.addHeader("Content-Type", "application/json");
+            httpPut.setEntity(stringEntity);
+
+            HttpResponse response = httpclient.execute(httpPut);
+
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new RuntimeProvisioningException("Failed to update domain mapping Domain: " + domain + "HTTP error code : "
+                                                       + response.getStatusLine().getStatusCode());
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("addCustomDomain response: " + response.getEntity().getContent());
+            }
+
+            httpclient.getConnectionManager().shutdown();
+        } catch (JsonProcessingException e) {
+            String msg = "Exception in converting the ingress object to json";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (KeyStoreException e) {
+            String msg = "Error in keystore while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(msg, e);
+        } catch (NoSuchAlgorithmException e) {
+            String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
+            log.error(msg, e);
+        } catch (KeyManagementException e) {
+            String msg = "Exception in key management while while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (URISyntaxException e) {
+            String msg = "Error in url syntax : " + uri;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (UnsupportedEncodingException e) {
+            String msg = "Character encoding used is not supported";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (ClientProtocolException e) {
+            String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (IOException e) {
+            String msg = "Connection exception while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        }
+
     }
 
     @Override
     public Set<String> getCustomDomains() throws RuntimeProvisioningException {
+
+        HttpClient httpclient = null;
+        URI uri = null;
+
+        try {
+
+            httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                          + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                          + "/ingresses/");
+
+            HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
+            httpGet.addHeader("Content-Type", "application/json");
+
+            HttpResponse response = httpclient.execute(httpGet);
+
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new RuntimeProvisioningException("Failed to get domain mappings: HTTP error code : "
+                                                       + response.getStatusLine().getStatusCode());
+            }
+
+            httpclient.getConnectionManager().shutdown();
+        } catch (KeyStoreException e) {
+            String msg = "Error in keystore while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(msg, e);
+        } catch (NoSuchAlgorithmException e) {
+            String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
+            log.error(msg, e);
+        } catch (KeyManagementException e) {
+            String msg = "Exception in key management while while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (URISyntaxException e) {
+            String msg = "Error in url syntax : " + uri;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (UnsupportedEncodingException e) {
+            String msg = "Character encoding used is not supported";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (ClientProtocolException e) {
+            String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (IOException e) {
+            String msg = "Connection exception while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        }
+
         return null;
     }
 
     @Override
     public void deleteCustomDomain(String domain) throws RuntimeProvisioningException {
+        HttpClient httpclient = null;
+        URI uri = null;
 
+        try {
+
+            httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                          + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
+                          + "/ingresses/");
+            HttpDelete httpDelete = (HttpDelete) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_DELETE, uri);
+            httpDelete.addHeader("Content-Type", "application/json");
+
+            HttpResponse response = httpclient.execute(httpDelete);
+
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new RuntimeProvisioningException("Failed to delete domain mapping: HTTP error code : "
+                                                       + response.getStatusLine().getStatusCode());
+            }
+
+            httpclient.getConnectionManager().shutdown();
+        } catch (KeyStoreException e) {
+            String msg = "Error in keystore while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(msg, e);
+        } catch (NoSuchAlgorithmException e) {
+            String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
+            log.error(msg, e);
+        } catch (KeyManagementException e) {
+            String msg = "Exception in key management while while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (URISyntaxException e) {
+            String msg = "Error in url syntax : " + uri;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (UnsupportedEncodingException e) {
+            String msg = "Character encoding used is not supported";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (ClientProtocolException e) {
+            String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (IOException e) {
+            String msg = "Connection exception while connecting to Kubernetes cluster";
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        }
     }
 }

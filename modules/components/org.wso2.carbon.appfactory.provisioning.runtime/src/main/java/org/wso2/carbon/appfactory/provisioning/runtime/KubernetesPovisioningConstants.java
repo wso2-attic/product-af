@@ -27,4 +27,11 @@ public class KubernetesPovisioningConstants {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static String MASTER_USERNAME;
     public static String MASTER_PASSWORD;
+
+    public static final String HTTP_GET = "GET";
+    public static final String HTTP_POST = "POST";
+    public static final String HTTP_PUT = "PUT";
+    public static final String HTTP_DELETE = "DELETE";
+
+    public static final String AUTHORIZATION_BASIC = "Basic";
 }
