@@ -23,7 +23,11 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Base64Encoder;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -33,6 +37,7 @@ import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningCons
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 
 import javax.net.ssl.SSLContext;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -72,12 +77,29 @@ public class KubernetesProvisioningUtils {
         return  serviceList;
     }
 
-    public static HttpGet getHttpGETForKubernetes() {
-        HttpGet httpGet = new HttpGet();
+    public static HttpRequestBase getHttpMethodForKubernetes(String httpMethod, URI uri) {
+
         String encoding = Base64Encoder.encode(KubernetesPovisioningConstants.MASTER_USERNAME + ":"
-                + KubernetesPovisioningConstants.MASTER_PASSWORD);
-        httpGet.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, "Basic " + encoding);
-        return  httpGet;
+                                               + KubernetesPovisioningConstants.MASTER_PASSWORD);
+        if(KubernetesPovisioningConstants.HTTP_GET.equals(httpMethod)) {
+            HttpGet httpGet = new HttpGet();
+            httpGet.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            return httpGet;
+        }else if(KubernetesPovisioningConstants.HTTP_POST.equals(httpMethod)){
+            HttpPost httpPost = new HttpPost();
+            httpPost.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            return httpPost;
+        }else if(KubernetesPovisioningConstants.HTTP_PUT.equals(httpMethod)){
+            HttpPut httpPut = new HttpPut();
+            httpPut.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            return httpPut;
+        }else if(KubernetesPovisioningConstants.HTTP_DELETE.equals(httpMethod)){
+            HttpDelete httpDelete = new HttpDelete();
+            httpDelete.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            return httpDelete;
+        }else{
+            throw new IllegalArgumentException("HTTP Method Not Supported");
+        }
     }
 
     public static HttpClient getHttpClientForKubernetes()
