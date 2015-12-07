@@ -81,19 +81,19 @@ public class KubernetesProvisioningUtils {
 
         String encoding = Base64Encoder.encode(KubernetesPovisioningConstants.MASTER_USERNAME + ":"
                                                + KubernetesPovisioningConstants.MASTER_PASSWORD);
-        if(KubernetesPovisioningConstants.HTTP_GET.equals(httpMethod)) {
+        if(HttpGet.METHOD_NAME.equals(httpMethod)) {
             HttpGet httpGet = new HttpGet();
             httpGet.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
             return httpGet;
-        }else if(KubernetesPovisioningConstants.HTTP_POST.equals(httpMethod)){
+        }else if(HttpPost.METHOD_NAME.equals(httpMethod)){
             HttpPost httpPost = new HttpPost();
             httpPost.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
             return httpPost;
-        }else if(KubernetesPovisioningConstants.HTTP_PUT.equals(httpMethod)){
+        }else if(HttpPut.METHOD_NAME.equals(httpMethod)){
             HttpPut httpPut = new HttpPut();
             httpPut.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
             return httpPut;
-        }else if(KubernetesPovisioningConstants.HTTP_DELETE.equals(httpMethod)){
+        }else if(HttpDelete.METHOD_NAME.equals(httpMethod)){
             HttpDelete httpDelete = new HttpDelete();
             httpDelete.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
             return httpDelete;

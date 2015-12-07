@@ -28,10 +28,11 @@ public class KubernetesPovisioningConstants {
     public static String MASTER_USERNAME;
     public static String MASTER_PASSWORD;
 
-    public static final String HTTP_GET = "GET";
-    public static final String HTTP_POST = "POST";
-    public static final String HTTP_PUT = "PUT";
-    public static final String HTTP_DELETE = "DELETE";
-
     public static final String AUTHORIZATION_BASIC = "Basic";
+
+    public static final String INGRESS_API_NAMESPACE_RESOURCE_PATH = "apis/extensions/v1beta1/namespaces/";
+    public static final String INGRESS_API_RESOURCE_PATH_SUFFIX = "/ingresses/";
+    public static final String MIME_TYPE_JSON = "application/json";
+
+    public static final String KIND_INGRESS = "Ingress";
 }
