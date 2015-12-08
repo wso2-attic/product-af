@@ -392,7 +392,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
 
                 StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                               +namespace.getMetadata().getNamespace()
                               + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
 
@@ -481,7 +481,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             ingJson = objectMapper.writeValueAsString(ing);
             StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                           + namespace.getMetadata().getNamespace()
                           + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX + ingressName);
 
@@ -545,7 +545,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         try {
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                           + namespace.getMetadata().getNamespace()
                           + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
 
@@ -599,7 +599,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         try {
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                           + namespace.getMetadata().getNamespace()
                           + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
             HttpDelete httpDelete = (HttpDelete) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpDelete.METHOD_NAME, uri);
