@@ -1,0 +1,130 @@
+
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var issueData = "";
+
+var summaryTable = function (summaryJson) {
+
+    var htmlData = '<table class="hor-minimalist-b"><caption><b>Issue Summaries From JIRA</b></caption><tbody><tr></tr><tr><th>Issue Key</th><th>Issue Type</th><th>Project Name</th><th>Issue Priority</th><th>Issue Status</th></tr>';
+    var i;
+    for (i = 0; i < summaryJson.length; ++i) {
+        htmlData += '<tr><td>' + summaryJson[i].issueKey + '</td>';
+        htmlData += '<td>' + summaryJson[i].issueType + '</td>';
+        htmlData += '<td>' + summaryJson[i].project + '</td>';
+        htmlData += '<td>' + summaryJson[i].priority + '</td>';
+        htmlData += '<td>' + summaryJson[i].status + '</td></tr>';
+    }
+    htmlData += '</tbody></table>';
+    return htmlData;
+
+};
+
+if (request.getParameter('oauth_verifier')) {
+    var projectName = request.getParameter('projectName');
+    var carbon = require('carbon');
+    var log = new Log("module/issuetracker/getIssueSummaries.jag");
+    log.info("Retrieved oauth verifier from call back");
+    var modManager = jagg.module("manager");
+    var multitenancy = carbon.multitenancy;
+    var server = carbon.server;
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var tenantDomain = modManager.getTenantDomain();
+    var tenantId = modManager.getTenantId();
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+        var service = server.osgiService('org.wso2.carbon.appfactory.issuetracking.service.IssueTrackerService');
+        var verifier = request.getParameter('oauth_verifier');
+        var oauthClient = session.get("oauth_client");
+        var jiraOAuthClient = service.setAccessToken(oauthClient, verifier);
+        var issues = service.getSummaryofIssues(jiraOAuthClient, String(projectName));
+        var jsonResponse = parse(String(issues));
+        var json = jsonResponse.issues;
+        var issueSummaries = [];
+
+        for (var i = 0; i < json.length; ++i) {
+            if (json[i] != null) {
+                //set these into a json object
+                var jiraSummary = {
+                    "issueKey": json[i].key,
+                    "issueType": json[i].fields.issuetype.name,
+                    "project": json[i].fields.project.name,
+                    "priority": json[i].fields.priority.name,
+                    "status": json[i].fields.status.name
+                };
+                issueSummaries.push(jiraSummary);
+            }
+        }
+        issueData = summaryTable(issueSummaries);
+
+    } catch (e) {
+        log.error(e);
+    } finally {
+        context.endTenantFlow();
+    }
+}
+
+var getIssueSummaries = function (applicationKey, baseUrl, projectName) {
+
+    if (!request.getParameter('oauth_verifier')) {
+        var carbon = require('carbon');
+        var log = new Log("module/issuetracker/getIssueSummaries.jag");
+
+
+        var modManager = jagg.module("manager");
+        var multitenancy = carbon.multitenancy;
+        var server = carbon.server;
+        var context = multitenancy.getPrivilegedCarbonContext();
+        var tenantDomain = modManager.getTenantDomain();
+        var tenantId = modManager.getTenantId();
+        try {
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantId);
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+            var service = server.osgiService('org.wso2.carbon.appfactory.issuetracking.service.IssueTrackerService');
+            var JIRAOAuthClient = Packages.org.wso2.carbon.appfactory.issuetracking.JIRAOAuthClient;
+            var consumerKey = "appfactory";
+            var consumerPrivateKey = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCmw3eUC1F0gJ026sxqFUlAWvQ/j6W2o8+YPyYFfaaEapz/flvWSHctgmpJ7xrbUALPy1NHReO1Jo8+reQgZqPQVtiz45PwMFzEk4V71aUyJPeev4bNXxFHYfNR1vjnDsfR/gJ6s62X2NS+KJSq/1pYwoV/jwNdsFvuwQcc1V77GVHflEX/3PJH5iwxRa0dH+CS7pXojYUVLjMYkFS5/GlS+TkymhcQtRGuHGR0LreYzno5yezUxesF0bCXDLwJ6/Myd7bN+zra+16pl3kzWxWBblXezF07nzz87JdW8bEKa28MQY7VUjec9d9r2vLq811Dj/Lq/wj0T+v0ADGfV0VZAgMBAAECggEAS1uC+rxOl7XS1VEvBDUQP+uZ+esAuFK36ZWHqe2IxMekoHPKLj/a0w7e1wAcg8RZMOsxe8CiUGbXTjyoHNgk6G2GSWvqmxxPn2kGZdo6Zzl7SBpGYSG3nikuGepp2Ye9VjBRkH8HT9nk8PVHkSoI+pkUWHsYy0p5kJ9bhnUJEbA5pUZxBfv3jW+WP3SSfqDuObKMtD2TPKGAt47ITap/xltcqpqXFgs3WUVBzI+A1nwMIZxwFE6Lzs6RqHI6XkNTb41xtmEchVcMzXNejFz4xr73MvlvRQWNgno5eJTcDluZ06/GmwKxBMeGyxeHkT5NBT5XLuHcmVnNneB1p8ONAQKBgQDRUInBJ93XVgDrAuNeQcL9VIaY1pv7ZgBW1oW0MVFyiQKCwQwoeHTsJX7/Uv3rk/5v9ZYXrQPqOCGd+fFTG9sJFHnLXF/HZ9OlJ65yTQ7fpc5NWEAzk3AseNSk9HC2SQ9oRUfnpuuEw7EZwU282rGf7+eog8Wd2AFe6NFMF5DHuQKBgQDL9VhiR7/rbrnoBhpwpUWgkKrA34uFz1RVQFNcdNS4fa1Hh33JhcrdztXrV5Yc660WBFVtS+/0f+dFX2n2Qm2Z2PfrFQ34miujpoI0EXZx8CGuNfXNXee6OFH3s+MCNqOkg+8G1y/DmOPbNgYqK8OVNDt7Rqb9LfjlKobSTbf6oQKBgBbSu1KOcEgMnqkBdZ1Pel15G/wKWpO8+Yh+d7HANutQOS/csOCw0b72D7TzbbCEQJggpS8LtIOTf0bkfAXd4bJJw0YDWoY5sgAuJX1dHaQRRj90wftdtjuDKVybMrcNnFp4Q3Dk6IVfeS4fv8Q57GhOFmpvg9rENNIOfNPZNfYxAoGBAMvNgp7aUVVhVFUcXCk5jMSwKmAGQLXaAcwaNfJKMBGWS6MRKclIbvmLZ8j9wVtuyIsak35ehg0MDb4NZKWVpU05OCpo5IgJDhg+FxcOaAvcRtt8wfyPnDFBe+6Hiww4KvcGer+cIPdTfEQczLYw+wPJqLI7XDvbRz0/bG8TCAdhAoGAZdSnXnu3ZKL8/e2x7xqXCZHDBwW7wBV7m7A/2NQccwlyH1WJU6XUwJXyPcOUMhVKpOSobkwmub1ZOdO4d624xXYBJFARUnnDrzkaj5w14UMYFBHXycIUSbDUaMUQgVX724qgCvNID8tlVva3ii8kkOgOefSs3ftNGqnUJdSv6f8=";
+            var callbackUrl = "https://apps.appfactory.private.wso2.com:9443/appmgt/site/blocks/issuetracker/list/ajax/getSummary.jag?applicationKey=" + applicationKey + "&projectName=" + projectName;
+            var jiraOAuthClient = new JIRAOAuthClient(consumerKey, consumerPrivateKey, baseUrl, callbackUrl);
+
+            jiraOAuthClient = service.setOAuthAuthorizationUrl(jiraOAuthClient);
+            session.put("oauth_client", jiraOAuthClient);
+            var url = jiraOAuthClient.getAuthUrl();
+            response.sendRedirect(String(url));
+            log.info('Request token retrieved successfully. User is redirected to JIRA');
+
+        } catch (e) {
+            log.error(e);
+        } finally {
+            context.endTenantFlow();
+        }
+    }
+};
+
+%>
+ <div id="summaryData">
+    <link href="../../../../themes/default/css/hor_minimalist.css" rel="stylesheet">
+    <%=issueData%>
+</div>
