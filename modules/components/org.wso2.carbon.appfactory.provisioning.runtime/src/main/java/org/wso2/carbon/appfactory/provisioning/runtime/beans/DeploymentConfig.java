@@ -25,6 +25,8 @@ public class DeploymentConfig {
     private Integer replicas;
     private Map<String, String> labels;
     private List<Container> containers;
+    private String servicePort;
+    private Integer proxyPort;
 
     public void setDeploymentName(String deploymentName) {
         this.deploymentName = deploymentName;
@@ -60,5 +62,13 @@ public class DeploymentConfig {
 
     public List<Container> getContainers() {
         return containers;
+    }
+
+    public String getServicePort() {
+        return servicePort;
+    }
+
+    public Integer getProxyPort() {
+        return proxyPort;
     }
 }
