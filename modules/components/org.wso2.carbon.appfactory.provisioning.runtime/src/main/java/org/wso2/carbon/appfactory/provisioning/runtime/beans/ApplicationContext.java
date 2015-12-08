@@ -23,6 +23,7 @@ public class ApplicationContext {
     private String version;
     private String currentStage;
     private String type;
+    private TenantInfo tenantInfo;
 
     public String getType() {
         return type;
@@ -62,5 +63,13 @@ public class ApplicationContext {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public TenantInfo getTenantInfo() {
+        return tenantInfo;
+    }
+
+    public void setTenantInfo(TenantInfo tenantInfo) {
+        this.tenantInfo = tenantInfo;
     }
 }

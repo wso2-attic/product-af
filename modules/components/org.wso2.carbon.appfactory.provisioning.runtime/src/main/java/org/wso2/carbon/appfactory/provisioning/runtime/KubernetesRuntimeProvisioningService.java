@@ -54,12 +54,10 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     private static final Log log = LogFactory.getLog(KubernetesRuntimeProvisioningService.class);
     private ApplicationContext applicationContext;
     private Namespace namespace;
-    private TenantInfo tenantInfo;
 
-    public KubernetesRuntimeProvisioningService(ApplicationContext applicationContext, TenantInfo tenantInfo){
+    public KubernetesRuntimeProvisioningService(ApplicationContext applicationContext){
         this.applicationContext = applicationContext;
-        this.tenantInfo = tenantInfo;
-        this.namespace = KubernetesProvisioningUtils.getNameSpace(applicationContext, tenantInfo);
+        this.namespace = KubernetesProvisioningUtils.getNameSpace(applicationContext);
     }
 
     @Override
@@ -161,12 +159,12 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             if (deploymentList.getItems().contains(deployment)) {
                 //Redeployment
-                kubClient.inNamespace(tenantInfo.getTenantDomain()).extensions()
+                kubClient.inNamespace(namespace.getMetadata().getNamespace()).extensions()
                         .deployments().withName(config.getDeploymentName()).replace(deployment);
 
             } else {
                 //New Deployment
-                kubClient.inNamespace(tenantInfo.getTenantDomain()).extensions()
+                kubClient.inNamespace(namespace.getMetadata().getNamespace()).extensions()
                         .deployments().create(deployment);
                 //Service creation
                 ServicePort servicePorts = new ServicePortBuilder()
@@ -183,7 +181,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .withSpec(serviceSpec)
                         .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
                         .build();
-                kubClient.inNamespace(tenantInfo.getTenantDomain()).services().create(service);
+                kubClient.inNamespace(namespace.getMetadata().getNamespace()).services().create(service);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,7 +198,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     public boolean getDeploymentStatus(DeploymentConfig config) throws RuntimeProvisioningException {
 
         DefaultKubernetesClient kubClient = null;
-        DeploymentStatus deploymentStatus = kubClient.inNamespace(tenantInfo.getTenantDomain())
+        DeploymentStatus deploymentStatus = kubClient.inNamespace(namespace.getMetadata().getNamespace())
                 .extensions().deployments().withName(config.getDeploymentName()).get().getStatus();
 
         return true;
@@ -393,7 +391,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
                 StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
                 uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
-                              +namespace.getMetadata().getNamespace()
+                              + namespace.getMetadata().getNamespace()
                               + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
 
                 HttpPost httpPost = (HttpPost) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpPost.METHOD_NAME, uri);

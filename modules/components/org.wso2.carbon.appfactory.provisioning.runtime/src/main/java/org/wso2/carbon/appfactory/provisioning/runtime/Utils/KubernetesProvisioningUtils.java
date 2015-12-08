@@ -33,7 +33,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
 import javax.net.ssl.SSLContext;
 import java.net.URI;
@@ -120,10 +119,10 @@ public class KubernetesProvisioningUtils {
         return httpclient;
     }
 
-    public static Namespace getNameSpace(ApplicationContext applicationContext, TenantInfo tenantInfo) {
+    public static Namespace getNameSpace(ApplicationContext applicationContext) {
         Namespace namespace = new Namespace();
-        namespace.getMetadata()
-                .setNamespace(tenantInfo.getTenantDomain() + "-" + applicationContext.getCurrentStage());
+        namespace.getMetadata().setNamespace(
+                applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage());
         return namespace;
     }
 }
