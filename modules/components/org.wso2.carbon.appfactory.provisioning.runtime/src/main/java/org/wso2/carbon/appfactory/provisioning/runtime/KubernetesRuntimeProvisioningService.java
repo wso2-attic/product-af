@@ -18,6 +18,7 @@ package org.wso2.carbon.appfactory.provisioning.runtime;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.UserConfigurationCompare;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.*;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -116,57 +117,74 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public List<String> deployApplication(DeploymentConfig config) throws RuntimeProvisioningException {
 
+        DefaultKubernetesClient kubClient = null;
         List<Container> containers = config.getContainers();
         ArrayList<io.fabric8.kubernetes.api.model.Container> kubContainerList = new ArrayList<>();
 
-        for(Container container : containers) {
-            io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
-            kubContainer.setName(container.getBaseImageName());
-            kubContainer.setImage(container.getBaseImageName()+":"+container.getBaseImageVersion());
-            ContainerPort kubContainerPort = new ContainerPortBuilder()
-                    .withContainerPort(container.getContainerPort())
-                    .withHostPort(container.getHostPort())
+        try {
+            for (Container container : containers) {
+                io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
+                kubContainer.setName(container.getBaseImageName());
+                kubContainer.setImage(container.getBaseImageName() + ":" + container.getBaseImageVersion());
+                ContainerPort kubContainerPort = new ContainerPortBuilder()
+                        .withContainerPort(container.getContainerPort())
+                        .withHostPort(container.getHostPort())
+                        .build();
+                List<ContainerPort> containerPorts = new ArrayList<>();
+                containerPorts.add(kubContainerPort);
+                kubContainer.setPorts(containerPorts);
+                kubContainerList.add(kubContainer);
+            }
+
+            PodSpec podSpec = new PodSpecBuilder()
+                    .withContainers(kubContainerList)
                     .build();
-            List<ContainerPort> containerPorts = new ArrayList<>();
-            containerPorts.add(kubContainerPort);
-            kubContainer.setPorts(containerPorts);
-            kubContainerList.add(kubContainer);
-        }
 
-        PodSpec podSpec = new PodSpecBuilder()
-                .withContainers(kubContainerList)
-                .build();
+            PodTemplateSpec podTemplateSpec = new PodTemplateSpecBuilder()
+                    .withMetadata(new ObjectMetaBuilder().withLabels(config.getLables()).build())
+                    .withSpec(podSpec)
+                    .build();
 
-        PodTemplateSpec podTemplateSpec = new PodTemplateSpecBuilder()
-                .withMetadata(new ObjectMetaBuilder().withLabels(config.getLables()).build())
-                .withSpec(podSpec)
-                .build();
+            DeploymentSpec deploymentSpec = new DeploymentSpecBuilder()
+                    .withReplicas(config.getReplicas())
+                    .withTemplate(podTemplateSpec)
+                    .build();
 
-        DeploymentSpec deploymentSpec = new DeploymentSpecBuilder()
-                .withReplicas(config.getReplicas())
-                .withTemplate(podTemplateSpec)
-                .build();
+            Deployment deployment = new DeploymentBuilder().withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
+                    .withKind(KubernetesPovisioningConstants.DEPLOYMENT_KIND)
+                    .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
+                    .withSpec(deploymentSpec)
+                    .build();
 
-        Deployment deployment = new DeploymentBuilder().withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
-                .withKind(KubernetesPovisioningConstants.DEPLOYMENT_KIND)
-                .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
-                .withSpec(deploymentSpec)
-                .build();
+            kubClient = new DefaultKubernetesClient();
+            DeploymentList deploymentList = kubClient.inNamespace(applicationContext.getTenantDomain())
+                    .extensions().deployments().list();
 
-        DefaultKubernetesClient kubClient = new DefaultKubernetesClient();
-        DeploymentList deploymentList = kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().list();
-
-        if(deploymentList.getItems().contains(deployment)){
-            kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().withName(config.getDeploymentName()).create(deployment);
-        } else {
-            kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().create(deployment);
+            if (deploymentList.getItems().contains(deployment)) {
+                kubClient.inNamespace(applicationContext.getTenantDomain())
+                        .extensions().deployments().withName(config.getDeploymentName()).create(deployment);
+            } else {
+                kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().create(deployment);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (kubClient != null) {
+                kubClient.close();
+            }
         }
         return null;
+
     }
 
     @Override
-    public boolean getDeploymentStatus() throws RuntimeProvisioningException {
-        return false;
+    public boolean getDeploymentStatus(DeploymentConfig config) throws RuntimeProvisioningException {
+
+        DefaultKubernetesClient kubClient = null;
+        DeploymentStatus deploymentStatus = kubClient.inNamespace(applicationContext.getTenantDomain())
+                .extensions().deployments().withName(config.getDeploymentName()).get().getStatus();
+
+        return true;
     }
 
     @Override

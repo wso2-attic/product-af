@@ -123,7 +123,7 @@ public interface RuntimeProvisioningService {
      * @return Whether deployment fail or not
      * @throws RuntimeProvisioningException
      */
-    public boolean getDeploymentStatus() throws RuntimeProvisioningException;
+    public boolean getDeploymentStatus(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException;
 
     /**
      * Provide runtime log stream
