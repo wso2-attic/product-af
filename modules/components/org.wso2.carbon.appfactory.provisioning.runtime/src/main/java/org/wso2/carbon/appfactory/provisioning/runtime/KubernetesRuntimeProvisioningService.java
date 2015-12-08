@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.*;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.utils.Ports;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,6 +114,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         ArrayList<io.fabric8.kubernetes.api.model.Container> kubContainerList = new ArrayList<>();
 
         try {
+            //Deployment creation
             for (Container container : containers) {
                 io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
                 kubContainer.setName(container.getBaseImageName());
@@ -142,20 +144,39 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     .build();
 
             Deployment deployment = new DeploymentBuilder().withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
-                    .withKind(KubernetesPovisioningConstants.DEPLOYMENT_KIND)
+                    .withKind(KubernetesPovisioningConstants.KIND_DEPLOYMENT)
                     .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
                     .withSpec(deploymentSpec)
                     .build();
 
             kubClient = new DefaultKubernetesClient();
-            DeploymentList deploymentList = kubClient.inNamespace(applicationContext.getTenantDomain())
-                    .extensions().deployments().list();
+            DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
             if (deploymentList.getItems().contains(deployment)) {
-                kubClient.inNamespace(applicationContext.getTenantDomain())
-                        .extensions().deployments().withName(config.getDeploymentName()).create(deployment);
+                //Redeployment
+                kubClient.inNamespace(applicationContext.getTenantDomain()).extensions()
+                        .deployments().withName(config.getDeploymentName()).replace(deployment);
+
             } else {
-                kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().create(deployment);
+                //New Deployment
+                kubClient.inNamespace(applicationContext.getTenantDomain()).extensions()
+                        .deployments().create(deployment);
+                //Service creation
+                ServicePort servicePorts = new ServicePortBuilder()
+                        .withProtocol("TCP")
+                        .withPort(config.getProxyPort())
+                        .withTargetPort(new IntOrString(config.getServicePort()))
+                        .build();
+                ServiceSpec serviceSpec = new ServiceSpecBuilder()
+                        .withSelector(config.getLables())
+                        .withPorts(servicePorts)
+                        .build();
+                Service service = new ServiceBuilder()
+                        .withKind(KubernetesPovisioningConstants.KIND_SERVICE)
+                        .withSpec(serviceSpec)
+                        .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
+                        .build();
+                kubClient.inNamespace(applicationContext.getTenantDomain()).services().create(service);
             }
         } catch (Exception e) {
             e.printStackTrace();
