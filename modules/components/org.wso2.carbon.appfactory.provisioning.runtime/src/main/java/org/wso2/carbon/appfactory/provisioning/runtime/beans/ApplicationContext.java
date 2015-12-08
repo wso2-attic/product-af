@@ -16,13 +16,8 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-import io.fabric8.kubernetes.api.model.Service;
-import java.util.List;
-
 public class ApplicationContext {
 
-    private List<String> containerList;
-    private List<Service> services;
     private int tenantId;
     private String applicationId;
     private String applicationName;
@@ -30,22 +25,6 @@ public class ApplicationContext {
     private String tenantDomain;
     private String currentStage;
     private String applicationType;
-
-    public List<String> getContainerList() {
-        return containerList;
-    }
-
-    public List<Service> getServices() {
-        return services;
-    }
-
-    public void setContainerList(List<String> containerList) {
-        this.containerList = containerList;
-    }
-
-    public void setServices(List<Service> services) {
-        this.services = services;
-    }
 
     public String getApplicationType() {
         return applicationType;

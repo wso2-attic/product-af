@@ -17,17 +17,12 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.Utils;
 
 import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Base64Encoder;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -35,6 +30,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
 
 import javax.net.ssl.SSLContext;
 import java.net.URI;
@@ -65,16 +61,16 @@ public class KubernetesProvisioningUtils {
         return kubernetesClient;
     }
 
-    public static List<String> getPodsFromApplicationContext(ApplicationContext applicationContext){
+    public static List<String> getPodList(DeploymentConfig deploymentConfig){
 
-        List<String> podList = applicationContext.getContainerList();
+        List<String> podList = null;
         return podList;
     }
 
-    public static List<Service> getServicesFromPod(ApplicationContext applicationContext){
+    public static List<String> getServiceList(DeploymentConfig deploymentConfig){
 
-        List <Service> serviceList = applicationContext.getServices();
-        return  serviceList;
+        List<String> serviceList = null;
+        return serviceList;
     }
 
     public static HttpRequestBase getHttpMethodForKubernetes(String httpMethod, URI uri) {
