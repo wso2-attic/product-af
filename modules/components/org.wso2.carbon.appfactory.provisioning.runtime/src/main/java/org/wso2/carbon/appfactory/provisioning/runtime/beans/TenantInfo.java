@@ -17,4 +17,23 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
 public class TenantInfo {
+
+    private String tenantDomain;
+    private int tenantId;
+
+    public int getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
+    }
 }

@@ -21,7 +21,9 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Base64Encoder;
+import org.apache.http.auth.AUTH;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
@@ -79,19 +81,19 @@ public class KubernetesProvisioningUtils {
                                                + KubernetesPovisioningConstants.MASTER_PASSWORD);
         if(HttpGet.METHOD_NAME.equals(httpMethod)) {
             HttpGet httpGet = new HttpGet();
-            httpGet.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            httpGet.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
             return httpGet;
         }else if(HttpPost.METHOD_NAME.equals(httpMethod)){
             HttpPost httpPost = new HttpPost();
-            httpPost.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            httpPost.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
             return httpPost;
         }else if(HttpPut.METHOD_NAME.equals(httpMethod)){
             HttpPut httpPut = new HttpPut();
-            httpPut.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            httpPut.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
             return httpPut;
         }else if(HttpDelete.METHOD_NAME.equals(httpMethod)){
             HttpDelete httpDelete = new HttpDelete();
-            httpDelete.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, KubernetesPovisioningConstants.AUTHORIZATION_BASIC + encoding);
+            httpDelete.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
             return httpDelete;
         }else{
             throw new IllegalArgumentException("HTTP Method Not Supported");
@@ -119,8 +121,8 @@ public class KubernetesProvisioningUtils {
 
     public static Namespace getNameSpace(ApplicationContext applicationContext) {
         Namespace namespace = new Namespace();
-        namespace.getMetadata()
-                .setNamespace(applicationContext.getTenantDomain() + "-" + applicationContext.getCurrentStage());
+        namespace.getMetadata().setNamespace(
+                applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage());
         return namespace;
     }
 }

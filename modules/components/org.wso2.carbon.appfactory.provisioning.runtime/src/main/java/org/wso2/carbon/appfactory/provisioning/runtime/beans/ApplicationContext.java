@@ -18,67 +18,58 @@ package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
 public class ApplicationContext {
 
-    private int tenantId;
-    private String applicationId;
-    private String applicationName;
-    private String applicationVersion;
-    private String tenantDomain;
+    private String id;
+    private String name;
+    private String version;
     private String currentStage;
-    private String applicationType;
+    private String type;
+    private TenantInfo tenantInfo;
 
-    public String getApplicationType() {
-        return applicationType;
+    public String getType() {
+        return type;
     }
 
-    public int getTenantId() {
-        return tenantId;
+    public String getId() {
+        return id;
     }
 
-    public String getApplicationId() {
-        return applicationId;
+    public String getName() {
+        return name;
     }
 
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public String getApplicationVersion() {
-        return applicationVersion;
-    }
-
-    public String getTenantDomain() {
-        return tenantDomain;
+    public String getVersion() {
+        return version;
     }
 
     public String getCurrentStage() {
         return currentStage;
     }
 
-    public void setTenantId(int tenantId) {
-        this.tenantId = tenantId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    public void setApplicationVersion(String applicationVersion) {
-        this.applicationVersion = applicationVersion;
-    }
-
-    public void setTenantDomain(String tenantDomain) {
-        this.tenantDomain = tenantDomain;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public void setCurrentStage(String currentStage) {
         this.currentStage = currentStage;
     }
 
-    public void setApplicationType(String applicationType) {
-        this.applicationType = applicationType;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public TenantInfo getTenantInfo() {
+        return tenantInfo;
+    }
+
+    public void setTenantInfo(TenantInfo tenantInfo) {
+        this.tenantInfo = tenantInfo;
     }
 }

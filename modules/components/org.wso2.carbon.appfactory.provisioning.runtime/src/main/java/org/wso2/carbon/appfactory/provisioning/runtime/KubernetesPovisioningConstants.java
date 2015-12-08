@@ -24,11 +24,8 @@ public class KubernetesPovisioningConstants {
     public static final String KUB_MASTER_URL = "";
     public static final String KUB_API_VERSION = "";
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
     public static String MASTER_USERNAME;
     public static String MASTER_PASSWORD;
-
-    public static final String AUTHORIZATION_BASIC = "Basic";
 
     public static final String INGRESS_API_NAMESPACE_RESOURCE_PATH = "apis/extensions/v1beta1/namespaces/";
     public static final String INGRESS_API_RESOURCE_PATH_SUFFIX = "/ingresses/";
