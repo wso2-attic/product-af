@@ -189,4 +189,15 @@ public class KubernetesProvisioningUtils {
         Map<String, String> selector = new HashMap<>();
         return selector;
     }
+
+    /**
+     * Generate a unique name for an ingress
+     * @param applicationContext
+     * @param domain
+     * @param serviceName
+     * @return generated unique name for ingress (appName-appVersion-service)
+     */
+    public static String createIgressMetaName(ApplicationContext applicationContext, String domain, String serviceName){
+        return applicationContext.getName() + "-" + applicationContext.getVersion() + "-" + domain + serviceName;
+    }
 }
