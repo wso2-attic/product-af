@@ -68,7 +68,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     @Override
     public void createOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException {
-
+        KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
+        kubernetesClient.namespaces().create(this.namespace);
+        kubernetesClient.close();
     }
 
     @Override
