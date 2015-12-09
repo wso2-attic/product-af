@@ -550,7 +550,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         URI uri = null;
         ObjectMapper mapper = new ObjectMapper();
         Set<String> domains = new HashSet<String>();
-        String ingJson="";
 
         try {
 
@@ -573,22 +572,17 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             BufferedReader br = new BufferedReader(
                     new InputStreamReader((response.getEntity().getContent())));
 
-            String output;
+            String output="";
             while ((output = br.readLine()) != null) {
-                System.out.println(output);
-                ingJson += output;
+                output += output;
             }
 
-            JSONObject jsonObject = new JSONObject(ingJson.trim());
+            JSONObject jsonObject = new JSONObject(output.trim());
 
             for(int i = 0 ; i < jsonObject.getJSONArray("items").length() ; i++){
-                domains.add(jsonObject
-                        .getJSONArray("items")
-                        .getJSONObject(i)
-                        .getJSONObject("spec")
-                        .getJSONArray("rules")
-                        .getJSONObject(0)
-                        .getString("host"));
+                domains.add(
+                        jsonObject.getJSONArray("items").getJSONObject(i).getJSONObject("spec").getJSONArray("rules")
+                                .getJSONObject(0).getString("host"));
             }
 
         } catch (KeyStoreException e) {
