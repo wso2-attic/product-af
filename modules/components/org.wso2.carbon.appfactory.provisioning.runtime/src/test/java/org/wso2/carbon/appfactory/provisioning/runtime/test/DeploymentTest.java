@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
 import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
@@ -31,6 +32,16 @@ import java.util.Map;
 
 
 public class DeploymentTest  {
+
+    ApplicationContext appCtx;
+    KubernetesRuntimeProvisioningService afKubClient;
+
+    @BeforeSuite
+    public void createNameSpace() throws RuntimeProvisioningException {
+        appCtx = this.getApplicationContext();
+        afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
+        afKubClient.createOrganization(appCtx.getTenantInfo());
+    }
 
     /**
      * Test Deployment operation
