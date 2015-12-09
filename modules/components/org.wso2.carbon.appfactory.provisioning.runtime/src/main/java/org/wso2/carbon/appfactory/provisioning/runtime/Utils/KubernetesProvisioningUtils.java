@@ -35,7 +35,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.KubernetesKind;
 
 import javax.net.ssl.SSLContext;
 import java.net.URI;
@@ -44,7 +43,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * This will have the utility methods to provision kubernetes
@@ -151,33 +149,33 @@ public class KubernetesProvisioningUtils {
     }
 
     /**
-     * This utility method will provide the list of kinds for particular application
+     * This utility method will provide the list of pods for particular application
      *
      * @param applicationContext context of the current application
-     * @param kind               type of Kubernetes entity (Pod, Service, .etc)
-     * @return list of kinds
+     * @return list of pods related for the current application context
      */
-    public static Object getKinds(ApplicationContext applicationContext, KubernetesKind kind) {
+    public static PodList getPods (ApplicationContext applicationContext){
 
         Map<String, String> selector = getSelector(applicationContext);
         KubernetesClient kubernetesClient = getFabric8KubernetesClient();
-
-        switch (kind) {
-            case POD:
-                PodList podList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
-                        .getNamespace()).pods().withLabels(selector).list();
-                return podList;
-
-            case SERVICE:
-                ServiceList serviceList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
-                        .getNamespace()).services().withLabels(selector).list();
-                return serviceList;
-
-            default:
-                throw new IllegalArgumentException(kind + "is not a valid kind in Kubernetes");
-        }
+        PodList podList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
+                .getNamespace()).pods().withLabels(selector).list();
+        return podList;
     }
 
+    /**
+     * This utility method will provide the list of services for particular application
+     *
+     * @param applicationContext context of the current application
+     * @return list of services related for the current application context
+     */
+    public static ServiceList getServices(ApplicationContext applicationContext){
+        Map<String, String> selector = getSelector(applicationContext);
+        KubernetesClient kubernetesClient = getFabric8KubernetesClient();
+        ServiceList serviceList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
+                .getNamespace()).services().withLabels(selector).list();
+        return serviceList;
+    }
     /**
      * This utility method will generate the appropriate selector for filter out the necessary kinds for particular
      * application

@@ -39,7 +39,6 @@ import org.json.JSONObject;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.KubernetesKind;
 
 import java.io.*;
 import java.net.URI;
@@ -216,7 +215,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         Map<String, BufferedReader> logOutPut = new HashMap<>();
         URI uri = null;
         HttpClient httpclient = null;
-        PodList podList = (PodList) KubernetesProvisioningUtils.getKinds(applicationContext, KubernetesKind.POD);
+        PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
         for (Pod pod : podList.getItems()) {
 
             try {
@@ -273,7 +272,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         HttpClient httpclient = null;
 
         if (query != null) {
-            PodList podList = (PodList) KubernetesProvisioningUtils.getKinds(applicationContext, KubernetesKind.POD);
+            PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
             for (Pod pod : podList.getItems()) {
                 try {
                     uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/"
@@ -321,7 +320,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             }
         } else {
             KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
-            PodList podList = (PodList) KubernetesProvisioningUtils.getKinds(applicationContext, KubernetesKind.POD);
+            PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
             for (Pod pod : podList.getItems()) {
                 kubernetesClient.extensions().deployments();
                 String logs = kubernetesClient.pods().inNamespace(
