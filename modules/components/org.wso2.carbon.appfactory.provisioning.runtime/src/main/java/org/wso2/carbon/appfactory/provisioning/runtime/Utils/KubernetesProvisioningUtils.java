@@ -16,10 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.Utils;
 
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -62,7 +59,7 @@ public class KubernetesProvisioningUtils {
         config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
         config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
 
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient(config);
+        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
         return kubernetesClient;
     }
 
@@ -139,13 +136,13 @@ public class KubernetesProvisioningUtils {
 
         // todo: consider constraints of 24 character limit in namesapce.
         String ns = applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage();
-        ns = ns.replace(".", "-");
-        ObjectMeta metadata = new ObjectMeta();
-        metadata.setName(ns);
-        Namespace namespace = new Namespace();
-        namespace.setMetadata(metadata);
-
-        return namespace;
+        ns = ns.replace(".", "-").toLowerCase();
+        ObjectMeta metadata = new ObjectMetaBuilder()
+                .withName(ns)
+                .build();
+        return new NamespaceBuilder()
+                .withMetadata(metadata)
+                .build();
     }
 
     /**
