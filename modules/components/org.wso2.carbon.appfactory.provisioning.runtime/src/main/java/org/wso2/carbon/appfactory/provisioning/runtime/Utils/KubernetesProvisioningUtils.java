@@ -18,6 +18,8 @@ package org.wso2.carbon.appfactory.provisioning.runtime.Utils;
 
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -33,14 +35,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.KubernetesKind;
 
 import javax.net.ssl.SSLContext;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * This will have the utility methods to provision kubernetes
@@ -64,18 +68,13 @@ public class KubernetesProvisioningUtils {
         return kubernetesClient;
     }
 
-    public static List<String> getPodList(DeploymentConfig deploymentConfig){
-
-        List<String> podList = null;
-        return podList;
-    }
-
-    public static List<String> getServiceList(DeploymentConfig deploymentConfig){
-
-        List<String> serviceList = null;
-        return serviceList;
-    }
-
+    /**
+     * This utility method will provide appropriate HTTP METHOD for a given URI
+     *
+     * @param httpMethod HTTP method type (GET, POST, PUT, .etc)
+     * @param uri Endpoint uri
+     * @return HTTP method for the particular endpoint
+     */
     public static HttpRequestBase getHttpMethodForKubernetes(String httpMethod, URI uri) {
 
         String encoding = Base64Encoder.encode(KubernetesPovisioningConstants.MASTER_USERNAME + ":"
@@ -83,28 +82,40 @@ public class KubernetesProvisioningUtils {
         if(HttpGet.METHOD_NAME.equals(httpMethod)) {
             HttpGet httpGet = new HttpGet();
             httpGet.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
+            httpGet.setURI(uri);
             return httpGet;
         }else if(HttpPost.METHOD_NAME.equals(httpMethod)){
             HttpPost httpPost = new HttpPost();
             httpPost.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
+            httpPost.setURI(uri);
             return httpPost;
         }else if(HttpPut.METHOD_NAME.equals(httpMethod)){
             HttpPut httpPut = new HttpPut();
             httpPut.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
+            httpPut.setURI(uri);
             return httpPut;
         }else if(HttpDelete.METHOD_NAME.equals(httpMethod)){
             HttpDelete httpDelete = new HttpDelete();
             httpDelete.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
+            httpDelete.setURI(uri);
             return httpDelete;
         }else{
             throw new IllegalArgumentException("HTTP Method Not Supported");
         }
     }
 
+    /**
+     * This utility method will generate the HttpClient with appropriate authentication mechanism for K8s Rest Api
+     *
+     * @return HttpClient with appropriate authentication for api server
+     * @throws KeyStoreException
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
+     */
     public static HttpClient getHttpClientForKubernetes()
             throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 
-        //todo handle the rest api authentication compatible with the cloud deployment (current is for vagrant deployment)
+        //todo handle the rest api authentication compatible with the cloud deployment (current is for vagrant based)
         SSLContext sslcontext = SSLContexts.custom()
                 .loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
         // Allow TLSv1 protocol only
@@ -120,16 +131,64 @@ public class KubernetesProvisioningUtils {
         return httpclient;
     }
 
+    /**
+     * This utility method will generate the namespace of the current application context
+     *
+     * @param applicationContext context of the current application
+     * @return namespace of the current application context
+     */
     public static Namespace getNameSpace(ApplicationContext applicationContext) {
+
         // todo: consider constraints of 24 character limit in namesapce.
         String ns = applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage();
         ns = ns.replace(".", "-");
-
         ObjectMeta metadata = new ObjectMeta();
         metadata.setName(ns);
-
         Namespace namespace = new Namespace();
         namespace.setMetadata(metadata);
+
         return namespace;
+    }
+
+    /**
+     * This utility method will provide the list of kinds for particular application
+     *
+     * @param applicationContext context of the current application
+     * @param kind               type of Kubernetes entity (Pod, Service, .etc)
+     * @return list of kinds
+     */
+    public static Object getKinds(ApplicationContext applicationContext, KubernetesKind kind) {
+
+        Map<String, String> selector = getSelector(applicationContext);
+        KubernetesClient kubernetesClient = getFabric8KubernetesClient();
+
+        switch (kind) {
+            case POD:
+                PodList podList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
+                        .getNamespace()).pods().withLabels(selector).list();
+                return podList;
+
+            case SERVICE:
+                ServiceList serviceList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
+                        .getNamespace()).services().withLabels(selector).list();
+                return serviceList;
+
+            default:
+                throw new IllegalArgumentException(kind + "is not a valid kind in Kubernetes");
+        }
+    }
+
+    /**
+     * This utility method will generate the appropriate selector for filter out the necessary kinds for particular
+     * application
+     *
+     * @param applicationContext context of the current application
+     * @return selector which can be use to filter out certain kinds
+     */
+    public static Map<String, String> getSelector(ApplicationContext applicationContext) {
+
+        //todo generate a common selector valid for all types of application
+        Map<String, String> selector = new HashMap<>();
+        return selector;
     }
 }
