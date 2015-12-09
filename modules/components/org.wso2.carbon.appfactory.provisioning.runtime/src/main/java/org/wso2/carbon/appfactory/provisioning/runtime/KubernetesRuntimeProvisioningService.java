@@ -550,6 +550,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         URI uri = null;
         ObjectMapper mapper = new ObjectMapper();
         Set<String> domains = new HashSet<String>();
+        String output="";
 
         try {
 
@@ -572,7 +573,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             BufferedReader br = new BufferedReader(
                     new InputStreamReader((response.getEntity().getContent())));
 
-            String output="";
             while ((output = br.readLine()) != null) {
                 output += output;
             }
@@ -613,7 +613,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             log.error(msg, e);
             throw new RuntimeProvisioningException(e);
         } catch (JSONException e) {
-            String msg = "Error occured while parsing JSON: " + ingJson;
+            String msg = "Error occured while parsing JSON: " + output;
             log.error(msg, e);
             throw new RuntimeProvisioningException(e);
         } finally {
