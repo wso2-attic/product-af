@@ -17,6 +17,7 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.Utils;
 
 import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -120,9 +121,15 @@ public class KubernetesProvisioningUtils {
     }
 
     public static Namespace getNameSpace(ApplicationContext applicationContext) {
+        // todo: consider constraints of 24 character limit in namesapce.
+        String ns = applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage();
+        ns = ns.replace(".", "-");
+
+        ObjectMeta metadata = new ObjectMeta();
+        metadata.setName(ns);
+
         Namespace namespace = new Namespace();
-        namespace.getMetadata().setNamespace(
-                applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage());
+        namespace.setMetadata(metadata);
         return namespace;
     }
 }
