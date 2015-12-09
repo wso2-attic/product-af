@@ -17,8 +17,12 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
 import org.testng.annotations.Test;
+import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
+import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,8 +37,13 @@ public class DeploymentTest  {
      */
     @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime"},
           description = "Kub Deploymet")
-    public void testDeployment() {
+    public void testDeployment() throws RuntimeProvisioningException {
 
+        ApplicationContext appCtx = this.getApplicationContext();
+        KubernetesRuntimeProvisioningService afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
+        List<Container> containerList = this.getContainers();
+        DeploymentConfig deploymentConfig = this.getDeploymentConfig(containerList);
+        afKubClient.deployApplication(deploymentConfig);
     }
 
     private List<Container> getContainers(){
@@ -62,7 +71,7 @@ public class DeploymentTest  {
         return containerList;
     }
 
-    private DeploymentConfig getDeploymentCongi(List<Container> containers){
+    private DeploymentConfig getDeploymentConfig(List<Container> containers){
 
         DeploymentConfig deploymentConfig = new DeploymentConfig();
         deploymentConfig.setDeploymentName("TestDeployment");
@@ -73,5 +82,20 @@ public class DeploymentTest  {
         deploymentConfig.setLables(labels);
 
         return deploymentConfig;
+    }
+
+    private ApplicationContext getApplicationContext(){
+
+        ApplicationContext applicationCtx = new ApplicationContext();
+        applicationCtx.setCurrentStage("DEV");
+        applicationCtx.setName("My-JAXRS");
+        applicationCtx.setVersion("1.0.0");
+        TenantInfo tenant = new TenantInfo();
+        tenant.setTenantId(5);
+        tenant.setTenantDomain("wso2.org");
+        applicationCtx.setTenantInfo(tenant);
+        applicationCtx.setId("MYJAXRSAPPID");
+
+        return applicationCtx;
     }
 }
