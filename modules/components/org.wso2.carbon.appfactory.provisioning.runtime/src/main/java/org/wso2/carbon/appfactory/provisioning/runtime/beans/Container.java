@@ -30,6 +30,25 @@ public class Container {
     private Integer hostPort;
     private Integer containerPort;
 
+    public Integer getTargetPort() {
+        return targetPort;
+    }
+
+    public void setTargetPort(Integer targetPort) {
+        this.targetPort = targetPort;
+    }
+
+    private Integer targetPort;
+
+    public void setContainerPort(Integer containerPort) {
+        this.containerPort = containerPort;
+    }
+
+    public void setHostPort(Integer hostPort) {
+        this.hostPort = hostPort;
+    }
+
+
     public String getBaseImageName() {
         return baseImageName;
     }
@@ -93,4 +112,6 @@ public class Container {
     public Integer getContainerPort() {
         return containerPort;
     }
+
+
 }

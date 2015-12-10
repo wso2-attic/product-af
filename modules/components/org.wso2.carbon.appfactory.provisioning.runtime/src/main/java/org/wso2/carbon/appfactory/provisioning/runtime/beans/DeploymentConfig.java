@@ -28,6 +28,14 @@ public class DeploymentConfig {
     private String servicePort;
     private Integer proxyPort;
 
+    public void setProxyPort(Integer proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
+    public void setServicePort(String servicePort) {
+        this.servicePort = servicePort;
+    }
+
     public void setDeploymentName(String deploymentName) {
         this.deploymentName = deploymentName;
     }
@@ -71,4 +79,6 @@ public class DeploymentConfig {
     public Integer getProxyPort() {
         return proxyPort;
     }
+
+
 }

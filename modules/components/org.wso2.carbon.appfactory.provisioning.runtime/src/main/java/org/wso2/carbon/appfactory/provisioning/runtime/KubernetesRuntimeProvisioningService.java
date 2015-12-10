@@ -82,7 +82,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     @Override
     public void deleteOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException {
-
+        KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
+        kubernetesClient.namespaces().delete(this.namespace);
+        kubernetesClient.close();
     }
 
     @Override
@@ -118,7 +120,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public List<String> deployApplication(DeploymentConfig config) throws RuntimeProvisioningException {
 
-        DefaultKubernetesClient kubClient = null;
+        KubernetesClient kubClient = null;
         List<Container> containers = config.getContainers();
         ArrayList<io.fabric8.kubernetes.api.model.Container> kubContainerList = new ArrayList<>();
 
@@ -158,17 +160,17 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     .withSpec(deploymentSpec)
                     .build();
 
-            kubClient = new DefaultKubernetesClient();
+            kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
             if (deploymentList.getItems().contains(deployment)) {
                 //Redeployment
-                kubClient.inNamespace(namespace.getMetadata().getNamespace()).extensions()
+                kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().withName(config.getDeploymentName()).replace(deployment);
 
             } else {
                 //New Deployment
-                kubClient.inNamespace(namespace.getMetadata().getNamespace()).extensions()
+                kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().create(deployment);
                 //Service creation
                 ServicePort servicePorts = new ServicePortBuilder()
@@ -185,7 +187,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .withSpec(serviceSpec)
                         .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
                         .build();
-                kubClient.inNamespace(namespace.getMetadata().getNamespace()).services().create(service);
+                kubClient.inNamespace(namespace.getMetadata().getName()).services().create(service);
             }
         } catch (Exception e) {
             e.printStackTrace();

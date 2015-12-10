@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
@@ -43,15 +44,20 @@ public class DeploymentTest  {
         afKubClient.createOrganization(appCtx.getTenantInfo());
     }
 
+//    @AfterSuite
+//    public void deleteNameSpace() throws RuntimeProvisioningException {
+//        afKubClient.deleteOrganization(appCtx.getTenantInfo());
+//    }
+
     /**
      * Test Deployment operation
      */
     @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime"},
           description = "Kub Deploymet")
-    public void testDeployment() throws RuntimeProvisioningException {
-
-        ApplicationContext appCtx = this.getApplicationContext();
-        KubernetesRuntimeProvisioningService afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
+    public void testDeployment() throws RuntimeProvisioningException, InterruptedException {
+        Thread.sleep(400);
+        appCtx = this.getApplicationContext();
+        afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
         List<Container> containerList = this.getContainers();
         DeploymentConfig deploymentConfig = this.getDeploymentConfig(containerList);
         afKubClient.deployApplication(deploymentConfig);
@@ -67,14 +73,20 @@ public class DeploymentTest  {
         envs1.put("JAVA_HOME","/opt/java");
         envs1.put("ORG","WSO2");
         container1.setEnvVariables(envs1);
+        container1.setContainerPort(8000);
+        container1.setHostPort(31000);
+        container1.setTargetPort(10001);
 
         Container container2 = new Container();
-        container2.setBaseImageName("nginx");
-        container2.setBaseImageVersion("1.7.1");
+        container2.setBaseImageName("tomcat");
+        container2.setBaseImageVersion("8.0");
         Map<String,String> envs2 = new HashMap<>();
         envs2.put("JAVA_HOME","/opt/java");
         envs2.put("ORG","WSO2");
-        container1.setEnvVariables(envs2);
+        container2.setEnvVariables(envs2);
+        container2.setContainerPort(8001);
+        container2.setHostPort(31001);
+        container2.setTargetPort(10002);
 
         containerList.add(container1);
         containerList.add(container2);
@@ -85,12 +97,14 @@ public class DeploymentTest  {
     private DeploymentConfig getDeploymentConfig(List<Container> containers){
 
         DeploymentConfig deploymentConfig = new DeploymentConfig();
-        deploymentConfig.setDeploymentName("TestDeployment");
+        deploymentConfig.setDeploymentName("test-deployment");
         deploymentConfig.setReplicas(2);
         deploymentConfig.setContainers(containers);
         Map<String,String> labels = new HashMap<>();
         labels.put("app","nginx");
         deploymentConfig.setLables(labels);
+        deploymentConfig.setServicePort("http");
+        deploymentConfig.setProxyPort(9999);
 
         return deploymentConfig;
     }
