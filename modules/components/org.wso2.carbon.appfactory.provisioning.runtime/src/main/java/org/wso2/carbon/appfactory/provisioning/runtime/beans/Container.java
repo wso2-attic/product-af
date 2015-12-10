@@ -16,7 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-import java.util.Map;
+import java.util.List;
 
 public class Container {
 
@@ -25,7 +25,7 @@ public class Container {
     private String imageId;
     private int replicaNumber;
     private String serviceUrl;
-    private Map<String,String> envVariables;
+    private List envVariables;
     private String probe;
     private Integer hostPort;
     private Integer containerPort;
@@ -46,11 +46,11 @@ public class Container {
         this.baseImageVersion = baseImageVersion;
     }
 
-    public Map<String, String> getEnvVariables() {
+    public List getEnvVariables() {
         return envVariables;
     }
 
-    public void setEnvVariables(Map<String, String> envVariables) {
+    public void setEnvVariables(List envVariables) {
         this.envVariables = envVariables;
     }
 

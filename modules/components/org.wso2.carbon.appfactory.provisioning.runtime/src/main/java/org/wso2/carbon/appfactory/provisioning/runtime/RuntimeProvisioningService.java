@@ -138,7 +138,8 @@ public interface RuntimeProvisioningService {
      * @return Snapshot logs of application
      * @throws RuntimeProvisioningException
      */
-    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, Query query) throws RuntimeProvisioningException;
+    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, Query query)
+            throws RuntimeProvisioningException;
 
     /**
      * Set runtime variables
@@ -146,7 +147,8 @@ public interface RuntimeProvisioningService {
      * @param runtimeProperties runtime properties
      * @throws RuntimeProvisioningException
      */
-    public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties) throws RuntimeProvisioningException;
+    public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties, DeploymentConfig deploymentConfig)
+            throws RuntimeProvisioningException;
 
     /**
      * Update existing runtime properties
@@ -154,7 +156,8 @@ public interface RuntimeProvisioningService {
      * @param runtimeProperty runtime property
      * @throws RuntimeProvisioningException
      */
-    public void updateRuntimeProperties(RuntimeProperty runtimeProperty) throws RuntimeProvisioningException;
+    public void updateRuntimeProperties(List<RuntimeProperty> runtimeProperty, DeploymentConfig deploymentConfig)
+            throws RuntimeProvisioningException;
 
     /**
      * Provide application specific runtime properties

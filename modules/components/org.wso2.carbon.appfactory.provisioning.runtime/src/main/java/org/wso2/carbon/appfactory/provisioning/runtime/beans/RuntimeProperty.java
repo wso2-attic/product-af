@@ -16,5 +16,41 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
+import java.util.Map;
+
+/**
+ * Runtime property related contextual information bean
+ */
 public class RuntimeProperty {
+    private Map<String, String> properties;
+    private PropertyType propertyType;
+    private String name;
+
+    public enum PropertyType {
+        SENSITIVE, ENVIRONMENT
+    }
+
+    public PropertyType getPropertyType() {
+        return propertyType;
+    }
+
+    public void setPropertyType(PropertyType propertyType) {
+        this.propertyType = propertyType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
 }

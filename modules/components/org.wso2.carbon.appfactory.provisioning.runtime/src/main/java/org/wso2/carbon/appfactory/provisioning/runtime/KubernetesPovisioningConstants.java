@@ -40,4 +40,8 @@ public class KubernetesPovisioningConstants {
     public static final String SPEC = "spec";
     public static final String RULES = "rules";
     public static final String HOST = "host";
+    public static final String KIND_SECRETS = "Secret";
+
+    public static final String VOLUME_MOUNT = "";
+    public static final String VOLUMENT_MOUNT_PATH = "";
 }
