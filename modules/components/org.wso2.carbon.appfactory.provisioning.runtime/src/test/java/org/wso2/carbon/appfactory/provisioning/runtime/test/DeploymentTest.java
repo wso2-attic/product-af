@@ -16,14 +16,12 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
 import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,15 +41,20 @@ public class DeploymentTest  {
         afKubClient.createOrganization(appCtx.getTenantInfo());
     }
 
+//    @AfterSuite
+//    public void deleteNameSpace() throws RuntimeProvisioningException {
+//        afKubClient.deleteOrganization(appCtx.getTenantInfo());
+//    }
+
     /**
      * Test Deployment operation
      */
     @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime"},
           description = "Kub Deploymet")
-    public void testDeployment() throws RuntimeProvisioningException {
-
-        ApplicationContext appCtx = this.getApplicationContext();
-        KubernetesRuntimeProvisioningService afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
+    public void testDeployment() throws RuntimeProvisioningException, InterruptedException {
+        Thread.sleep(400);
+        appCtx = this.getApplicationContext();
+        afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
         List<Container> containerList = this.getContainers();
         DeploymentConfig deploymentConfig = this.getDeploymentConfig(containerList);
         afKubClient.deployApplication(deploymentConfig);
@@ -67,14 +70,28 @@ public class DeploymentTest  {
         envs1.put("JAVA_HOME","/opt/java");
         envs1.put("ORG","WSO2");
         container1.setEnvVariables(envs1);
+        List<ServiceProxy> serviceProxyList = new ArrayList<>();
+        ServiceProxy serviceProxy = new ServiceProxy();
+        serviceProxy.setServiceName("http");
+        serviceProxy.setServiceProtocol("TCP");
+        serviceProxy.setServicePort(8000);
+        serviceProxy.setServiceBackendPort(31000);
+        serviceProxyList.add(serviceProxy);
+        container1.setServiceProxies(serviceProxyList);
 
         Container container2 = new Container();
-        container2.setBaseImageName("nginx");
-        container2.setBaseImageVersion("1.7.1");
+        container2.setBaseImageName("tomcat");
+        container2.setBaseImageVersion("8.0");
         Map<String,String> envs2 = new HashMap<>();
         envs2.put("JAVA_HOME","/opt/java");
         envs2.put("ORG","WSO2");
-        container1.setEnvVariables(envs2);
+        container2.setEnvVariables(envs2);
+        serviceProxy.setServiceName("https");
+        serviceProxy.setServiceProtocol("TCP");
+        serviceProxy.setServicePort(8001);
+        serviceProxy.setServiceBackendPort(31001);
+        serviceProxyList.add(serviceProxy);
+        container2.setServiceProxies(serviceProxyList);
 
         containerList.add(container1);
         containerList.add(container2);
@@ -85,7 +102,7 @@ public class DeploymentTest  {
     private DeploymentConfig getDeploymentConfig(List<Container> containers){
 
         DeploymentConfig deploymentConfig = new DeploymentConfig();
-        deploymentConfig.setDeploymentName("TestDeployment");
+        deploymentConfig.setDeploymentName("test-deployment");
         deploymentConfig.setReplicas(2);
         deploymentConfig.setContainers(containers);
         Map<String,String> labels = new HashMap<>();

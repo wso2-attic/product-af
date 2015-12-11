@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.*;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,7 +83,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     @Override
     public void deleteOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException {
-
+        KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
+        kubernetesClient.namespaces().delete(this.namespace);
+        kubernetesClient.close();
     }
 
     @Override
@@ -118,9 +121,10 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public List<String> deployApplication(DeploymentConfig config) throws RuntimeProvisioningException {
 
-        DefaultKubernetesClient kubClient = null;
+        KubernetesClient kubClient = null;
         List<Container> containers = config.getContainers();
         ArrayList<io.fabric8.kubernetes.api.model.Container> kubContainerList = new ArrayList<>();
+        List<String> serviceNameList = new ArrayList<>();
 
         try {
             //Deployment creation
@@ -128,13 +132,25 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
                 kubContainer.setName(container.getBaseImageName());
                 kubContainer.setImage(container.getBaseImageName() + ":" + container.getBaseImageVersion());
-                ContainerPort kubContainerPort = new ContainerPortBuilder()
-                        .withContainerPort(container.getContainerPort())
-                        .withHostPort(container.getHostPort())
-                        .build();
                 List<ContainerPort> containerPorts = new ArrayList<>();
+                List<ServiceProxy> serviceProxies = container.getServiceProxies();
+                for (ServiceProxy serviceProxy : serviceProxies){
+                    ContainerPort kubContainerPort = new ContainerPortBuilder()
+                            .withContainerPort(serviceProxy.getServiceBackendPort())
+                            .build();
                 containerPorts.add(kubContainerPort);
+            }
                 kubContainer.setPorts(containerPorts);
+                List<EnvVar> envVarList = new ArrayList<>();
+                for(Map.Entry envVarEntry:container.getEnvVariables().entrySet()) {
+                    EnvVar envVar = new EnvVarBuilder()
+                            .withName((String)envVarEntry.getKey())
+                            .withValue((String)envVarEntry.getValue())
+                            .build();
+                    envVarList.add(envVar);
+
+                }
+                kubContainer.setEnv(envVarList);
                 kubContainerList.add(kubContainer);
             }
 
@@ -158,43 +174,63 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     .withSpec(deploymentSpec)
                     .build();
 
-            kubClient = new DefaultKubernetesClient();
+            //Service creation
+            List<Service> serviceList = new ArrayList<>();
+            for (Container container : containers) {
+                List<ServiceProxy> serviceProxies = container.getServiceProxies();
+                for (ServiceProxy serviceProxy : serviceProxies) {
+                    ServicePort servicePorts = new ServicePortBuilder()
+                            .withName(serviceProxy.getServiceName())
+                            .withProtocol(serviceProxy.getServiceProtocol())
+                            .withPort(serviceProxy.getServicePort())
+                            .withTargetPort(new IntOrString(serviceProxy.getServiceBackendPort()))
+                            .build();
+                    ServiceSpec serviceSpec = new ServiceSpecBuilder()
+                            .withSelector(config.getLables())
+                            .withPorts(servicePorts)
+                            .build();
+                    Service service = new ServiceBuilder()
+                            .withKind(KubernetesPovisioningConstants.KIND_SERVICE)
+                            .withSpec(serviceSpec)
+                            .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
+                            .build();
+                    serviceList.add(service);
+                }
+            }
+
+
+            kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
             if (deploymentList.getItems().contains(deployment)) {
                 //Redeployment
-                kubClient.inNamespace(namespace.getMetadata().getNamespace()).extensions()
+                //Deployment recreation should happen after comparing the new Deployment config with running service configs.
+                kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().withName(config.getDeploymentName()).replace(deployment);
-
+                //Service recreation should happen after comparing the new service config with running service configs.
+                for(Service service:serviceList) {
+                    kubClient.inNamespace(namespace.getMetadata().getName()).services().replace(service);
+                    serviceNameList.add(service.getMetadata().getName());
+                }
             } else {
                 //New Deployment
-                kubClient.inNamespace(namespace.getMetadata().getNamespace()).extensions()
+                kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().create(deployment);
-                //Service creation
-                ServicePort servicePorts = new ServicePortBuilder()
-                        .withProtocol("TCP")
-                        .withPort(config.getProxyPort())
-                        .withTargetPort(new IntOrString(config.getServicePort()))
-                        .build();
-                ServiceSpec serviceSpec = new ServiceSpecBuilder()
-                        .withSelector(config.getLables())
-                        .withPorts(servicePorts)
-                        .build();
-                Service service = new ServiceBuilder()
-                        .withKind(KubernetesPovisioningConstants.KIND_SERVICE)
-                        .withSpec(serviceSpec)
-                        .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
-                        .build();
-                kubClient.inNamespace(namespace.getMetadata().getNamespace()).services().create(service);
+                for(Service service:serviceList) {
+                    kubClient.inNamespace(namespace.getMetadata().getName()).services().create(service);
+                    serviceNameList.add(service.getMetadata().getName());
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (KubernetesClientException e) {
+            String msg = "Error while creating Deployment : " + config.getDeploymentName() ;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(msg, e);
         } finally {
             if (kubClient != null) {
                 kubClient.close();
             }
         }
-        return null;
+        return serviceNameList;
 
     }
 
@@ -204,8 +240,11 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         DefaultKubernetesClient kubClient = null;
         DeploymentStatus deploymentStatus = kubClient.inNamespace(namespace.getMetadata().getNamespace())
                 .extensions().deployments().withName(config.getDeploymentName()).get().getStatus();
-
-        return true;
+        //Assuming AF does not do zero replica deployments
+        if (deploymentStatus.getReplicas() > 0) {
+            return true;
+        }
+        return false;
     }
 
     @Override
