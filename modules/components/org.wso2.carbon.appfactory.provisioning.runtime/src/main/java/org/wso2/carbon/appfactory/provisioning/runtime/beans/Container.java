@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
+import java.util.List;
 import java.util.Map;
 
 public class Container {
@@ -27,27 +28,15 @@ public class Container {
     private String serviceUrl;
     private Map<String,String> envVariables;
     private String probe;
-    private Integer hostPort;
-    private Integer containerPort;
+    private List<ServiceProxy> serviceProxies;
 
-    public Integer getTargetPort() {
-        return targetPort;
+    public List<ServiceProxy> getServiceProxies() {
+        return serviceProxies;
     }
 
-    public void setTargetPort(Integer targetPort) {
-        this.targetPort = targetPort;
+    public void setServiceProxies(List<ServiceProxy> serviceProxies) {
+        this.serviceProxies = serviceProxies;
     }
-
-    private Integer targetPort;
-
-    public void setContainerPort(Integer containerPort) {
-        this.containerPort = containerPort;
-    }
-
-    public void setHostPort(Integer hostPort) {
-        this.hostPort = hostPort;
-    }
-
 
     public String getBaseImageName() {
         return baseImageName;
@@ -104,14 +93,4 @@ public class Container {
     public void setProbe(String probe) {
         this.probe = probe;
     }
-
-    public Integer getHostPort() {
-        return hostPort;
-    }
-
-    public Integer getContainerPort() {
-        return containerPort;
-    }
-
-
 }
