@@ -43,8 +43,7 @@ public class LoggingTest {
 
     @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime"}, description = "Kub Logging")
     public void testDeployment() throws RuntimeProvisioningException {
-
-        System.out.println("################## Starting logging test case ################");
+        
         ApplicationContext appCtx = this.getApplicationContext();
         KubernetesRuntimeProvisioningService afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
         afKubClient.getRuntimeLogs(null, null);
