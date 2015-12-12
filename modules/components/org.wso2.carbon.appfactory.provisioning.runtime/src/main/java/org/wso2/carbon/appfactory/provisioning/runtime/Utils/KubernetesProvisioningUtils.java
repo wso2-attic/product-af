@@ -107,7 +107,7 @@ public class KubernetesProvisioningUtils {
      * @throws NoSuchAlgorithmException
      * @throws KeyManagementException
      */
-    public static HttpClient getHttpClientForKubernetes()
+    public static CloseableHttpClient getHttpClientForKubernetes()
             throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 
         //todo handle the rest api authentication compatible with the cloud deployment (current is for vagrant based)
@@ -156,7 +156,7 @@ public class KubernetesProvisioningUtils {
         Map<String, String> selector = getSelector(applicationContext);
         KubernetesClient kubernetesClient = getFabric8KubernetesClient();
         PodList podList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
-                .getNamespace()).pods().withLabels(selector).list();
+                .getName()).pods().withLabels(selector).list();
         return podList;
     }
 
@@ -184,6 +184,9 @@ public class KubernetesProvisioningUtils {
 
         //todo generate a common selector valid for all types of application
         Map<String, String> selector = new HashMap<>();
+        selector.put("name", applicationContext.getName());
+        selector.put("version", applicationContext.getVersion());
+        selector.put("stage",applicationContext.getCurrentStage());
         return selector;
     }
 
