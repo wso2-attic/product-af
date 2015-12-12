@@ -35,6 +35,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
@@ -52,13 +53,13 @@ import java.util.*;
 /**
  * This class will implement the runtime provisioning service specific to Kubernetes
  */
-public class KubernetesRuntimeProvisioningService implements RuntimeProvisioningService{
+public class KubernetesRuntimeProvisioningService implements RuntimeProvisioningService {
 
     private static final Log log = LogFactory.getLog(KubernetesRuntimeProvisioningService.class);
     private ApplicationContext applicationContext;
     private Namespace namespace;
 
-    public KubernetesRuntimeProvisioningService(ApplicationContext applicationContext){
+    public KubernetesRuntimeProvisioningService(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         this.namespace = KubernetesProvisioningUtils.getNameSpace(applicationContext);
     }
@@ -251,17 +252,16 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     public DeploymentLogs streamRuntimeLogs(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException {
 
         Query query = new Query(true, 0, 0);
-
         DeploymentLogs deploymentLogs = new DeploymentLogs();
         Map<String, BufferedReader> logOutPut = new HashMap<>();
         URI uri = null;
-        HttpClient httpclient = null;
+        CloseableHttpClient httpclient = null;
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
         for (Pod pod : podList.getItems()) {
 
             try {
-                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/"
-                        + namespace.getMetadata().getNamespace()
+                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "/api/v1/namespaces/"
+                        + namespace.getMetadata().getName()
                         + "/pods/" + pod.getMetadata().getName()
                         + "/log?follow=" + String.valueOf(query.getIsFollowing()));
 
@@ -305,19 +305,20 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, Query query) throws RuntimeProvisioningException {
+    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, Query query)
+            throws RuntimeProvisioningException {
 
         DeploymentLogs deploymentLogs = new DeploymentLogs();
         Map<String, BufferedReader> logOutPut = new HashMap<>();
         URI uri = null;
-        HttpClient httpclient = null;
+        CloseableHttpClient httpclient = null;
 
         if (query != null) {
             PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
             for (Pod pod : podList.getItems()) {
                 try {
-                    uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/"
-                            + namespace.getMetadata().getNamespace()
+                   uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "/api/v1/namespaces/"
+                            + namespace.getMetadata().getName()
                             + "/pods/" + pod.getMetadata().getName() + "/log?&previous=" + String
                             .valueOf(query.getPreviousRecordsCount()) + "&timestamps=" + String
                             .valueOf(query.getDurationInHours()));
@@ -330,9 +331,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     logOutPut.put(pod.getMetadata().getName(), bufferedReader);
                     deploymentLogs.setDeploymentLogs(logOutPut);
                 } catch (URISyntaxException e) {
-                    String msg =
-                            "Error in url syntax : " + uri + " while getting logs from container : " + pod
-                                    .getMetadata().getName();
+                    String msg = "Error in url syntax : " + uri + " while getting logs from container : "
+                            + pod.getMetadata().getName();
                     log.error(msg, e);
                     throw new RuntimeProvisioningException(msg, e);
                 } catch (NoSuchAlgorithmException e) {
@@ -365,7 +365,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             for (Pod pod : podList.getItems()) {
                 kubernetesClient.extensions().deployments();
                 String logs = kubernetesClient.pods().inNamespace(
-                        namespace.getMetadata().getNamespace())
+                        namespace.getMetadata().getName())
                         .withName(pod.getMetadata().getName()).getLog(true);
                 InputStream is = new ByteArrayInputStream(logs.getBytes());
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
@@ -400,6 +400,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     /**
      * add a set of custom domains for an application version. This will create an ingress for each domain
      * and each service
+     *
      * @param domains set of domains
      * @throws RuntimeProvisioningException
      */
@@ -414,7 +415,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
 
         for (String domain : domains) {
-            for (Service service : serviceList.getItems()){
+            for (Service service : serviceList.getItems()) {
                 Ingress ing = new IngressBuilder()
                         .withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
                         .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
@@ -506,6 +507,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     /**
      * update a certain domain by replacing the ingresses created for related services with new ingresses
+     *
      * @param domain domain name
      * @throws RuntimeProvisioningException
      */
@@ -520,12 +522,12 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
 
-        for(Service service : serviceList.getItems()) {
+        for (Service service : serviceList.getItems()) {
             Ingress ing = new IngressBuilder().withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
                     .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                     .withNewMetadata()
                     .withName(KubernetesProvisioningUtils
-                            .createIgressMetaName(applicationContext,domain,service.getMetadata().getName()))
+                            .createIgressMetaName(applicationContext, domain, service.getMetadata().getName()))
                     .withNamespace(namespace.getMetadata().getNamespace())
                     .endMetadata()
                     .withNewSpec()
@@ -609,6 +611,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     /**
      * get a set of custom domains for a particular applicaiton context
+     *
      * @return set of domains
      * @throws RuntimeProvisioningException
      */
@@ -618,7 +621,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         HttpClient httpclient = null;
         URI uri = null;
         Set<String> domains = new HashSet<>();
-        String output="";
+        String output = "";
 
         try {
 
@@ -626,16 +629,16 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
                     + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                     + namespace.getMetadata().getNamespace()
-                          + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
+                    + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
 
-            HttpGet httpGet = (HttpGet)KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
+            HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
             httpGet.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
 
             HttpResponse response = httpclient.execute(httpGet);
 
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new RuntimeProvisioningException("Failed to get domain mappings: HTTP error code : "
-                                                       + response.getStatusLine().getStatusCode());
+                        + response.getStatusLine().getStatusCode());
             }
 
             BufferedReader br = new BufferedReader(
@@ -647,7 +650,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             JSONObject jsonObject = new JSONObject(output.trim());
 
-            for(int i = 0 ; i < jsonObject.getJSONArray(KubernetesPovisioningConstants.ITEMS).length() ; i++){
+            for (int i = 0; i < jsonObject.getJSONArray(KubernetesPovisioningConstants.ITEMS).length(); i++) {
                 domains.add(
                         jsonObject.getJSONArray(KubernetesPovisioningConstants.ITEMS)
                                 .getJSONObject(i).getJSONObject(KubernetesPovisioningConstants.SPEC)
@@ -694,6 +697,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     /**
      * delete a custom domain and delete the ingresses created for related services
+     *
      * @param domain domain name
      * @throws RuntimeProvisioningException
      */
@@ -704,7 +708,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
 
-        for(Service service : serviceList.getItems()) {
+        for (Service service : serviceList.getItems()) {
             try {
 
                 httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
