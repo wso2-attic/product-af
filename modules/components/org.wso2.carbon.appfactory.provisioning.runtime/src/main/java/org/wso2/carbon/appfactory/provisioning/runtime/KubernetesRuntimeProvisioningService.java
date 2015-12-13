@@ -261,8 +261,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             try {
                 for (Container container : deploymentConfig.getContainers()) {
-                    uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "/api/v1/namespaces/"
-                            + namespace.getMetadata().getName()
+                    uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
+                            + "/api/v1/namespaces/" + namespace.getMetadata().getName()
                             + "/pods/" + pod.getMetadata().getName()
                             + "/log?container=" +container.getContainerName()
                             + "&follow=" + String.valueOf(query.getIsFollowing()));
