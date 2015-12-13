@@ -21,6 +21,7 @@ import java.util.Map;
 
 public class Container {
 
+    private String containerName;
     private String baseImageName;
     private String baseImageVersion;
     private String imageId;
@@ -52,6 +53,10 @@ public class Container {
 
     public void setBaseImageVersion(String baseImageVersion) {
         this.baseImageVersion = baseImageVersion;
+    }
+
+    public String getContainerName() {
+        return containerName;
     }
 
     public Map<String, String> getEnvVariables() {
@@ -93,4 +98,9 @@ public class Container {
     public void setProbe(String probe) {
         this.probe = probe;
     }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
+
 }
