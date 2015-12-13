@@ -138,7 +138,7 @@ public interface RuntimeProvisioningService {
      * @return Snapshot logs of application
      * @throws RuntimeProvisioningException
      */
-    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, Query query)
+    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, LogQuery query)
             throws RuntimeProvisioningException;
 
     /**

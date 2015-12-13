@@ -251,7 +251,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public DeploymentLogs streamRuntimeLogs(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException {
 
-        Query query = new Query(true, 0, 0);
+        LogQuery query = new LogQuery(true, 0, 0);
         DeploymentLogs deploymentLogs = new DeploymentLogs();
         Map<String, BufferedReader> logOutPut = new HashMap<>();
         URI uri = null;
@@ -310,7 +310,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, Query query)
+    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, LogQuery query)
             throws RuntimeProvisioningException {
 
         DeploymentLogs deploymentLogs = new DeploymentLogs();
