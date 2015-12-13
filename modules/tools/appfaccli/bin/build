@@ -22,7 +22,7 @@
 set -e
 
 #go get dependencies for external repositories
-echo -e "\nGet dependencies external repositories..."
+echo -e "\nGet dependencies for external repositories..."
 go get github.com/codegangsta/cli
 go get github.com/buger/goterm
 
@@ -38,4 +38,10 @@ GODEP_GOPATH=$ROOT_DIR/Godeps/_workspace
 GOPATH=$CLI_GOPATH:$GODEP_GOPATH:$GOPATH go build -o $ROOT_DIR/out/appfac ./main
 rm -rf $CLI_GOPATH
 set PATH=$ROOT_DIR/out:$PATH
+
+echo -e "\nPlease find the generated binary (appfac) at $ROOT_DIR/out\n"
+
+#Please uncomment the following lines to run a test case for the tool
+#echo -e "\nRunning initial test..."
+#go test -v $ROOT_DIR/command_test/initial_test.go
 

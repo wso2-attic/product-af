@@ -115,6 +115,7 @@ func (factory CommandFactory) GetCommandConfigs(command Command , flagValues []s
 			}
 		}
 	}
+
 	query := buffer.String()
 
 	return CommandConfigs{

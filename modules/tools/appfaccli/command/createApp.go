@@ -88,6 +88,7 @@ func(appCreation AppCreation) Run(configs CommandConfigs) (bool , string){
 		}
 	}else if (response.StatusCode == http.StatusInternalServerError) {
 		fmt.Println("Application already exists. Check application name and key!")
+		fmt.Println(body)
 	}
 	return true , configs.Cookie
 }
