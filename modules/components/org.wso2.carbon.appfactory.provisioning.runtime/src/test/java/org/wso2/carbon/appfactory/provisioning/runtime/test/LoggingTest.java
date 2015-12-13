@@ -158,15 +158,16 @@ public class LoggingTest {
 
         return applicationCtx;
     }
-    private List<Container> getContainers(){
+
+    private List<Container> getContainers() {
         List<Container> containerList = new ArrayList<>();
 
         Container container1 = new Container();
         container1.setBaseImageName("nginx");
         container1.setBaseImageVersion("1.7.1");
-        Map<String,String> envs1 = new HashMap<>();
-        envs1.put("JAVA_HOME","/opt/java");
-        envs1.put("ORG","WSO2");
+        Map<String, String> envs1 = new HashMap<>();
+        envs1.put("JAVA_HOME", "/opt/java");
+        envs1.put("ORG", "WSO2");
         container1.setEnvVariables(envs1);
         List<ServiceProxy> serviceProxyList = new ArrayList<>();
         ServiceProxy serviceProxy = new ServiceProxy();
@@ -180,9 +181,9 @@ public class LoggingTest {
         Container container2 = new Container();
         container2.setBaseImageName("tomcat");
         container2.setBaseImageVersion("8.0");
-        Map<String,String> envs2 = new HashMap<>();
-        envs2.put("JAVA_HOME","/opt/java");
-        envs2.put("ORG","WSO2");
+        Map<String, String> envs2 = new HashMap<>();
+        envs2.put("JAVA_HOME", "/opt/java");
+        envs2.put("ORG", "WSO2");
         container2.setEnvVariables(envs2);
         serviceProxy.setServiceName("https");
         serviceProxy.setServiceProtocol("TCP");
@@ -197,14 +198,14 @@ public class LoggingTest {
         return containerList;
     }
 
-    private DeploymentConfig getDeploymentConfig(List<Container> containers){
+    private DeploymentConfig getDeploymentConfig(List<Container> containers) {
 
         DeploymentConfig deploymentConfig = new DeploymentConfig();
         deploymentConfig.setDeploymentName("test-deployment");
         deploymentConfig.setReplicas(2);
         deploymentConfig.setContainers(containers);
-        Map<String,String> labels = new HashMap<>();
-        labels.put("app","nginx");
+        Map<String, String> labels = new HashMap<>();
+        labels.put("app", "nginx");
         deploymentConfig.setLables(labels);
 
         return deploymentConfig;

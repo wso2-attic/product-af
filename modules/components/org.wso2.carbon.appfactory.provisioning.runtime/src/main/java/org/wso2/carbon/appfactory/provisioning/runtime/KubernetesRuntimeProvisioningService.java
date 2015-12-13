@@ -135,21 +135,20 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 kubContainer.setImage(container.getBaseImageName() + ":" + container.getBaseImageVersion());
                 List<ContainerPort> containerPorts = new ArrayList<>();
                 List<ServiceProxy> serviceProxies = container.getServiceProxies();
-                for (ServiceProxy serviceProxy : serviceProxies){
+                for (ServiceProxy serviceProxy : serviceProxies) {
                     ContainerPort kubContainerPort = new ContainerPortBuilder()
                             .withContainerPort(serviceProxy.getServiceBackendPort())
                             .build();
-                containerPorts.add(kubContainerPort);
-            }
+                    containerPorts.add(kubContainerPort);
+                }
                 kubContainer.setPorts(containerPorts);
                 List<EnvVar> envVarList = new ArrayList<>();
-                for(Map.Entry envVarEntry:container.getEnvVariables().entrySet()) {
+                for (Map.Entry envVarEntry : container.getEnvVariables().entrySet()) {
                     EnvVar envVar = new EnvVarBuilder()
-                            .withName((String)envVarEntry.getKey())
-                            .withValue((String)envVarEntry.getValue())
+                            .withName((String) envVarEntry.getKey())
+                            .withValue((String) envVarEntry.getValue())
                             .build();
                     envVarList.add(envVar);
-
                 }
                 kubContainer.setEnv(envVarList);
                 kubContainerList.add(kubContainer);
@@ -190,26 +189,28 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             .withSelector(config.getLables())
                             .withPorts(servicePorts)
                             .build();
+                    //Deployment Unique service name is built using deployment name and the service name.
+                    String serviceName = config.getDeploymentName() + "-" + serviceProxy.getServiceName();
                     Service service = new ServiceBuilder()
                             .withKind(KubernetesPovisioningConstants.KIND_SERVICE)
                             .withSpec(serviceSpec)
-                            .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
+                            .withMetadata(new ObjectMetaBuilder().withName(serviceName).build())
                             .build();
                     serviceList.add(service);
                 }
             }
-
 
             kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
             if (deploymentList.getItems().contains(deployment)) {
                 //Redeployment
-                //Deployment recreation should happen after comparing the new Deployment config with running service configs.
+                //Deployment recreation should happen after comparing the new Deployment config with
+                // running service configs.
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().withName(config.getDeploymentName()).replace(deployment);
                 //Service recreation should happen after comparing the new service config with running service configs.
-                for(Service service:serviceList) {
+                for (Service service : serviceList) {
                     kubClient.inNamespace(namespace.getMetadata().getName()).services().replace(service);
                     serviceNameList.add(service.getMetadata().getName());
                 }
@@ -217,13 +218,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 //New Deployment
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().create(deployment);
-                for(Service service:serviceList) {
+                for (Service service : serviceList) {
                     kubClient.inNamespace(namespace.getMetadata().getName()).services().create(service);
                     serviceNameList.add(service.getMetadata().getName());
                 }
             }
         } catch (KubernetesClientException e) {
-            String msg = "Error while creating Deployment : " + config.getDeploymentName() ;
+            String msg = "Error while creating Deployment : " + config.getDeploymentName();
             log.error(msg, e);
             throw new RuntimeProvisioningException(msg, e);
         } finally {
@@ -232,7 +233,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             }
         }
         return serviceNameList;
-
     }
 
     @Override
