@@ -16,13 +16,13 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-public class Query {
+public class LogQuery {
 
     private boolean isFollowing = false;
     private int previousRecordsCount = -1;
     private int durationInHours = -1;
 
-    public Query(boolean isFollowing, int previousRecords, int timeStamp) {
+    public LogQuery(boolean isFollowing, int previousRecords, int timeStamp) {
         this.isFollowing = isFollowing;
         this.previousRecordsCount = previousRecords;
         this.durationInHours = timeStamp;
