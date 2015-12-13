@@ -54,7 +54,7 @@ public class LoggingTest {
 
         TenantInfo tenant = new TenantInfo();
         tenant.setTenantId(1);
-        tenant.setTenantDomain("wso2.org");
+        tenant.setTenantDomain("log.wso2.org");
 
         ApplicationContext applicationCtx = new ApplicationContext();
         applicationCtx.setCurrentStage("dev");
