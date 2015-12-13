@@ -260,18 +260,23 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         for (Pod pod : podList.getItems()) {
 
             try {
-                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "/api/v1/namespaces/"
-                        + namespace.getMetadata().getName()
-                        + "/pods/" + pod.getMetadata().getName()
-                        + "/log?follow=" + String.valueOf(query.getIsFollowing()));
+                for (Container container : deploymentConfig.getContainers()) {
+                    uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "/api/v1/namespaces/"
+                            + namespace.getMetadata().getName()
+                            + "/pods/" + pod.getMetadata().getName()
+                            + "/log?container=" +container.getContainerName()
+                            + "&follow=" + String.valueOf(query.getIsFollowing()));
 
-                HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
-                        .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
-                httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-                HttpResponse response = httpclient.execute(httpGet);
-                BufferedReader logStream = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-                logOutPut.put(pod.getMetadata().getName(), logStream);
-                deploymentLogs.setDeploymentLogs(logOutPut);
+                    HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
+                            .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
+                    httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+                    HttpResponse response = httpclient.execute(httpGet);
+                    BufferedReader logStream =
+                            new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                    logOutPut.put(pod.getMetadata().getName()+ ":" + container.getContainerName(), logStream);
+                    deploymentLogs.setDeploymentLogs(logOutPut);
+                }
+
             } catch (URISyntaxException e) {
                 String msg = "Error in url syntax : " + uri + " while getting logs from container : "
                         + pod.getMetadata().getName();
@@ -317,19 +322,34 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
             for (Pod pod : podList.getItems()) {
                 try {
-                   uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "/api/v1/namespaces/"
-                            + namespace.getMetadata().getName()
-                            + "/pods/" + pod.getMetadata().getName() + "/log?&previous=" + String
-                            .valueOf(query.getPreviousRecordsCount()) + "&timestamps=" + String
-                            .valueOf(query.getDurationInHours()));
-                    HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
-                            .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
-                    httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-                    HttpResponse response = httpclient.execute(httpGet);
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getEntity()
-                            .getContent()));
-                    logOutPut.put(pod.getMetadata().getName(), bufferedReader);
-                    deploymentLogs.setDeploymentLogs(logOutPut);
+                    for (Container container : deploymentConfig.getContainers()) {
+
+                        if (query.getPreviousRecordsCount() > 0) {
+                            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
+                                    + "/api/v1/namespaces/" + namespace.getMetadata().getName()
+                                    + "/pods/" + pod.getMetadata().getName()
+                                    + "/log?container=" + container.getContainerName()
+                                    + "&previous=" + String.valueOf(query.getPreviousRecordsCount()));
+                        } else if (query.getDurationInHours() > 0) {
+                            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
+                                    + "/api/v1/namespaces/" + namespace.getMetadata().getName()
+                                    + "/pods/" + pod.getMetadata().getName()
+                                    + "/log?container=" + container.getContainerName()
+                                    + "&timestamps=" + String.valueOf(query.getDurationInHours()));
+                        } else {
+                            throw new RuntimeProvisioningException("Error in log retrieving query while querying logs" +
+                                    " of application : " + applicationContext.getName());
+                        }
+
+                        HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
+                                .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
+                        httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+                        HttpResponse response = httpclient.execute(httpGet);
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getEntity()
+                                .getContent()));
+                        logOutPut.put(pod.getMetadata().getName() + ":" + container.getContainerName(), bufferedReader);
+                        deploymentLogs.setDeploymentLogs(logOutPut);
+                    }
                 } catch (URISyntaxException e) {
                     String msg = "Error in url syntax : " + uri + " while getting logs from container : "
                             + pod.getMetadata().getName();
@@ -364,17 +384,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
             for (Pod pod : podList.getItems()) {
                 kubernetesClient.extensions().deployments();
-                String logs = kubernetesClient.pods().inNamespace(
-                        namespace.getMetadata().getName())
-                        .withName(pod.getMetadata().getName()).getLog(true);
-                InputStream is = new ByteArrayInputStream(logs.getBytes());
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-                logOutPut.put(pod.getMetadata().getName(), bufferedReader);
-                try {
-                    is.close();
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    log.error(e);
+                for (Container container : deploymentConfig.getContainers()) {
+                    String logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                            .withName(pod.getMetadata().getName()).inContainer(container.getContainerName())
+                            .getLog(true);
+                    InputStream is = new ByteArrayInputStream(logs.getBytes());
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+                    logOutPut.put(pod.getMetadata().getName() + ":" + container.getContainerName(), bufferedReader);
                 }
             }
         }
