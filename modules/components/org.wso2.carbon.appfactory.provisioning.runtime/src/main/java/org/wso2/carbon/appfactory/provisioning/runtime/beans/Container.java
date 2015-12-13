@@ -30,6 +30,7 @@ public class Container {
     private Map<String,String> envVariables;
     private String probe;
     private List<ServiceProxy> serviceProxies;
+    private List<String> labels;
 
     public List<ServiceProxy> getServiceProxies() {
         return serviceProxies;
@@ -103,4 +104,11 @@ public class Container {
         this.containerName = containerName;
     }
 
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(List<String> labels) {
+        this.labels = labels;
+    }
 }
