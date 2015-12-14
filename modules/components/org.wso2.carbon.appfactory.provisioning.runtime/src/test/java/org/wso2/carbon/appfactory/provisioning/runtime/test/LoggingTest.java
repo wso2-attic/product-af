@@ -17,6 +17,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
@@ -209,5 +210,10 @@ public class LoggingTest {
         deploymentConfig.setLables(labels);
 
         return deploymentConfig;
+    }
+
+    @AfterSuite
+    private void cleanup(){
+        testUtils.deleteNamespace();
     }
 }

@@ -16,20 +16,28 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.Utils;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.utils.Base64Encoder;
 import org.apache.http.auth.AUTH;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 
@@ -72,8 +80,8 @@ public class KubernetesProvisioningUtils {
      */
     public static HttpRequestBase getHttpMethodForKubernetes(String httpMethod, URI uri) {
 
-        String encoding = Base64Encoder.encode(KubernetesPovisioningConstants.MASTER_USERNAME + ":"
-                                               + KubernetesPovisioningConstants.MASTER_PASSWORD);
+        String encoding = Base64Encoder.encode(
+                KubernetesPovisioningConstants.MASTER_USERNAME + ":" + KubernetesPovisioningConstants.MASTER_PASSWORD);
         if(HttpGet.METHOD_NAME.equals(httpMethod)) {
             HttpGet httpGet = new HttpGet();
             httpGet.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
@@ -114,15 +122,15 @@ public class KubernetesProvisioningUtils {
         SSLContext sslcontext = SSLContexts.custom()
                 .loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
         // Allow TLSv1 protocol only
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-                sslcontext,
-                new String[] { "TLSv1" },
-                null,
-                SSLConnectionSocketFactory.getDefaultHostnameVerifier());
-        CloseableHttpClient httpclient = HttpClients.custom()
-                .setSSLSocketFactory(sslsf)
-                .build();
+        SSLConnectionSocketFactory sslsf = null;
+        try {
+            sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1" }, null,
+                    SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+        }catch(Error e){
+            System.out.println(e);
+        }
 
+        CloseableHttpClient httpclient = HttpClientBuilder.create().build();
         return httpclient;
     }
 
@@ -170,7 +178,7 @@ public class KubernetesProvisioningUtils {
         Map<String, String> selector = getSelector(applicationContext);
         KubernetesClient kubernetesClient = getFabric8KubernetesClient();
         ServiceList serviceList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
-                .getNamespace()).services().withLabels(selector).list();
+                .getName()).services().withLabels(selector).list();
         return serviceList;
     }
     /**
@@ -197,7 +205,9 @@ public class KubernetesProvisioningUtils {
      * @param serviceName
      * @return generated unique name for ingress (appName-appVersion-service)
      */
-    public static String createIgressMetaName(ApplicationContext applicationContext, String domain, String serviceName){
-        return applicationContext.getName() + "-" + applicationContext.getVersion() + "-" + domain + serviceName;
+    public static String createIngressMetaName(ApplicationContext applicationContext, String domain, String serviceName){
+        //
+        return (applicationContext.getName() + "-" + applicationContext.getVersion() + "-" + domain + "-" + serviceName)
+                .replace(".","-").toLowerCase();
     }
 }

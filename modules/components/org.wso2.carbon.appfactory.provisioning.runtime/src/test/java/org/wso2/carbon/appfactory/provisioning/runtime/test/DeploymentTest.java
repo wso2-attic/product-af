@@ -21,24 +21,29 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
 import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ServiceProxy;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class DeploymentTest  {
 
     ApplicationContext appCtx;
     KubernetesRuntimeProvisioningService afKubClient;
+    TestUtils testUtils;
 
     @BeforeSuite
     public void createNameSpace() throws RuntimeProvisioningException {
         appCtx = this.getApplicationContext();
         afKubClient = new KubernetesRuntimeProvisioningService(appCtx);
         afKubClient.createOrganization(appCtx.getTenantInfo());
+        testUtils = new TestUtils();
     }
 
 //    @AfterSuite
@@ -125,5 +130,10 @@ public class DeploymentTest  {
         applicationCtx.setId("MYJAXRSAPPID");
 
         return applicationCtx;
+    }
+
+    @AfterSuite
+    private void cleanup(){
+        testUtils.deleteNamespace();
     }
 }
