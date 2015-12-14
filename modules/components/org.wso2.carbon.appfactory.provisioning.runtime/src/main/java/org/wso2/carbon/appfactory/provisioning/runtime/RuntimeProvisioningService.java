@@ -176,10 +176,11 @@ public interface RuntimeProvisioningService {
     /**
      * Update a certain custom domain mapping for a particular application version
      *
-     * @param domain domain name
+     * @param oldDomain old domain name to be changed
+     * @param newDomain new domain name to be changed to
      * @throws RuntimeProvisioningException
      */
-    public void updateCustomDomain(String domain) throws RuntimeProvisioningException;
+    public void updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException;
 
     /**
      * Return custom domain mappings of a certain application version

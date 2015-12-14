@@ -16,39 +16,70 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.*;
-import io.fabric8.kubernetes.api.model.extensions.*;
+import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.EnvVarBuilder;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.api.model.PodSpecBuilder;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
+import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.ServiceSpecBuilder;
+import io.fabric8.kubernetes.api.model.extensions.Deployment;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentList;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentSpec;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentSpecBuilder;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentStatus;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
+import io.fabric8.kubernetes.api.model.extensions.IngressBuilder;
+import io.fabric8.kubernetes.api.model.extensions.IngressList;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.BuildConfiguration;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentLogs;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.LogQuery;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.RuntimeProperty;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ServiceProxy;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class will implement the runtime provisioning service specific to Kubernetes
@@ -423,11 +454,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public void addCustomDomain(Set<String> domains) throws RuntimeProvisioningException {
 
-        HttpClient httpclient = null;
-        URI uri = null;
-        String ingJson;
-        ObjectMapper objectMapper = new ObjectMapper();
-
+        KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
 
         for (String domain : domains) {
@@ -437,8 +464,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                         .withNewMetadata()
                         .withName(KubernetesProvisioningUtils
-                                .createIgressMetaName(applicationContext, domain, service.getMetadata().getName()))
-                        .withNamespace(namespace.getMetadata().getNamespace())
+                                .createIngressMetaName(applicationContext, domain, service.getMetadata().getName()))
+                        .withNamespace(namespace.getMetadata().getName())
                         .endMetadata()
                         .withNewSpec().addNewRule()
                         .withHost(domain)
@@ -453,70 +480,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .endSpec()
                         .build();
 
-                try {
-                    httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-                    ingJson = objectMapper.writeValueAsString(ing);
-                    if (log.isDebugEnabled()) {
-                        log.debug(ingJson);
-                    }
-
-                    StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-                    uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
-                            + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
-                            + namespace.getMetadata().getNamespace()
-                            + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
-
-                    HttpPost httpPost = (HttpPost) KubernetesProvisioningUtils
-                            .getHttpMethodForKubernetes(HttpPost.METHOD_NAME, uri);
-                    httpPost.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
-                    httpPost.setEntity(stringEntity);
-
-                    HttpResponse response = httpclient.execute(httpPost);
-
-                    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                        throw new RuntimeProvisioningException(
-                                "Failed to add domain mapping Domain: " + domains + "HTTP error code : " + response
-                                        .getStatusLine().getStatusCode());
-                    }
-
-                    if (log.isDebugEnabled()) {
-                        log.debug("addCustomDomain response: " + response.getEntity().getContent());
-                    }
-
-                } catch (JsonProcessingException e) {
-                    String msg = "Exception in converting the ingress object to json";
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } catch (KeyStoreException e) {
-                    String msg = "Error in keystore while connecting to Kubernetes cluster";
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(msg, e);
-                } catch (NoSuchAlgorithmException e) {
-                    String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
-                    log.error(msg, e);
-                } catch (KeyManagementException e) {
-                    String msg = "Exception in key management while while connecting to Kubernetes cluster";
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } catch (URISyntaxException e) {
-                    String msg = "Error in url syntax : " + uri;
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } catch (UnsupportedEncodingException e) {
-                    String msg = "Character encoding used is not supported";
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } catch (ClientProtocolException e) {
-                    String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } catch (IOException e) {
-                    String msg = "Connection exception while connecting to Kubernetes cluster";
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } finally {
-                    httpclient.getConnectionManager().shutdown();
-                }
+                kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(ing);
             }
         }
     }
@@ -524,31 +488,37 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     /**
      * update a certain domain by replacing the ingresses created for related services with new ingresses
      *
-     * @param domain domain name
+     * @param oldDomain old domain name to be changed
+     * @param newDomain new domain name to be changed to
      * @throws RuntimeProvisioningException
      */
     @Override
-    public void updateCustomDomain(String domain) throws RuntimeProvisioningException {
+    public void updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException {
 
-        HttpClient httpclient = null;
-        URI uri = null;
-        String ingressName = null;
-        String ingJson;
-        ObjectMapper objectMapper = new ObjectMapper();
+        KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
 
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
 
         for (Service service : serviceList.getItems()) {
-            Ingress ing = new IngressBuilder().withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
+            Ingress oldIng = new IngressBuilder().withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
                     .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                     .withNewMetadata()
                     .withName(KubernetesProvisioningUtils
-                            .createIgressMetaName(applicationContext, domain, service.getMetadata().getName()))
-                    .withNamespace(namespace.getMetadata().getNamespace())
+                            .createIngressMetaName(applicationContext, oldDomain, service.getMetadata().getName()))
+                    .withNamespace(namespace.getMetadata().getName())
+                    .endMetadata()
+                    .build();
+
+            Ingress newIng = new IngressBuilder().withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
+                    .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
+                    .withNewMetadata()
+                    .withName(KubernetesProvisioningUtils
+                            .createIngressMetaName(applicationContext, newDomain, service.getMetadata().getName()))
+                    .withNamespace(namespace.getMetadata().getName())
                     .endMetadata()
                     .withNewSpec()
                     .addNewRule()
-                    .withHost(domain)
+                    .withHost(newDomain)
                     .withNewHttp()
                     .addNewPath()
                     .withNewBackend()
@@ -561,67 +531,10 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     .endSpec()
                     .build();
 
-            try {
+            kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).delete(oldIng);
+            kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(newIng);
 
-                ingJson = objectMapper.writeValueAsString(ing);
-                StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
-                        + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
-                        + namespace.getMetadata().getNamespace()
-                        + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX
-                        + ingressName);
 
-                httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-                HttpPut httpPut = (HttpPut) KubernetesProvisioningUtils
-                        .getHttpMethodForKubernetes(HttpPut.METHOD_NAME, uri);
-                httpPut.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
-                httpPut.setEntity(stringEntity);
-
-                HttpResponse response = httpclient.execute(httpPut);
-
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    throw new RuntimeProvisioningException(
-                            "Failed to update domain mapping Domain: " + domain + "HTTP error code : " + response
-                                    .getStatusLine().getStatusCode());
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("addCustomDomain response: " + response.getEntity().getContent());
-                }
-            } catch (JsonProcessingException e) {
-                String msg = "Exception in converting the ingress object to json";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (KeyStoreException e) {
-                String msg = "Error in keystore while connecting to Kubernetes cluster";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(msg, e);
-            } catch (NoSuchAlgorithmException e) {
-                String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
-                log.error(msg, e);
-            } catch (KeyManagementException e) {
-                String msg = "Exception in key management while while connecting to Kubernetes cluster";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (URISyntaxException e) {
-                String msg = "Error in url syntax : " + uri;
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (UnsupportedEncodingException e) {
-                String msg = "Character encoding used is not supported";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (ClientProtocolException e) {
-                String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (IOException e) {
-                String msg = "Connection exception while connecting to Kubernetes cluster";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } finally {
-                httpclient.getConnectionManager().shutdown();
-            }
         }
     }
 
@@ -634,79 +547,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public Set<String> getCustomDomains() throws RuntimeProvisioningException {
 
-        HttpClient httpclient = null;
-        URI uri = null;
+        KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         Set<String> domains = new HashSet<>();
-        String output = "";
 
-        try {
-
-            httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
-                    + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
-                    + namespace.getMetadata().getNamespace()
-                    + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
-
-            HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
-            httpGet.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
-
-            HttpResponse response = httpclient.execute(httpGet);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                throw new RuntimeProvisioningException("Failed to get domain mappings: HTTP error code : "
-                        + response.getStatusLine().getStatusCode());
-            }
-
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader((response.getEntity().getContent())));
-
-            while ((output = br.readLine()) != null) {
-                output += output;
-            }
-
-            JSONObject jsonObject = new JSONObject(output.trim());
-
-            for (int i = 0; i < jsonObject.getJSONArray(KubernetesPovisioningConstants.ITEMS).length(); i++) {
-                domains.add(
-                        jsonObject.getJSONArray(KubernetesPovisioningConstants.ITEMS)
-                                .getJSONObject(i).getJSONObject(KubernetesPovisioningConstants.SPEC)
-                                .getJSONArray(KubernetesPovisioningConstants.RULES)
-                                .getJSONObject(0).getString(KubernetesPovisioningConstants.HOST));
-            }
-
-        } catch (KeyStoreException e) {
-            String msg = "Error in keystore while connecting to Kubernetes cluster";
-            log.error(msg, e);
-            throw new RuntimeProvisioningException(msg, e);
-        } catch (NoSuchAlgorithmException e) {
-            String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
-            log.error(msg, e);
-        } catch (KeyManagementException e) {
-            String msg = "Exception in key management while while connecting to Kubernetes cluster";
-            log.error(msg, e);
-            throw new RuntimeProvisioningException(e);
-        } catch (URISyntaxException e) {
-            String msg = "Error in url syntax : " + uri;
-            log.error(msg, e);
-            throw new RuntimeProvisioningException(e);
-        } catch (UnsupportedEncodingException e) {
-            String msg = "Character encoding used is not supported";
-            log.error(msg, e);
-            throw new RuntimeProvisioningException(e);
-        } catch (ClientProtocolException e) {
-            String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
-            log.error(msg, e);
-            throw new RuntimeProvisioningException(e);
-        } catch (IOException e) {
-            String msg = "Connection exception while connecting to Kubernetes cluster";
-            log.error(msg, e);
-            throw new RuntimeProvisioningException(e);
-        } catch (JSONException e) {
-            String msg = "Error occured while parsing JSON: " + output;
-            log.error(msg, e);
-            throw new RuntimeProvisioningException(e);
-        } finally {
-            httpclient.getConnectionManager().shutdown();
+        IngressList ingressList = kubClient.extensions().ingress().
+                inNamespace(namespace.getMetadata().getName()).list();
+        for (Ingress ingress : ingressList.getItems()){
+            domains.add(ingress.getSpec().getRules().get(0).getHost());
         }
         return domains;
     }
@@ -719,62 +566,22 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
      */
     @Override
     public void deleteCustomDomain(String domain) throws RuntimeProvisioningException {
-        HttpClient httpclient = null;
-        URI uri = null;
+        KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
 
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
 
         for (Service service : serviceList.getItems()) {
-            try {
+            Ingress ing = new IngressBuilder()
+                    .withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
+                    .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
+                    .withNewMetadata()
+                    .withName(KubernetesProvisioningUtils
+                            .createIngressMetaName(applicationContext, domain, service.getMetadata().getName()))
+                    .withNamespace(namespace.getMetadata().getName())
+                    .endMetadata()
+                    .build();
 
-                httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
-                        + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
-                        + namespace.getMetadata().getNamespace()
-                        + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX
-                        + KubernetesProvisioningUtils
-                        .createIgressMetaName(applicationContext, domain, service.getMetadata().getName()));
-                HttpDelete httpDelete = (HttpDelete) KubernetesProvisioningUtils
-                        .getHttpMethodForKubernetes(HttpDelete.METHOD_NAME, uri);
-                httpDelete.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
-
-                HttpResponse response = httpclient.execute(httpDelete);
-
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    throw new RuntimeProvisioningException("Failed to delete domain mapping: HTTP error code : "
-                            + response.getStatusLine()
-                            .getStatusCode());
-                }
-            } catch (KeyStoreException e) {
-                String msg = "Error in keystore while connecting to Kubernetes cluster";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(msg, e);
-            } catch (NoSuchAlgorithmException e) {
-                String msg = "Cryptographic algorithm not found while connecting to Kubernetes cluster";
-                log.error(msg, e);
-            } catch (KeyManagementException e) {
-                String msg = "Exception in key management while while connecting to Kubernetes cluster";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (URISyntaxException e) {
-                String msg = "Error in url syntax : " + uri;
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (UnsupportedEncodingException e) {
-                String msg = "Character encoding used is not supported";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (ClientProtocolException e) {
-                String msg = "Exception occurred in client protocol while trying to invoke Kubernetes api";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (IOException e) {
-                String msg = "Connection exception while connecting to Kubernetes cluster";
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } finally {
-                httpclient.getConnectionManager().shutdown();
-            }
+            kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).delete(ing);
         }
     }
 }
