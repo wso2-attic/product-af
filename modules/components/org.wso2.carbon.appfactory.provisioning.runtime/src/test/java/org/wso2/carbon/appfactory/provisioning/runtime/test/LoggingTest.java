@@ -59,7 +59,7 @@ public class LoggingTest {
         Thread.sleep(30000);
         for (int i = 0; i < 5; i++) {
             if(afKubClient.getDeploymentStatus(deploymentConfig)){
-                afKubClient.getRuntimeLogs(deploymentConfig, null);
+                afKubClient.getRuntimeLogs(null);
             }else {
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);
@@ -83,7 +83,7 @@ public class LoggingTest {
         Thread.sleep(30000);
         for (int i = 0; i < 5; i++) {
             if(afKubClient.getDeploymentStatus(deploymentConfig)){
-                afKubClient.getRuntimeLogs(deploymentConfig, query);
+                afKubClient.getRuntimeLogs(query);
             }else {
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);
@@ -107,7 +107,7 @@ public class LoggingTest {
         Thread.sleep(30000);
         for (int i = 0; i < 5; i++) {
             if(afKubClient.getDeploymentStatus(deploymentConfig)){
-                afKubClient.getRuntimeLogs(deploymentConfig, query);
+                afKubClient.getRuntimeLogs(query);
             }else {
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);
@@ -131,7 +131,7 @@ public class LoggingTest {
         Thread.sleep(30000);
         for (int i = 0; i < 5; i++) {
             if(afKubClient.getDeploymentStatus(deploymentConfig)){
-                afKubClient.streamRuntimeLogs(deploymentConfig);
+                afKubClient.streamRuntimeLogs();
             }else {
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);

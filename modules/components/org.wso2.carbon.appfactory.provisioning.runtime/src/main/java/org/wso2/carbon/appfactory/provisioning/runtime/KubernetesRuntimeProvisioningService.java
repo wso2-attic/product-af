@@ -105,6 +105,12 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         return false;
     }
 
+    /**
+     * Create Kubernetes Deployment and set of services according to the deployment configuration
+     * @param config deployment configuration
+     * @return list of created service names
+     * @throws RuntimeProvisioningException
+     */
     @Override
     public List<String> deployApplication(DeploymentConfig config) throws RuntimeProvisioningException {
 

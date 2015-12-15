@@ -44,11 +44,6 @@ public class DeploymentTest  {
         testUtils = new TestUtils();
     }
 
-//    @AfterSuite
-//    public void deleteNameSpace() throws RuntimeProvisioningException {
-//        afKubClient.deleteOrganization(appCtx.getTenantInfo());
-//    }
-
     /**
      * Test Deployment operation
      */
