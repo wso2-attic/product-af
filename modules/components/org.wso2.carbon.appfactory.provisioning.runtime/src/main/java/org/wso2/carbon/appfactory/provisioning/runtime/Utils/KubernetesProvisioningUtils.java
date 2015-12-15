@@ -16,36 +16,13 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.Utils;
 
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.utils.Base64Encoder;
-import org.apache.http.auth.AUTH;
-import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 
-import javax.net.ssl.SSLContext;
-import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,69 +46,6 @@ public class KubernetesProvisioningUtils {
 
         KubernetesClient kubernetesClient = new DefaultKubernetesClient();
         return kubernetesClient;
-    }
-
-    /**
-     * This utility method will provide appropriate HTTP METHOD for a given URI
-     *
-     * @param httpMethod HTTP method type (GET, POST, PUT, .etc)
-     * @param uri Endpoint uri
-     * @return HTTP method for the particular endpoint
-     */
-    public static HttpRequestBase getHttpMethodForKubernetes(String httpMethod, URI uri) {
-
-        String encoding = Base64Encoder.encode(
-                KubernetesPovisioningConstants.MASTER_USERNAME + ":" + KubernetesPovisioningConstants.MASTER_PASSWORD);
-        if(HttpGet.METHOD_NAME.equals(httpMethod)) {
-            HttpGet httpGet = new HttpGet();
-            httpGet.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
-            httpGet.setURI(uri);
-            return httpGet;
-        }else if(HttpPost.METHOD_NAME.equals(httpMethod)){
-            HttpPost httpPost = new HttpPost();
-            httpPost.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
-            httpPost.setURI(uri);
-            return httpPost;
-        }else if(HttpPut.METHOD_NAME.equals(httpMethod)){
-            HttpPut httpPut = new HttpPut();
-            httpPut.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
-            httpPut.setURI(uri);
-            return httpPut;
-        }else if(HttpDelete.METHOD_NAME.equals(httpMethod)){
-            HttpDelete httpDelete = new HttpDelete();
-            httpDelete.setHeader(AUTH.WWW_AUTH_RESP, AuthSchemes.BASIC + encoding);
-            httpDelete.setURI(uri);
-            return httpDelete;
-        }else{
-            throw new IllegalArgumentException("HTTP Method Not Supported");
-        }
-    }
-
-    /**
-     * This utility method will generate the HttpClient with appropriate authentication mechanism for K8s Rest Api
-     *
-     * @return HttpClient with appropriate authentication for api server
-     * @throws KeyStoreException
-     * @throws NoSuchAlgorithmException
-     * @throws KeyManagementException
-     */
-    public static CloseableHttpClient getHttpClientForKubernetes()
-            throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
-
-        //todo handle the rest api authentication compatible with the cloud deployment (current is for vagrant based)
-        SSLContext sslcontext = SSLContexts.custom()
-                .loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
-        // Allow TLSv1 protocol only
-        SSLConnectionSocketFactory sslsf = null;
-        try {
-            sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1" }, null,
-                    SSLConnectionSocketFactory.getDefaultHostnameVerifier());
-        }catch(Error e){
-            System.out.println(e);
-        }
-
-        CloseableHttpClient httpclient = HttpClientBuilder.create().build();
-        return httpclient;
     }
 
     /**
