@@ -106,9 +106,9 @@ public class KubernetesProvisioningUtils {
 
         //todo generate a common selector valid for all types of application
         Map<String, String> selector = new HashMap<>();
-        selector.put("name", applicationContext.getName());
-        selector.put("version", applicationContext.getVersion());
-        selector.put("stage",applicationContext.getCurrentStage());
+        selector.put("app", applicationContext.getName());
+        //selector.put("version", applicationContext.getVersion());
+        //selector.put("stage",applicationContext.getCurrentStage());
         return selector;
     }
 
