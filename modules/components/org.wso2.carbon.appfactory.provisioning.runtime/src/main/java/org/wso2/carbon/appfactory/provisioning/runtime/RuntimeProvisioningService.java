@@ -129,7 +129,7 @@ public interface RuntimeProvisioningService {
      * @return log out put stream
      * @throws RuntimeProvisioningException
      */
-    public DeploymentLogs streamRuntimeLogs(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException;
+    public DeploymentLogs streamRuntimeLogs() throws RuntimeProvisioningException;
 
     /**
      * Provide snapshot logs
@@ -138,7 +138,7 @@ public interface RuntimeProvisioningService {
      * @return Snapshot logs of application
      * @throws RuntimeProvisioningException
      */
-    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, LogQuery query)
+    public DeploymentLogs getRuntimeLogs(LogQuery query)
             throws RuntimeProvisioningException;
 
     /**
