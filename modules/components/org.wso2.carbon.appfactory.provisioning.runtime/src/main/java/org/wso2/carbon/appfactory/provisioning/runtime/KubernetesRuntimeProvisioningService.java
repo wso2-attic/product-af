@@ -112,6 +112,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         List<Container> containers = config.getContainers();
         ArrayList<io.fabric8.kubernetes.api.model.Container> kubContainerList = new ArrayList<>();
         List<String> serviceNameList = new ArrayList<>();
+        List<VolumeMount> volumeMounts = new ArrayList<>();
 
         try {
             //Deployment creation
@@ -119,6 +120,16 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
                 kubContainer.setName(container.getBaseImageName());
                 kubContainer.setImage(container.getBaseImageName() + ":" + container.getBaseImageVersion());
+                //create volume mount for the secretes
+                VolumeMount volumeMount = new VolumeMountBuilder()
+                        .withName(KubernetesPovisioningConstants.VOLUME_MOUNT)
+                        .withMountPath(KubernetesPovisioningConstants.VOLUME_MOUNT_PATH)
+                        .withReadOnly(true)
+                        .build();
+
+                volumeMounts.add(volumeMount);
+                kubContainer.setVolumeMounts(volumeMounts);
+
                 List<ContainerPort> containerPorts = new ArrayList<>();
                 List<ServiceProxy> serviceProxies = container.getServiceProxies();
                 for (ServiceProxy serviceProxy : serviceProxies) {
@@ -142,6 +153,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             PodSpec podSpec = new PodSpecBuilder()
                     .withContainers(kubContainerList)
+                    .withVolumes(config.getSecrets())
                     .build();
 
             PodTemplateSpec podTemplateSpec = new PodTemplateSpecBuilder()
@@ -314,7 +326,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         List secrets = new ArrayList();
         Container container = new Container();
-        List environments = new ArrayList();
 
         //create a instance of kubernetes client to invoke service call
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
@@ -351,14 +362,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             + applicationContext.getTenantInfo().getTenantDomain();
                     log.debug(message);
                 }
-                for (Map.Entry<String, String> property : runtimeProperty.getProperties().entrySet()) {
-                    EnvVar envVar = new EnvVarBuilder()
-                            .withName(property.getKey())
-                            .withValue(property.getValue())
-                            .build();
 
-                    environments.add(envVar);
-                }
+                //setting environment variables to a container
+                container.setEnvVariables(runtimeProperty.getProperties());
 
                 break;
             default:
@@ -370,9 +376,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             }
         }
 
-        //container.setEnvVariables(environments);
-        deploymentConfig.setContainer(container);
-        deploymentConfig.setSecrets(secrets);
+        List<Container> containers = new ArrayList<>();
+        containers.add(container);
+        deploymentConfig.setContainers(containers);
 
         //Calling application method to deploy the runtime properties with the application
         deployApplication(deploymentConfig);
@@ -392,7 +398,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         List secrets = new ArrayList();
         Container container = new Container();
-        List environments = new ArrayList();
 
         for (RuntimeProperty runtimeProperty : runtimeProperties) {
             switch (runtimeProperty.getPropertyType()) {
@@ -434,14 +439,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
                     log.debug(message);
                 }
-                for (Map.Entry<String, String> property : runtimeProperty.getProperties().entrySet()) {
-                    EnvVar envVar = new EnvVarBuilder()
-                            .withName(property.getKey())
-                            .withValue(property.getValue())
-                            .build();
 
-                    environments.add(envVar);
-                }
+                //updating environment variables for container
+                container.setEnvVariables(runtimeProperty.getProperties());
 
                 break;
             default:
@@ -452,9 +452,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             }
         }
 
-       // container.setEnvVariables(environments);
-        deploymentConfig.setContainer(container);
-        deploymentConfig.setSecrets(secrets);
+        List<Container> containers = new ArrayList<>();
+        containers.add(container);
+        deploymentConfig.setContainers(containers);
 
         //call application deployment to re deploy the application with update variables
         deployApplication(deploymentConfig);
