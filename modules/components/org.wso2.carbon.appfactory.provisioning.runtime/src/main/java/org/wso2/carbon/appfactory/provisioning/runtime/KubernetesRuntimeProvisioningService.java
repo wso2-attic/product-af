@@ -270,7 +270,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     public boolean getDeploymentStatus(DeploymentConfig config) throws RuntimeProvisioningException {
 
         DefaultKubernetesClient kubClient = null;
-        DeploymentStatus deploymentStatus = kubClient.inNamespace(namespace.getMetadata().getNamespace())
+        DeploymentStatus deploymentStatus = kubClient.inNamespace(namespace.getMetadata().getName())
                 .extensions().deployments().withName(config.getDeploymentName()).get().getStatus();
         //Assuming AF does not do zero replica deployments
         if (deploymentStatus.getReplicas() > 0) {
