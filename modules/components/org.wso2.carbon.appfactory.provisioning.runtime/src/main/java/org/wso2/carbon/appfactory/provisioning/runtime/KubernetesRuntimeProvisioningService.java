@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
@@ -48,6 +49,8 @@ import io.fabric8.kubernetes.api.model.extensions.IngressList;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.dsl.LogWatch;
+import io.fabric8.kubernetes.client.dsl.PrettyLoggable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
@@ -282,146 +285,63 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public DeploymentLogs streamRuntimeLogs(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException {
 
-        LogQuery query = new LogQuery(true, 0, 0);
         DeploymentLogs deploymentLogs = new DeploymentLogs();
         Map<String, BufferedReader> logOutPut = new HashMap<>();
-        URI uri = null;
-        CloseableHttpClient httpclient = null;
+        KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
         for (Pod pod : podList.getItems()) {
+            for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
+                LogWatch logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                        .withName(pod.getMetadata().getName()).inContainer(container.getName()).watchLog();
 
-            try {
-                for (Container container : deploymentConfig.getContainers()) {
-                    uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
-                            + "/api/v1/namespaces/" + namespace.getMetadata().getName()
-                            + "/pods/" + pod.getMetadata().getName()
-                            + "/log?container=" +container.getContainerName()
-                            + "&follow=" + String.valueOf(query.getIsFollowing()));
-
-                    HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
-                            .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
-                    httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-                    HttpResponse response = httpclient.execute(httpGet);
-                    BufferedReader logStream =
-                            new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-                    logOutPut.put(pod.getMetadata().getName()+ ":" + container.getContainerName(), logStream);
-                    deploymentLogs.setDeploymentLogs(logOutPut);
-                }
-
-            } catch (URISyntaxException e) {
-                String msg = "Error in url syntax : " + uri + " while getting logs from container : "
-                        + pod.getMetadata().getName();
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(msg, e);
-            } catch (NoSuchAlgorithmException e) {
-                String msg =
-                        "Error in SSL protocol while connecting to Kubernetes api while getting logs from container : "
-                                + pod.getMetadata().getName();
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(msg, e);
-            } catch (IOException e) {
-                String msg = "Error while reading log stream from container : " + pod.getMetadata().getName();
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(msg, e);
-            } catch (KeyManagementException e) {
-                String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
-                        + pod.getMetadata().getName();
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } catch (KeyStoreException e) {
-                String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
-                        + pod.getMetadata().getName();
-                log.error(msg, e);
-                throw new RuntimeProvisioningException(e);
-            } finally {
-                httpclient.getConnectionManager().shutdown();
+                BufferedReader logStream = new BufferedReader(new InputStreamReader(logs.getOutput()));
+                logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), logStream);
+                deploymentLogs.setDeploymentLogs(logOutPut);
             }
         }
         return deploymentLogs;
     }
 
-    @Override
-    public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, LogQuery query)
+    @Override public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, LogQuery query)
             throws RuntimeProvisioningException {
-
+        KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         DeploymentLogs deploymentLogs = new DeploymentLogs();
         Map<String, BufferedReader> logOutPut = new HashMap<>();
-        URI uri = null;
-        CloseableHttpClient httpclient = null;
-
+        String logs;
         if (query != null) {
+            PrettyLoggable prettyLoggable;
             PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
             for (Pod pod : podList.getItems()) {
-                try {
-                    for (Container container : deploymentConfig.getContainers()) {
-
-                        if (query.getPreviousRecordsCount() > 0) {
-                            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
-                                    + "/api/v1/namespaces/" + namespace.getMetadata().getName()
-                                    + "/pods/" + pod.getMetadata().getName()
-                                    + "/log?container=" + container.getContainerName()
-                                    + "&previous=" + String.valueOf(query.getPreviousRecordsCount()));
-                        } else if (query.getDurationInHours() > 0) {
-                            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL
-                                    + "/api/v1/namespaces/" + namespace.getMetadata().getName()
-                                    + "/pods/" + pod.getMetadata().getName()
-                                    + "/log?container=" + container.getContainerName()
-                                    + "&timestamps=" + String.valueOf(query.getDurationInHours()));
-                        } else {
-                            throw new RuntimeProvisioningException("Error in log retrieving query while querying logs" +
-                                    " of application : " + applicationContext.getName());
-                        }
-
-                        HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
-                                .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
-                        httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-                        HttpResponse response = httpclient.execute(httpGet);
-                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getEntity()
-                                .getContent()));
-                        logOutPut.put(pod.getMetadata().getName() + ":" + container.getContainerName(), bufferedReader);
-                        deploymentLogs.setDeploymentLogs(logOutPut);
+                for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
+                    if (query.getPreviousRecordsCount() > 0) {
+                        prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                                .withName(pod.getMetadata().getName()).inContainer(container.getName())
+                                .tailingLines(query.getPreviousRecordsCount());
+                    } else if (query.getDurationInHours() > 0) {
+                        prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                                .withName(pod.getMetadata().getName()).inContainer(container.getName())
+                                .sinceSeconds(query.getDurationInHours() * 3600);
+                    } else {
+                        throw new RuntimeProvisioningException("Error in log retrieving query while querying logs"
+                                + " of application : " + applicationContext.getName());
                     }
-                } catch (URISyntaxException e) {
-                    String msg = "Error in url syntax : " + uri + " while getting logs from container : "
-                            + pod.getMetadata().getName();
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(msg, e);
-                } catch (NoSuchAlgorithmException e) {
-                    String msg =
-                            "Error in SSL protocol while connecting to Kubernetes api while getting logs from container : "
-                                    + pod.getMetadata().getName();
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(msg, e);
-                } catch (IOException e) {
-                    String msg = "Error while reading log stram from container : " + pod.getMetadata().getName();
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(msg, e);
-                } catch (KeyManagementException e) {
-                    String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
-                            + pod.getMetadata().getName();
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } catch (KeyStoreException e) {
-                    String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
-                            + pod.getMetadata().getName();
-                    log.error(msg, e);
-                    throw new RuntimeProvisioningException(e);
-                } finally {
-                    httpclient.getConnectionManager().shutdown();
+                    logs = (String) prettyLoggable.getLog(true);
+                    InputStream is = new ByteArrayInputStream(logs.getBytes());
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+                    logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), bufferedReader);
+                    deploymentLogs.setDeploymentLogs(logOutPut);
                 }
             }
         } else {
-            KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
             for (Pod pod : podList.getItems()) {
-                kubernetesClient.extensions().deployments();
-                for (Container container : deploymentConfig.getContainers()) {
-                    String logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                            .withName(pod.getMetadata().getName()).inContainer(container.getContainerName())
+                for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
+                    logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                            .withName(pod.getMetadata().getName()).inContainer(container.getName())
                             .getLog(true);
                     InputStream is = new ByteArrayInputStream(logs.getBytes());
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-                    logOutPut.put(pod.getMetadata().getName() + ":" + container.getContainerName(), bufferedReader);
+                    logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), bufferedReader);
                 }
             }
         }
