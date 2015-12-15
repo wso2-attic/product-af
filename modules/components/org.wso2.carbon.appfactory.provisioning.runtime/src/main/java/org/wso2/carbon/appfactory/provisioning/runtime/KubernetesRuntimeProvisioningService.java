@@ -315,6 +315,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), bufferedReader);
                 }
             }
+            deploymentLogs.setDeploymentLogs(logOutPut);
         }
         return deploymentLogs;
     }
