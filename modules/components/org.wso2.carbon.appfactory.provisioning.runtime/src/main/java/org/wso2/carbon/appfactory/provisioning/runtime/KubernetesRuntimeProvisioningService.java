@@ -235,7 +235,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public DeploymentLogs streamRuntimeLogs(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException {
+    public DeploymentLogs streamRuntimeLogs() throws RuntimeProvisioningException {
 
         DeploymentLogs deploymentLogs = new DeploymentLogs();
         Map<String, BufferedReader> logOutPut = new HashMap<>();
@@ -254,7 +254,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         return deploymentLogs;
     }
 
-    @Override public DeploymentLogs getRuntimeLogs(DeploymentConfig deploymentConfig, LogQuery query)
+    @Override
+    public DeploymentLogs getRuntimeLogs(LogQuery query)
             throws RuntimeProvisioningException {
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         DeploymentLogs deploymentLogs = new DeploymentLogs();
