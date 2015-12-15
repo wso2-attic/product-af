@@ -35,9 +35,13 @@ public class KubernetesPovisioningConstants {
     public static final String KIND_DEPLOYMENT = "Deployment";
     public static final String KIND_INGRESS = "Ingress";
     public static final String KIND_SERVICE = "Service";
+    public static final String KIND_SECRETS = "Secret";
 
     public static final String ITEMS = "items";
     public static final String SPEC = "spec";
     public static final String RULES = "rules";
     public static final String HOST = "host";
+
+    public static final String VOLUME_MOUNT = "";
+    public static final String VOLUME_MOUNT_PATH = "";
 }
