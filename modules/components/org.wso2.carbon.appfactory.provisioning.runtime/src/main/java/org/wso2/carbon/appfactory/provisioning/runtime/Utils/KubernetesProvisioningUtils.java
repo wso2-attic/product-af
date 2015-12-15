@@ -142,7 +142,7 @@ public class KubernetesProvisioningUtils {
      */
     public static Namespace getNameSpace(ApplicationContext applicationContext) {
 
-        // todo: consider constraints of 24 character limit in namesapce.
+        // todo: consider constraints of 24 character limit in namespace.
         String ns = applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage();
         ns = ns.replace(".", "-").toLowerCase();
         ObjectMeta metadata = new ObjectMetaBuilder()
