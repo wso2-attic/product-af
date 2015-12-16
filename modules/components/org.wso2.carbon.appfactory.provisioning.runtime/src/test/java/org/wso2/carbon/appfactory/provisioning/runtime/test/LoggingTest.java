@@ -17,7 +17,6 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
 import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +42,7 @@ public class LoggingTest {
 
     @BeforeClass
     public void initialize() throws RuntimeProvisioningException {
-        log.info(">> Starting Logging test case");
+        log.info("Starting Logging test case");
         testUtils = new TestUtils();
         testUtils.deleteNamespace();
         namespace = testUtils.createNamespace();
@@ -64,11 +63,13 @@ public class LoggingTest {
         afKubClient = new KubernetesRuntimeProvisioningService(testUtils.getAppCtx());
 
         //Initially waits until deployment successful
-        log.info(">> Waiting for deployment to complete : " + deployment.getMetadata().getName());
+        log.info("Waiting for deployment to complete : " + deployment.getMetadata().getName());
         Thread.sleep(60000);
-
-        for (int i = 0; i < 10; i++) {
+        int counter;
+        //todo get the upper bound value from a config
+        for (counter = 0; counter < 10; counter++) {
             if (testUtils.getPodStatus(namespace, selector)) {
+                log.info("Pod status : Running");
                 deploymentLogs = afKubClient.getRuntimeLogs(null);
                 Map <String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
 
@@ -84,14 +85,19 @@ public class LoggingTest {
                                 + deployment.getMetadata().getName(), e);
                     }
                     //Waiting until tomcat starts
+                    log.info("Waiting until server startup complete ");
                     Thread.sleep(10000);
                     Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
                 }
-                //break;
             } else {
-                log.info(">> Retrying until deployment complete : " + deployment.getMetadata().getName());
+                log.info("Pod status : Pending");
+                log.info("Retrying until deployment complete : " + deployment.getMetadata().getName());
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);
+            }
+            if(counter == 9){
+                log.info("Pods didn't start Running during the retrying period");
+                Assert.assertTrue(false);
             }
         }
     }
@@ -176,6 +182,7 @@ public class LoggingTest {
     }
 
    @AfterClass private void cleanup() {
+       log.info("Cleaning up");
         testUtils.deleteNamespace();
     }
 }
