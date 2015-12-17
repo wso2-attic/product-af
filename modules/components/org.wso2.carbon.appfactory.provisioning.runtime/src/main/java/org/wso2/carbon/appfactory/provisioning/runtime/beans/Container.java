@@ -31,6 +31,7 @@ public class Container {
     private String probe;
     private List<ServiceProxy> serviceProxies;
     private List<String> labels;
+    private List volumeMounts;
 
     public List<ServiceProxy> getServiceProxies() {
         return serviceProxies;
@@ -110,5 +111,13 @@ public class Container {
 
     public void setLabels(List<String> labels) {
         this.labels = labels;
+    }
+
+    public List getVolumeMounts() {
+        return volumeMounts;
+    }
+
+    public void setVolumeMounts(List volumeMounts) {
+        this.volumeMounts = volumeMounts;
     }
 }

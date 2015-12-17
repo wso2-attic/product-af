@@ -118,7 +118,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         List<Container> containers = config.getContainers();
         ArrayList<io.fabric8.kubernetes.api.model.Container> kubContainerList = new ArrayList<>();
         List<String> serviceNameList = new ArrayList<>();
-        List<VolumeMount> volumeMounts = new ArrayList<>();
 
         try {
             //Deployment creation
@@ -126,15 +125,11 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
                 kubContainer.setName(container.getBaseImageName());
                 kubContainer.setImage(container.getBaseImageName() + ":" + container.getBaseImageVersion());
-                //create volume mount for the secretes
-                VolumeMount volumeMount = new VolumeMountBuilder()
-                        .withName(KubernetesPovisioningConstants.VOLUME_MOUNT)
-                        .withMountPath(KubernetesPovisioningConstants.VOLUME_MOUNT_PATH)
-                        .withReadOnly(true)
-                        .build();
 
-                volumeMounts.add(volumeMount);
-                kubContainer.setVolumeMounts(volumeMounts);
+                //Checking whether the container is including volume mounts
+                if(container.getVolumeMounts()!= null) {
+                    kubContainer.setVolumeMounts(container.getVolumeMounts());
+                }
 
                 List<ContainerPort> containerPorts = new ArrayList<>();
                 List<ServiceProxy> serviceProxies = container.getServiceProxies();
@@ -332,7 +327,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             throws RuntimeProvisioningException {
 
         List secrets = new ArrayList();
-        Container container = new Container();
 
         //create a instance of kubernetes client to invoke service call
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
@@ -346,9 +340,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     log.debug(message);
                 }
                 Secret secret = new SecretBuilder().withKind(KubernetesPovisioningConstants.KIND_SECRETS)
-                        .withApiVersion(Secret.ApiVersion.V_1).withNewMetadata()
-                        .withNamespace(namespace.getMetadata().getName()).withName(runtimeProperty.getName())
-                        .endMetadata().withData(runtimeProperty.getProperties()).build();
+                        .withApiVersion(Secret.ApiVersion.V_1)
+                        .withNewMetadata()
+                        .withNamespace(namespace.getMetadata().getName())
+                        .withName(runtimeProperty.getName())
+                        .endMetadata()
+                        .withData(runtimeProperty.getProperties())
+                        .build();
 
                 kubernetesClient.secrets().create(secret);
 
@@ -370,8 +368,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     log.debug(message);
                 }
 
-                //setting environment variables to a container
-                container.setEnvVariables(runtimeProperty.getProperties());
+                //Initially assume first container is the application
+                deploymentConfig.getContainers().get(0).setEnvVariables(runtimeProperty.getProperties());
 
                 break;
             default:
@@ -383,11 +381,24 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             }
         }
 
-        List<Container> containers = new ArrayList<>();
-        containers.add(container);
-        deploymentConfig.setContainers(containers);
+        List<VolumeMount> volumeMounts = new ArrayList<>();
 
-        //Calling application method to deploy the runtime properties with the application
+        //create volume mount for the secretes
+        VolumeMount volumeMount = new VolumeMountBuilder()
+                .withName(KubernetesPovisioningConstants.VOLUME_MOUNT)
+                .withMountPath(KubernetesPovisioningConstants.VOLUME_MOUNT_PATH)
+                .withReadOnly(true)
+                .build();
+
+        volumeMounts.add(volumeMount);
+
+        //Initially assume first container is the application and set volume mounts
+        deploymentConfig.getContainers().get(0).setVolumeMounts(volumeMounts);
+
+        //Set secretes to a pod
+        deploymentConfig.setSecrets(secrets);
+
+        //Call deploy application to redeploy application with runtime properties
         deployApplication(deploymentConfig);
 
     }
