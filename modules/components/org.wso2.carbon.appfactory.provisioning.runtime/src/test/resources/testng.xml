@@ -2,7 +2,7 @@
 <suite name="AFRuntimeProvisioningTestSuite" verbose="2">
     <test name="DeploymentTest" preserve-order="true" verbose="2">
         <classes>
-            <!--class name="org.wso2.carbon.appfactory.provisioning.runtime.test.DeploymentTest"/-->
+            <class name="org.wso2.carbon.appfactory.provisioning.runtime.test.DeploymentTest"/>
         </classes>
     </test>
     <test name="LogTest" preserve-order="true" verbose="2">
@@ -12,7 +12,7 @@
     </test>
     <test name="CustomDomainTest" preserve-order="true" verbose="2">
         <classes>
-            <!--class name="org.wso2.carbon.appfactory.provisioning.runtime.test.CustomDomainTest"/-->
+            <class name="org.wso2.carbon.appfactory.provisioning.runtime.test.CustomDomainTest"/>
         </classes>
     </test>
 </suite>

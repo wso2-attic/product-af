@@ -128,7 +128,8 @@ public class DeploymentTest  {
     }
 
     @AfterClass
-    private void cleanup(){
+    private void cleanup() throws InterruptedException {
         testUtils.deleteNamespace();
+        Thread.sleep(30000);
     }
 }
