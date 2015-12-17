@@ -17,23 +17,24 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServicePortBuilder;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
-import io.fabric8.kubernetes.api.model.extensions.DeploymentStatus;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
-import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.ServiceProxy;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TestUtils {
@@ -53,7 +54,7 @@ public class TestUtils {
 
     public void createService() {
         Map<String, String> labelsMap = new HashMap<String, String>();
-        labelsMap.put("name", getAppCtx().getName());
+        labelsMap.put("app", getAppCtx().getName());
         labelsMap.put("version", getAppCtx().getVersion());
         labelsMap.put("stage", getAppCtx().getCurrentStage());
         Service service = new ServiceBuilder()

@@ -534,6 +534,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
+        Ingress createdIng;
+        boolean created = false;
 
         for (String domain : domains) {
             for (Service service : serviceList.getItems()) {
@@ -558,11 +560,18 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .endSpec()
                         .build();
 
-                kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(ing);
+                createdIng = kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(ing);
+                if(createdIng != null && KubernetesProvisioningUtils
+                        .createIngressMetaName(applicationContext, domain, service.getMetadata().getName())
+                        .equals(createdIng.getMetadata().getName())){
+                    created = true;
+                }else{
+                    created = false;
+                }
             }
         }
 
-        return false;
+        return created;
     }
 
     /**
@@ -573,18 +582,26 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
      * @throws RuntimeProvisioningException
      */
     @Override
-    public void updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException {
+    public boolean updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException {
 
         KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
 
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
+        boolean deleted = false;
+        boolean updated = false;
+        Ingress createdIng;
 
         for (Service service : serviceList.getItems()) {
+
+            String oldIngName =  KubernetesProvisioningUtils
+                    .createIngressMetaName(applicationContext, oldDomain, service.getMetadata().getName());
+
+            String newIngName =  KubernetesProvisioningUtils
+                    .createIngressMetaName(applicationContext, newDomain, service.getMetadata().getName());
             Ingress oldIng = new IngressBuilder().withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
                     .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                     .withNewMetadata()
-                    .withName(KubernetesProvisioningUtils
-                            .createIngressMetaName(applicationContext, oldDomain, service.getMetadata().getName()))
+                    .withName(oldIngName)
                     .withNamespace(namespace.getMetadata().getName())
                     .endMetadata()
                     .build();
@@ -592,8 +609,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             Ingress newIng = new IngressBuilder().withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
                     .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                     .withNewMetadata()
-                    .withName(KubernetesProvisioningUtils
-                            .createIngressMetaName(applicationContext, newDomain, service.getMetadata().getName()))
+                    .withName(newIngName)
                     .withNamespace(namespace.getMetadata().getName())
                     .endMetadata()
                     .withNewSpec()
@@ -611,11 +627,24 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     .endSpec()
                     .build();
 
-            kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).delete(oldIng);
-            kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(newIng);
+            deleted = kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).delete(oldIng);
+            if(deleted) {
+                createdIng =
+                        kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(newIng);
+                if(createdIng != null && newIng.equals(createdIng.getMetadata().getName())){
+                    updated = true;
+                }else{
+                    updated = false;
+                    log.error("Error occured while creating Kubernetes ingress : " + newIng + "for service : " +
+                            service.getMetadata().getName());
+                }
 
-
+            }else{
+                log.error("Error occured while deleting Kubernetes ingress : " + oldIng + "for service : " +
+                        service.getMetadata().getName());
+            }
         }
+        return  updated;
     }
 
     /**
@@ -649,20 +678,26 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
 
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
+        boolean deleted = false;
 
         for (Service service : serviceList.getItems()) {
+            String ingName = KubernetesProvisioningUtils
+                    .createIngressMetaName(applicationContext, domain, service.getMetadata().getName());
             Ingress ing = new IngressBuilder()
                     .withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
                     .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                     .withNewMetadata()
-                    .withName(KubernetesProvisioningUtils
-                            .createIngressMetaName(applicationContext, domain, service.getMetadata().getName()))
+                    .withName(ingName)
                     .withNamespace(namespace.getMetadata().getName())
                     .endMetadata()
                     .build();
 
-            kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).delete(ing);
+            deleted = kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).delete(ing);
+            if(!deleted){
+                log.error("Error occured while deleting Kubernetes ingress : " + ingName + "for service : " +
+                        service.getMetadata().getName());
+            }
         }
-        return false;
+        return deleted;
     }
 }

@@ -182,7 +182,7 @@ public interface RuntimeProvisioningService {
      * @param newDomain new domain name to be changed to
      * @throws RuntimeProvisioningException
      */
-    public void updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException;
+    public boolean updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException;
 
     /**
      * Return custom domain mappings of a certain application version
