@@ -135,61 +135,6 @@ public class TestUtils {
         return applicationCtx;
     }
 
-    private List<org.wso2.carbon.appfactory.provisioning.runtime.beans.Container> getContainers(){
-        List<org.wso2.carbon.appfactory.provisioning.runtime.beans.Container> containerList = new ArrayList<>();
-
-        org.wso2.carbon.appfactory.provisioning.runtime.beans.Container container1 =
-                new org.wso2.carbon.appfactory.provisioning.runtime.beans.Container();
-        container1.setBaseImageName("nginx");
-        container1.setBaseImageVersion("1.7.1");
-        Map<String,String> envs1 = new HashMap<>();
-        envs1.put("JAVA_HOME","/opt/java");
-        envs1.put("ORG","WSO2");
-        container1.setEnvVariables(envs1);
-        List<ServiceProxy> serviceProxyList = new ArrayList<>();
-        ServiceProxy serviceProxy = new ServiceProxy();
-        serviceProxy.setServiceName("http");
-        serviceProxy.setServiceProtocol("TCP");
-        serviceProxy.setServicePort(8000);
-        serviceProxy.setServiceBackendPort(31000);
-        serviceProxyList.add(serviceProxy);
-        container1.setServiceProxies(serviceProxyList);
-
-        org.wso2.carbon.appfactory.provisioning.runtime.beans.Container container2 =
-                new org.wso2.carbon.appfactory.provisioning.runtime.beans.Container();
-        container2.setBaseImageName("tomcat");
-        container2.setBaseImageVersion("8.0");
-        Map<String,String> envs2 = new HashMap<>();
-        envs2.put("JAVA_HOME","/opt/java");
-        envs2.put("ORG","WSO2");
-        container2.setEnvVariables(envs2);
-        serviceProxy.setServiceName("https");
-        serviceProxy.setServiceProtocol("TCP");
-        serviceProxy.setServicePort(8001);
-        serviceProxy.setServiceBackendPort(31001);
-        serviceProxyList.add(serviceProxy);
-        container2.setServiceProxies(serviceProxyList);
-
-        containerList.add(container1);
-        containerList.add(container2);
-
-        return containerList;
-    }
-
-    private DeploymentConfig getDeploymentConfig(
-            List<org.wso2.carbon.appfactory.provisioning.runtime.beans.Container> containers){
-
-        DeploymentConfig deploymentConfig = new DeploymentConfig();
-        deploymentConfig.setDeploymentName("test-deployment");
-        deploymentConfig.setReplicas(2);
-        deploymentConfig.setContainers(containers);
-        Map<String,String> labels = new HashMap<>();
-        labels.put("app", "nginx");
-        deploymentConfig.setLables(labels);
-
-        return deploymentConfig;
-    }
-
     public void deleteNamespace(){
         kube.namespaces().delete(KubernetesProvisioningUtils.getNameSpace(getAppCtx()));
     }

@@ -55,7 +55,7 @@ public class LoggingTest {
      * @throws RuntimeProvisioningException
      */
 
-    @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub Logging")
+    @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub get snapshot logs")
     public void testSnapshotLogs() throws RuntimeProvisioningException, InterruptedException {
         DeploymentLogs deploymentLogs;
         Map <String, String> selector = new HashMap<>();
@@ -73,22 +73,24 @@ public class LoggingTest {
                 deploymentLogs = afKubClient.getRuntimeLogs(null);
                 Map <String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
 
+                //Waiting until tomcat starts
+                log.info("Waiting until server startup complete ");
+                Thread.sleep(10000);
+
                 for (Map.Entry<String, BufferedReader> logEntry : logs.entrySet()) {
                     String record;
                     StringBuffer buffer = new StringBuffer();
                     try {
                         while ((record = logEntry.getValue().readLine())!=null) {
-                             buffer.append(record);
+                            buffer.append(record);
                         }
                     } catch (IOException e) {
                         log.error("Error while reading from the log of deployment : "
                                 + deployment.getMetadata().getName(), e);
                     }
-                    //Waiting until tomcat starts
-                    log.info("Waiting until server startup complete ");
-                    Thread.sleep(10000);
                     Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
                 }
+                break;
             } else {
                 log.info("Pod status : Pending");
                 log.info("Retrying until deployment complete : " + deployment.getMetadata().getName());
@@ -107,7 +109,7 @@ public class LoggingTest {
      *
      * @throws RuntimeProvisioningException
      */
-   // @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub Logging")
+   // @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub snapshot logs with querying records count")
     public void testLogsWithQueryRecords() throws RuntimeProvisioningException, InterruptedException {
 
         LogQuery query = new LogQuery(false, 1000, -1);
@@ -134,7 +136,7 @@ public class LoggingTest {
      *
      * @throws RuntimeProvisioningException
      */
-    //@Test(groups = { "org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub Logging")
+    //@Test(groups = { "org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub snapshot logs with querying duration")
     public void testLogsWithQueryDuration() throws RuntimeProvisioningException, InterruptedException {
 
         LogQuery query = new LogQuery(false, -1, 1);
