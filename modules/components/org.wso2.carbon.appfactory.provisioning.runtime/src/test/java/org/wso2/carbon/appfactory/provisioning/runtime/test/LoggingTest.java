@@ -84,7 +84,6 @@ public class LoggingTest {
                     try {
                         while ((record = logEntry.getValue().readLine()) != null) {
                             buffer.append(record);
-                            System.out.println(record);
                         }
                     } catch (IOException e) {
                         log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
@@ -143,7 +142,6 @@ public class LoggingTest {
                     try {
                         while ((record = logEntry.getValue().readLine()) != null) {
                             buffer.append(record);
-                            System.out.println(record);
                         }
                     } catch (IOException e) {
                         log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
@@ -202,7 +200,6 @@ public class LoggingTest {
                     try {
                         while ((record = logEntry.getValue().readLine()) != null) {
                             buffer.append(record);
-                            System.out.println(record);
                         }
                     } catch (IOException e) {
                         log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
@@ -250,8 +247,9 @@ public class LoggingTest {
         }
     }
 
-    @AfterClass private void cleanup() {
-        log.info("Cleaning up");
+    @AfterClass private void cleanup() throws InterruptedException {
+        log.info("Cleaning up the namespace");
+        Thread.sleep(30000);
         testUtils.deleteNamespace();
     }
 }
