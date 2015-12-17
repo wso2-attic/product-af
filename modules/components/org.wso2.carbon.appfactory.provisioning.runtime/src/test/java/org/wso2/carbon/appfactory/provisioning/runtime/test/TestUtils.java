@@ -16,16 +16,15 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.test;
 
-import io.fabric8.kubernetes.api.model.ContainerBuilder;
-import io.fabric8.kubernetes.api.model.ContainerPortBuilder;
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.Deployment;
 import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
+import io.fabric8.kubernetes.api.model.extensions.DeploymentStatus;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
+import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
@@ -47,8 +46,9 @@ public class TestUtils {
         kube = KubernetesProvisioningUtils.getFabric8KubernetesClient();
     }
 
-    public void createNamespace() {
+    public Namespace createNamespace() {
         kube.namespaces().create(KubernetesProvisioningUtils.getNameSpace(getAppCtx()));
+        return KubernetesProvisioningUtils.getNameSpace(getAppCtx());
     }
 
     public void createService() {
@@ -76,7 +76,7 @@ public class TestUtils {
                 .create(service);
     }
 
-    public void createDeployment() {
+    public Deployment createDeployment() {
         Map<String, String> labelsMap = new HashMap<String, String>();
         labelsMap.put("app", getAppCtx().getName());
         Deployment deployment = new DeploymentBuilder()
@@ -92,7 +92,7 @@ public class TestUtils {
                 .withLabels(labelsMap)
                 .endMetadata()
                 .withNewSpec()
-                .withContainers(new ContainerBuilder().withName("nginx").withImage("nginx:1.7.9")
+                .withContainers(new ContainerBuilder().withName("tomcat").withImage("tomcat:latest")
                         .withPorts(new ContainerPortBuilder().withContainerPort(80).build()).build())
                 .endSpec()
                 .endTemplate()
@@ -102,8 +102,24 @@ public class TestUtils {
         kube.extensions().deployments()
                 .inNamespace(KubernetesProvisioningUtils.getNameSpace(getAppCtx()).getMetadata().getName())
                 .create(deployment);
+        return deployment;
     }
 
+    public boolean getPodStatus(Namespace namespace, Map<String, String> selector) {
+
+        PodList podss = kube.inNamespace(namespace.getMetadata().getName()).pods().withLabels(selector).list();
+        if (podss.getItems().size() == 0) {
+            return false;
+        } else {
+            for (Pod pod : podss.getItems()) {
+                String status = KubernetesHelper.getPodStatusText(pod);
+                if (!"Running".equals(status)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     private ApplicationContext getApplicationContext() {
 
         ApplicationContext applicationCtx = new ApplicationContext();
@@ -117,61 +133,6 @@ public class TestUtils {
         applicationCtx.setId("MYJAXRSAPPID");
 
         return applicationCtx;
-    }
-
-    private List<org.wso2.carbon.appfactory.provisioning.runtime.beans.Container> getContainers(){
-        List<org.wso2.carbon.appfactory.provisioning.runtime.beans.Container> containerList = new ArrayList<>();
-
-        org.wso2.carbon.appfactory.provisioning.runtime.beans.Container container1 =
-                new org.wso2.carbon.appfactory.provisioning.runtime.beans.Container();
-        container1.setBaseImageName("nginx");
-        container1.setBaseImageVersion("1.7.1");
-        Map<String,String> envs1 = new HashMap<>();
-        envs1.put("JAVA_HOME","/opt/java");
-        envs1.put("ORG","WSO2");
-        container1.setEnvVariables(envs1);
-        List<ServiceProxy> serviceProxyList = new ArrayList<>();
-        ServiceProxy serviceProxy = new ServiceProxy();
-        serviceProxy.setServiceName("http");
-        serviceProxy.setServiceProtocol("TCP");
-        serviceProxy.setServicePort(8000);
-        serviceProxy.setServiceBackendPort(31000);
-        serviceProxyList.add(serviceProxy);
-        container1.setServiceProxies(serviceProxyList);
-
-        org.wso2.carbon.appfactory.provisioning.runtime.beans.Container container2 =
-                new org.wso2.carbon.appfactory.provisioning.runtime.beans.Container();
-        container2.setBaseImageName("tomcat");
-        container2.setBaseImageVersion("8.0");
-        Map<String,String> envs2 = new HashMap<>();
-        envs2.put("JAVA_HOME","/opt/java");
-        envs2.put("ORG","WSO2");
-        container2.setEnvVariables(envs2);
-        serviceProxy.setServiceName("https");
-        serviceProxy.setServiceProtocol("TCP");
-        serviceProxy.setServicePort(8001);
-        serviceProxy.setServiceBackendPort(31001);
-        serviceProxyList.add(serviceProxy);
-        container2.setServiceProxies(serviceProxyList);
-
-        containerList.add(container1);
-        containerList.add(container2);
-
-        return containerList;
-    }
-
-    private DeploymentConfig getDeploymentConfig(
-            List<org.wso2.carbon.appfactory.provisioning.runtime.beans.Container> containers){
-
-        DeploymentConfig deploymentConfig = new DeploymentConfig();
-        deploymentConfig.setDeploymentName("test-deployment");
-        deploymentConfig.setReplicas(2);
-        deploymentConfig.setContainers(containers);
-        Map<String,String> labels = new HashMap<>();
-        labels.put("app", "nginx");
-        deploymentConfig.setLables(labels);
-
-        return deploymentConfig;
     }
 
     public void deleteNamespace(){

@@ -34,10 +34,6 @@
     <url>http://www.wso2.com</url>
 
     <dependencies>
-       <dependency>
-            <groupId>org.wso2.carbon.appfactory</groupId>
-            <artifactId>org.wso2.carbon.appfactory.common</artifactId>
-        </dependency>
 		<dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
