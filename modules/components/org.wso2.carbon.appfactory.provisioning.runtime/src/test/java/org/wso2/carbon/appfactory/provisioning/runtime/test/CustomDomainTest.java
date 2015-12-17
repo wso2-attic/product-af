@@ -19,8 +19,8 @@ package org.wso2.carbon.appfactory.provisioning.runtime.test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.Assert;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
 import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
@@ -35,7 +35,7 @@ public class CustomDomainTest {
     Set<String> domains;
     private static final Log log = LogFactory.getLog(CustomDomainTest.class);
 
-    @BeforeSuite
+    @BeforeClass
     public void initialize() throws RuntimeProvisioningException {
         testUtils = new TestUtils();
         afKubClient = new KubernetesRuntimeProvisioningService(testUtils.getAppCtx());
@@ -97,8 +97,9 @@ public class CustomDomainTest {
         Assert.assertFalse(domains.contains("updatedapp1.wso2.com"));
     }
 
-    @AfterSuite
-    public void cleanup(){
+    @AfterClass
+    public void cleanup() throws InterruptedException {
         testUtils.deleteNamespace();
+        Thread.sleep(30000);
     }
 }

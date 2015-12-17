@@ -631,7 +631,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             if(deleted) {
                 createdIng =
                         kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(newIng);
-                if(createdIng != null && newIng.equals(createdIng.getMetadata().getName())){
+                if(createdIng != null && newIngName.equals(createdIng.getMetadata().getName())){
                     updated = true;
                 }else{
                     updated = false;
