@@ -40,8 +40,7 @@ public class LoggingTest {
     Deployment deployment;
     Namespace namespace;
 
-    @BeforeClass
-    public void initialize() throws RuntimeProvisioningException {
+    @BeforeClass public void initialize() throws RuntimeProvisioningException {
         log.info("Starting Logging test case");
         testUtils = new TestUtils();
         testUtils.deleteNamespace();
@@ -57,9 +56,10 @@ public class LoggingTest {
 
     @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub get snapshot logs")
     public void testSnapshotLogs() throws RuntimeProvisioningException, InterruptedException {
+
         DeploymentLogs deploymentLogs;
-        Map <String, String> selector = new HashMap<>();
-        selector.put("app" , "My-JAXRS");
+        Map<String, String> selector = new HashMap<>();
+        selector.put("app", "My-JAXRS");
         afKubClient = new KubernetesRuntimeProvisioningService(testUtils.getAppCtx());
 
         //Initially waits until deployment successful
@@ -70,23 +70,25 @@ public class LoggingTest {
         for (counter = 0; counter < 10; counter++) {
             if (testUtils.getPodStatus(namespace, selector)) {
                 log.info("Pod status : Running");
-                deploymentLogs = afKubClient.getRuntimeLogs(null);
-                Map <String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
 
                 //Waiting until tomcat starts
                 log.info("Waiting until server startup complete ");
                 Thread.sleep(10000);
 
+                deploymentLogs = afKubClient.getRuntimeLogs(null);
+                Map<String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
+
                 for (Map.Entry<String, BufferedReader> logEntry : logs.entrySet()) {
                     String record;
                     StringBuffer buffer = new StringBuffer();
                     try {
-                        while ((record = logEntry.getValue().readLine())!=null) {
+                        while ((record = logEntry.getValue().readLine()) != null) {
                             buffer.append(record);
+                            System.out.println(record);
                         }
                     } catch (IOException e) {
-                        log.error("Error while reading from the log of deployment : "
-                                + deployment.getMetadata().getName(), e);
+                        log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
+                                .getName(), e);
                     }
                     Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
                 }
@@ -97,7 +99,7 @@ public class LoggingTest {
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);
             }
-            if(counter == 9){
+            if (counter == 9) {
                 log.info("Pods didn't start Running during the retrying period");
                 Assert.assertTrue(false);
             }
@@ -109,25 +111,57 @@ public class LoggingTest {
      *
      * @throws RuntimeProvisioningException
      */
-   // @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub snapshot logs with querying records count")
+    @Test(dependsOnMethods = "testSnapshotLogs", groups = {"org.wso2.carbon.appfactory.provisioning.runtime" },
+            description = "Kub snapshot logs with querying records count")
     public void testLogsWithQueryRecords() throws RuntimeProvisioningException, InterruptedException {
 
+        DeploymentLogs deploymentLogs;
+        Map<String, String> selector = new HashMap<>();
+        selector.put("app", "My-JAXRS");
+        afKubClient = new KubernetesRuntimeProvisioningService(testUtils.getAppCtx());
         LogQuery query = new LogQuery(false, 1000, -1);
-        Map <String, String> selector = new HashMap<>();
-        selector.put("app" , "My-JAXRS");
 
         //Initially waits until deployment successful
-        Thread.sleep(30000);
-
-        for (int i = 0; i < 10; i++) {
+        log.info("Waiting for deployment to complete : " + deployment.getMetadata().getName());
+        Thread.sleep(60000);
+        //todo get the upper bound value from a config
+        int counter;
+        for (counter = 0; counter < 10; counter++) {
             if (testUtils.getPodStatus(namespace, selector)) {
-                afKubClient.getRuntimeLogs(query);
+                log.info("Pod status : Running");
+
+                //Waiting until tomcat starts
+                log.info("Waiting until server startup complete ");
+                Thread.sleep(10000);
+
+                deploymentLogs = afKubClient.getRuntimeLogs(query);
+                Map<String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
+
+                for (Map.Entry<String, BufferedReader> logEntry : logs.entrySet()) {
+                    String record;
+                    StringBuffer buffer = new StringBuffer();
+                    try {
+                        while ((record = logEntry.getValue().readLine()) != null) {
+                            buffer.append(record);
+                            System.out.println(record);
+                        }
+                    } catch (IOException e) {
+                        log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
+                                .getName(), e);
+                    }
+                    Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
+                }
+                break;
             } else {
+                log.info("Pod status : Pending");
+                log.info("Retrying until deployment complete : " + deployment.getMetadata().getName());
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);
             }
-
-            //todo add assertions
+            if (counter == 9) {
+                log.info("Pods didn't start Running during the retrying period");
+                Assert.assertTrue(false);
+            }
         }
     }
 
@@ -136,24 +170,57 @@ public class LoggingTest {
      *
      * @throws RuntimeProvisioningException
      */
-    //@Test(groups = { "org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub snapshot logs with querying duration")
+    @Test(dependsOnMethods = "testLogsWithQueryRecords", groups = {"org.wso2.carbon.appfactory.provisioning.runtime" },
+            description = "Kub snapshot logs with querying duration")
     public void testLogsWithQueryDuration() throws RuntimeProvisioningException, InterruptedException {
 
+        DeploymentLogs deploymentLogs;
+        Map<String, String> selector = new HashMap<>();
+        selector.put("app", "My-JAXRS");
+        afKubClient = new KubernetesRuntimeProvisioningService(testUtils.getAppCtx());
         LogQuery query = new LogQuery(false, -1, 1);
-        Map <String, String> selector = new HashMap<>();
-        selector.put("app" , "My-JAXRS");
 
         //Initially waits until deployment successful
-        Thread.sleep(30000);
-        for (int i = 0; i < 5; i++) {
+        log.info("Waiting for deployment to complete : " + deployment.getMetadata().getName());
+        Thread.sleep(60000);
+        //todo get the upper bound value from a config
+        int counter;
+        for (counter = 0; counter < 10; counter++) {
             if (testUtils.getPodStatus(namespace, selector)) {
-                afKubClient.getRuntimeLogs(query);
+                log.info("Pod status : Running");
+
+                //Waiting until tomcat starts
+                log.info("Waiting until server startup complete ");
+                Thread.sleep(10000);
+
+                deploymentLogs = afKubClient.getRuntimeLogs(query);
+                Map<String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
+
+                for (Map.Entry<String, BufferedReader> logEntry : logs.entrySet()) {
+                    String record;
+                    StringBuffer buffer = new StringBuffer();
+                    try {
+                        while ((record = logEntry.getValue().readLine()) != null) {
+                            buffer.append(record);
+                            System.out.println(record);
+                        }
+                    } catch (IOException e) {
+                        log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
+                                .getName(), e);
+                    }
+                    Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
+                }
+                break;
             } else {
+                log.info("Pod status : Pending");
+                log.info("Retrying until deployment complete : " + deployment.getMetadata().getName());
                 //If deployment is not successful check again in 30 seconds
                 Thread.sleep(30000);
             }
-
-            //todo add assertions
+            if (counter == 9) {
+                log.info("Pods didn't start Running during the retrying period");
+                Assert.assertTrue(false);
+            }
         }
     }
 
@@ -162,12 +229,12 @@ public class LoggingTest {
      *
      * @throws RuntimeProvisioningException
      */
-   // @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub Logging")
+    // @Test(groups = {"org.wso2.carbon.appfactory.provisioning.runtime" }, description = "Kub Logging")
     public void testLogStream() throws RuntimeProvisioningException, InterruptedException {
 
         LogQuery query = new LogQuery(true, -1, 1);
-        Map <String, String> selector = new HashMap<>();
-        selector.put("app" , "My-JAXRS");
+        Map<String, String> selector = new HashMap<>();
+        selector.put("app", "My-JAXRS");
 
         //Initially waits until deployment successful
         Thread.sleep(30000);
@@ -183,8 +250,8 @@ public class LoggingTest {
         }
     }
 
-   @AfterClass private void cleanup() {
-       log.info("Cleaning up");
+    @AfterClass private void cleanup() {
+        log.info("Cleaning up");
         testUtils.deleteNamespace();
     }
 }
