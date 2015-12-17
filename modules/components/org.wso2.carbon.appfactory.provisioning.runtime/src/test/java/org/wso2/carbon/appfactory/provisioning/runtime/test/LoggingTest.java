@@ -43,7 +43,6 @@ public class LoggingTest {
     @BeforeClass public void initialize() throws RuntimeProvisioningException {
         log.info("Starting Logging test case");
         testUtils = new TestUtils();
-        testUtils.deleteNamespace();
         namespace = testUtils.createNamespace();
         deployment = testUtils.createDeployment();
     }
@@ -249,7 +248,7 @@ public class LoggingTest {
 
     @AfterClass private void cleanup() throws InterruptedException {
         log.info("Cleaning up the namespace");
-        Thread.sleep(30000);
         testUtils.deleteNamespace();
+        Thread.sleep(30000);
     }
 }

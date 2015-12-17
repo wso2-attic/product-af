@@ -27,7 +27,7 @@ var log = new Log("module/logdownload/logdownload.jag");
 var modManager = jagg.module("manager");
 
 var downloadLogFile = function (applicationKey, stage, version, date, pageNumber) {
-    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_VISIBILITY_STAGE+stage);
+/*    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_VISIBILITY_STAGE+stage);
 
     var appName = "" ;
 
@@ -51,7 +51,7 @@ var downloadLogFile = function (applicationKey, stage, version, date, pageNumber
             log.debug("Given date is greater than the current date");
         }
     }
-    return "";
+    return "";*/
 
 };
 
@@ -75,7 +75,35 @@ var constructCurrentDate = function(){
     return date;
 };
 
-//view daily logs
+// Calling getRuntimeLogs in KubernetesRuntimeProvisioningService to retrieve logs
+var getRuntimeLogs = function () {
+    var KubernetesRuntimeProvisioningService = Packages.org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
+    var ApplicationContext = Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+    var appContext = new ApplicationContext();
+
+    //for testing on demo tomcat deployment with kubernetes
+
+    var TenantInfo = Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo();
+    var tenantInfo = new TenantInfo();
+    tenantInfo.setTenantId(5);
+    tenantInfo.setTenantDomain("wso2.org");
+
+    applicationCtx.setCurrentStage("DEV");
+    applicationCtx.setName("My-JAXRS");
+    applicationCtx.setVersion("1.0.0");
+    applicationCtx.setTenantInfo(tenantInfo);
+    applicationCtx.setId("MYJAXRSAPPID");
+
+    // end of demo tomcat deployment
+
+
+    var kubService = new KubernetesRuntimeProvisioningService(appContext);
+    var deploymentLog = kubService.getRuntimeLogs(null);
+
+    return deploymentLog;
+}
+
+//view daily logs old method
 var downloadDailyLogs = function (appName, stage, pageNumber){
     log.debug("Downloading daily logs");
 
