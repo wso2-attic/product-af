@@ -42,6 +42,6 @@ public class KubernetesPovisioningConstants {
     public static final String RULES = "rules";
     public static final String HOST = "host";
 
-    public static final String VOLUME_MOUNT = "";
-    public static final String VOLUME_MOUNT_PATH = "";
+    public static final String VOLUME_MOUNT = "default";
+    public static final String VOLUME_MOUNT_PATH = "/etc/default";
 }
