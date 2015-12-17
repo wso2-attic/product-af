@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -123,5 +124,19 @@ public class KubernetesProvisioningUtils {
         //
         return (applicationContext.getName() + "-" + applicationContext.getVersion() + "-" + domain + "-" + serviceName)
                 .replace(".","-").toLowerCase();
+    }
+
+    public static ApplicationContext getApplicationContext(String name, String id, String version, String stage,
+            String type, int tenantId, String tenantDomain){
+        ApplicationContext applicationContext = new ApplicationContext();
+        applicationContext.setName(name);
+        applicationContext.setId(id);
+        applicationContext.setVersion(version);
+        applicationContext.setType(type);
+        TenantInfo tenantInfo = new TenantInfo();
+        tenantInfo.setTenantId(tenantId);
+        tenantInfo.setTenantDomain(tenantDomain);
+        applicationContext.setTenantInfo(tenantInfo);
+        return applicationContext;
     }
 }

@@ -519,7 +519,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
      * @throws RuntimeProvisioningException
      */
     @Override
-    public void addCustomDomain(Set<String> domains) throws RuntimeProvisioningException {
+    public boolean addCustomDomain(Set<String> domains) throws RuntimeProvisioningException {
 
         KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
@@ -550,6 +550,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).create(ing);
             }
         }
+
+        return false;
     }
 
     /**
@@ -632,7 +634,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
      * @throws RuntimeProvisioningException
      */
     @Override
-    public void deleteCustomDomain(String domain) throws RuntimeProvisioningException {
+    public boolean deleteCustomDomain(String domain) throws RuntimeProvisioningException {
         KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
 
         ServiceList serviceList = KubernetesProvisioningUtils.getServices(applicationContext);
@@ -650,5 +652,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             kubClient.extensions().ingress().inNamespace(namespace.getMetadata().getName()).delete(ing);
         }
+        return false;
     }
 }

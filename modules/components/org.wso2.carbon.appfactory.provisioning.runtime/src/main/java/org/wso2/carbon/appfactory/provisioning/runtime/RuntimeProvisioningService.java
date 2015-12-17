@@ -173,7 +173,7 @@ public interface RuntimeProvisioningService {
      * @param domains set of domains
      * @throws RuntimeProvisioningException
      */
-    public void addCustomDomain(Set<String> domains) throws RuntimeProvisioningException;
+    public boolean addCustomDomain(Set<String> domains) throws RuntimeProvisioningException;
 
     /**
      * Update a certain custom domain mapping for a particular application version
@@ -198,5 +198,5 @@ public interface RuntimeProvisioningService {
      * @param domain domain name
      * @throws RuntimeProvisioningException
      */
-    public void deleteCustomDomain(String domain) throws RuntimeProvisioningException;
+    public boolean deleteCustomDomain(String domain) throws RuntimeProvisioningException;
 }
