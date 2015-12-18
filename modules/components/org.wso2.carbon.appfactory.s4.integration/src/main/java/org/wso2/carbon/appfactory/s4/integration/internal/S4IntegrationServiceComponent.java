@@ -26,6 +26,7 @@ import org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler;
 import org.wso2.carbon.appfactory.s4.integration.DomainMappingListener;
 import org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService;
 import org.wso2.carbon.appfactory.s4.integration.S4TenantCloudInitializer;
+import org.wso2.carbon.appfactory.s4.integration.kubernetes.KubernetesDomainMappingManagementService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
@@ -57,11 +58,20 @@ public class S4IntegrationServiceComponent {
 		try {
             DomainMappingManagementService domainMappingManagementService =new DomainMappingManagementService();
 			context.getBundleContext().registerService(TenantCloudInitializer.class.getName(),
-			                                           new S4TenantCloudInitializer(), null);
+					new S4TenantCloudInitializer(), null);
 			context.getBundleContext()
-			       .registerService(DomainMappingManagementService.class.getName(),
-                                    domainMappingManagementService, null);
+			       .registerService(DomainMappingManagementService.class.getName(), domainMappingManagementService,
+					       null);
             ServiceReferenceHolder.getInstance().setDomainMappingManagementService(domainMappingManagementService);
+
+			KubernetesDomainMappingManagementService kubernetesDomainMappingManagementService =
+					new KubernetesDomainMappingManagementService();
+			context.getBundleContext()
+					.registerService(KubernetesDomainMappingManagementService.class.getName(),
+							kubernetesDomainMappingManagementService, null);
+			ServiceReferenceHolder.getInstance()
+					.setKubernetesDomainMappingManagementService(kubernetesDomainMappingManagementService);
+
             AppFactoryConfiguration appFactoryConfiguration = ServiceReferenceHolder.getInstance().getAppFactoryConfiguration();
             int listenerPriority = Integer.parseInt(appFactoryConfiguration.getFirstProperty("EventHandlers.DomainMappingListener.priority"));
             context.getBundleContext().registerService(ApplicationEventsHandler.class.getName(),

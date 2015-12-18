@@ -18,6 +18,7 @@ package org.wso2.carbon.appfactory.s4.integration.internal;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler;
 import org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService;
+import org.wso2.carbon.appfactory.s4.integration.kubernetes.KubernetesDomainMappingManagementService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 import java.util.Set;
@@ -36,11 +37,22 @@ public class ServiceReferenceHolder {
 	                                                                           new TreeSet<DomainMapperEventHandler<?>>();
     private static DomainMappingManagementService domainMappingManagementService;
 
+	private static KubernetesDomainMappingManagementService kubernetesDomainMappingManagementService;
+
 	private ServiceReferenceHolder() {
 	}
 
 	public static ServiceReferenceHolder getInstance() {
 		return instance;
+	}
+
+	public static KubernetesDomainMappingManagementService getKubernetesDomainMappingManagementService() {
+		return kubernetesDomainMappingManagementService;
+	}
+
+	public static void setKubernetesDomainMappingManagementService(
+			KubernetesDomainMappingManagementService kubernetesDomainMappingManagementService) {
+		ServiceReferenceHolder.kubernetesDomainMappingManagementService = kubernetesDomainMappingManagementService;
 	}
 
 	public AppFactoryConfiguration getAppFactoryConfiguration() {
