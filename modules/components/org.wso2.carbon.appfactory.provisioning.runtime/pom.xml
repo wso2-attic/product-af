@@ -202,7 +202,7 @@
                             jackson-annotations,jackson-core,jackson-databind,jackson-module-jaxb-annotations,
                             jackson-dataformat-yaml,json,fabric8-utils,kubernetes-model,snakeyaml,dnsjava,
                             assertj-core,fabric8-apt,hamcrest-core,jul-to-slf4j,junit,kubernetes-client,
-                            logging-interceptor,okhttp,okhttp-ws,okio,openshift-client,validation-api
+                            logging-interceptor,okhttp,okhttp-ws,okio,openshift-client,validation-api,kubernetes-api
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Directory>lib</Embed-Directory>
