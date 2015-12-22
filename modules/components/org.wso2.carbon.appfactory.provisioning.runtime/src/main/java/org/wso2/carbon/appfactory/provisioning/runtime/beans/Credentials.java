@@ -16,33 +16,32 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-public class BuildConfiguration {
+public class Credentials {
+    private String username;
+    private String password;
+    private Object token;
 
-    String jobType;
-    SourceConfig sourceConfig;
-    DestinationConfig destinationConfig;
-
-    public String getJobType() {
-        return jobType;
+    public String getUsername() {
+        return username;
     }
 
-    public void setJobType(String jobType) {
-        this.jobType = jobType;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public SourceConfig getSourceConfig() {
-        return sourceConfig;
+    public String getPassword() {
+        return password;
     }
 
-    public void setSourceConfig(SourceConfig sourceConfig) {
-        this.sourceConfig = sourceConfig;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public DestinationConfig getDestinationConfig() {
-        return destinationConfig;
+    public Object getToken() {
+        return token;
     }
 
-    public void setDestinationConfig(DestinationConfig destinationConfig) {
-        this.destinationConfig = destinationConfig;
+    public void setToken(Object token) {
+        this.token = token;
     }
 }

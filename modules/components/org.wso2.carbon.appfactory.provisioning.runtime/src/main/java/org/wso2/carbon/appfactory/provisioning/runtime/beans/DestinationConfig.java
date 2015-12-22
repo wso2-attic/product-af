@@ -16,33 +16,34 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-public class BuildConfiguration {
+import java.net.URL;
 
-    String jobType;
-    SourceConfig sourceConfig;
-    DestinationConfig destinationConfig;
+public class DestinationConfig {
+    URL url;
+    Credentials credentials;
+    String outputType;
 
-    public String getJobType() {
-        return jobType;
+    public URL getUrl() {
+        return url;
     }
 
-    public void setJobType(String jobType) {
-        this.jobType = jobType;
+    public void setUrl(URL url) {
+        this.url = url;
     }
 
-    public SourceConfig getSourceConfig() {
-        return sourceConfig;
+    public Credentials getCredentials() {
+        return credentials;
     }
 
-    public void setSourceConfig(SourceConfig sourceConfig) {
-        this.sourceConfig = sourceConfig;
+    public void setCredentials(Credentials credentials) {
+        this.credentials = credentials;
     }
 
-    public DestinationConfig getDestinationConfig() {
-        return destinationConfig;
+    public String getOutputType() {
+        return outputType;
     }
 
-    public void setDestinationConfig(DestinationConfig destinationConfig) {
-        this.destinationConfig = destinationConfig;
+    public void setOutputType(String outputType) {
+        this.outputType = outputType;
     }
 }
