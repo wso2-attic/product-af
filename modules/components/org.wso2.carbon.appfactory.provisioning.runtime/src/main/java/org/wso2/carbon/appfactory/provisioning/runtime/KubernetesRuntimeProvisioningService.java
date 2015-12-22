@@ -80,30 +80,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     }
 
-    @Override
-    public int createBuild(BuildConfiguration config) throws RuntimeProvisioningException {
-        return 0;
-    }
 
-    @Override
-    public String getBuildStatus(String buildId) throws RuntimeProvisioningException {
-        return null;
-    }
-
-    @Override
-    public String getBuildLog(String buildId) throws RuntimeProvisioningException {
-        return null;
-    }
-
-    @Override
-    public List<String> getBuildHistory() throws RuntimeProvisioningException {
-        return null;
-    }
-
-    @Override
-    public boolean cancelBuild(String buildId) throws RuntimeProvisioningException {
-        return false;
-    }
 
     /**
      * Create Kubernetes Deployment and set of services according to the deployment configuration
