@@ -282,6 +282,10 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
                             .withName(pod.getMetadata().getName()).inContainer(container.getName())
                             .getLog(true);
+                    if(log.isDebugEnabled()){
+                        log.debug(pod.getMetadata().getName() + ":" + container.getName() + " : log output");
+                        log.debug(log);
+                    }
                     InputStream is = new ByteArrayInputStream(logs.getBytes());
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
                     logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), bufferedReader);
