@@ -17,32 +17,4 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
 public class BuildConfiguration {
-
-    String jobType;
-    SourceConfig sourceConfig;
-    DestinationConfig destinationConfig;
-
-    public String getJobType() {
-        return jobType;
-    }
-
-    public void setJobType(String jobType) {
-        this.jobType = jobType;
-    }
-
-    public SourceConfig getSourceConfig() {
-        return sourceConfig;
-    }
-
-    public void setSourceConfig(SourceConfig sourceConfig) {
-        this.sourceConfig = sourceConfig;
-    }
-
-    public DestinationConfig getDestinationConfig() {
-        return destinationConfig;
-    }
-
-    public void setDestinationConfig(DestinationConfig destinationConfig) {
-        this.destinationConfig = destinationConfig;
-    }
 }

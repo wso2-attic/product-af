@@ -94,24 +94,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     }
 
-    @Override public int createBuild(BuildConfiguration config) throws RuntimeProvisioningException {
-        io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
-        kubContainer.setName("Maven Builder");
-        kubContainer.setImage("AppFactory/MavenBuilder:1.0.0");
-        List<EnvVar> envVars = new ArrayList<>();
-        envVars.add(new EnvVar("GIT_URL", config.getSourceConfig().getUrl().toString(), null));
-        envVars.add(new EnvVar("GIT_USERNAME", config.getSourceConfig().getCredentials().getUsername(), null));
-        envVars.add(new EnvVar("GIT_PASSWORD", config.getSourceConfig().getCredentials().getPassword(), null));
-
-        kubContainer.setEnv(envVars);
-
-        PodSpec podSpec = new PodSpecBuilder().withContainers(kubContainer).build();
-
-        KubernetesClient kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
-
-        Pod pod = new PodBuilder().withSpec(podSpec).build();
-        kubClient.pods().inNamespace(this.namespace.getMetadata().getName()).create(pod);
-
+    @Override
+    public int createBuild(BuildConfiguration config) throws RuntimeProvisioningException {
         return 0;
     }
 
@@ -468,7 +452,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .endRule()
                         .endSpec()
                         .build();
-
 
                 try {
                     httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
