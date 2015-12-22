@@ -149,7 +149,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             Deployment deployment = new DeploymentBuilder().withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
                     .withKind(KubernetesPovisioningConstants.KIND_DEPLOYMENT)
-                    .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
+                    .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName().toLowerCase()).build())
                     .withSpec(deploymentSpec)
                     .build();
 
