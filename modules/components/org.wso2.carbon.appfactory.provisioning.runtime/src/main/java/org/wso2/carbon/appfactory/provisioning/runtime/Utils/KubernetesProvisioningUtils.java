@@ -136,6 +136,7 @@ public class KubernetesProvisioningUtils {
         applicationContext.setId(id);
         applicationContext.setVersion(version);
         applicationContext.setType(type);
+        applicationContext.setCurrentStage(stage);
         TenantInfo tenantInfo = new TenantInfo();
         tenantInfo.setTenantId(tenantId);
         tenantInfo.setTenantDomain(tenantDomain);

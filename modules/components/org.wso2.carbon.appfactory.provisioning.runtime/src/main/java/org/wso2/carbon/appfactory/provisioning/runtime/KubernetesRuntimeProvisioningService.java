@@ -51,6 +51,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
+
     public void setApplicationContext(ApplicationContext applicationContext)
             throws RuntimeProvisioningException {
 
@@ -546,8 +547,12 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .createIngressMetaName(applicationContext, domain, service.getMetadata().getName())
                         .equals(createdIng.getMetadata().getName())){
                     created = true;
+                    log.info("Kubernetes ingress : " + ing + "created for service : " +
+                            service.getMetadata().getName());
                 }else{
                     created = false;
+                    log.error("Error occured while creating Kubernetes ingress : " + ing + "for service : " +
+                            service.getMetadata().getName());
                 }
             }
         }
