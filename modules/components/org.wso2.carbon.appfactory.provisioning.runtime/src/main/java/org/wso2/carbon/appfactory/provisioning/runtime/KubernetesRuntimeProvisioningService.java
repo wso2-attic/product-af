@@ -111,11 +111,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
                 List<ContainerPort> containerPorts = new ArrayList<>();
                 List<ServiceProxy> serviceProxies = container.getServiceProxies();
-                for (ServiceProxy serviceProxy : serviceProxies) {
-                    ContainerPort kubContainerPort = new ContainerPortBuilder()
-                            .withContainerPort(serviceProxy.getServiceBackendPort())
-                            .build();
-                    containerPorts.add(kubContainerPort);
+                if( serviceProxies != null && serviceProxies.size() > 0) {
+                    for (ServiceProxy serviceProxy : serviceProxies) {
+                        ContainerPort kubContainerPort = new ContainerPortBuilder()
+                                .withContainerPort(serviceProxy.getServiceBackendPort())
+                                .build();
+                        containerPorts.add(kubContainerPort);
+                    }
                 }
                 kubContainer.setPorts(containerPorts);
                 List<EnvVar> envVarList = new ArrayList<>();
@@ -147,7 +149,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             Deployment deployment = new DeploymentBuilder().withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
                     .withKind(KubernetesPovisioningConstants.KIND_DEPLOYMENT)
-                    .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
+                    .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName().toLowerCase()).build())
                     .withSpec(deploymentSpec)
                     .build();
 
