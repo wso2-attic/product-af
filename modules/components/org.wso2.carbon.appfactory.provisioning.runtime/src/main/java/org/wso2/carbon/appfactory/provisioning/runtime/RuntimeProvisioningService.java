@@ -62,6 +62,49 @@ public interface RuntimeProvisioningService {
      */
     public void archiveOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
+    /**
+     * Create a new build
+     *
+     * @param buildConfiguration build related details
+     * @return build id
+     * @throws RuntimeProvisioningException
+     */
+    public int createBuild(BuildConfiguration buildConfiguration) throws RuntimeProvisioningException;
+
+    /**
+     * Provide details about build status
+     *
+     * @param buildId id of the build
+     * @return Status of the build
+     * @throws RuntimeProvisioningException
+     */
+    public String getBuildStatus(String buildId) throws RuntimeProvisioningException;
+
+    /**
+     * Provide build related logs
+     *
+     * @param buildId id of the build
+     * @return logs of the build process
+     * @throws RuntimeProvisioningException
+     */
+    public String getBuildLog(String buildId) throws RuntimeProvisioningException;
+
+    /**
+     * Provide build related history details
+     *
+     * @return history of the build
+     * @throws RuntimeProvisioningException
+     */
+    public List<String> getBuildHistory() throws RuntimeProvisioningException;
+
+    /**
+     * Cancel already triggered build
+     *
+     * @param buildId
+     * @return id of the build
+     * @throws RuntimeProvisioningException
+     */
+    public boolean cancelBuild(String buildId) throws RuntimeProvisioningException;
 
     /**
      * Deploy an application
