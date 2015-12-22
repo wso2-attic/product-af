@@ -284,7 +284,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             .getLog(true);
                     if(log.isDebugEnabled()){
                         log.debug(pod.getMetadata().getName() + ":" + container.getName() + " : log output");
-                        log.debug(log);
+                        log.debug(logs);
                     }
                     InputStream is = new ByteArrayInputStream(logs.getBytes());
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
