@@ -133,11 +133,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
                 List<ContainerPort> containerPorts = new ArrayList<>();
                 List<ServiceProxy> serviceProxies = container.getServiceProxies();
-                for (ServiceProxy serviceProxy : serviceProxies) {
-                    ContainerPort kubContainerPort = new ContainerPortBuilder()
-                            .withContainerPort(serviceProxy.getServiceBackendPort())
-                            .build();
-                    containerPorts.add(kubContainerPort);
+                if( serviceProxies != null && serviceProxies.size() > 0) {
+                    for (ServiceProxy serviceProxy : serviceProxies) {
+                        ContainerPort kubContainerPort = new ContainerPortBuilder()
+                                .withContainerPort(serviceProxy.getServiceBackendPort())
+                                .build();
+                        containerPorts.add(kubContainerPort);
+                    }
                 }
                 kubContainer.setPorts(containerPorts);
                 List<EnvVar> envVarList = new ArrayList<>();
