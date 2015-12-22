@@ -51,6 +51,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
+
     public void setApplicationContext(ApplicationContext applicationContext)
             throws RuntimeProvisioningException {
 
@@ -80,30 +81,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     }
 
-    @Override
-    public int createBuild(BuildConfiguration config) throws RuntimeProvisioningException {
-        return 0;
-    }
 
-    @Override
-    public String getBuildStatus(String buildId) throws RuntimeProvisioningException {
-        return null;
-    }
-
-    @Override
-    public String getBuildLog(String buildId) throws RuntimeProvisioningException {
-        return null;
-    }
-
-    @Override
-    public List<String> getBuildHistory() throws RuntimeProvisioningException {
-        return null;
-    }
-
-    @Override
-    public boolean cancelBuild(String buildId) throws RuntimeProvisioningException {
-        return false;
-    }
 
     /**
      * Create Kubernetes Deployment and set of services according to the deployment configuration
@@ -307,6 +285,10 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
                             .withName(pod.getMetadata().getName()).inContainer(container.getName())
                             .getLog(true);
+                    if(log.isDebugEnabled()){
+                        log.debug(pod.getMetadata().getName() + ":" + container.getName() + " : log output");
+                        log.debug(logs);
+                    }
                     InputStream is = new ByteArrayInputStream(logs.getBytes());
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
                     logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), bufferedReader);
@@ -567,8 +549,12 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .createIngressMetaName(applicationContext, domain, service.getMetadata().getName())
                         .equals(createdIng.getMetadata().getName())){
                     created = true;
+                    log.info("Kubernetes ingress : " + ing + "created for service : " +
+                            service.getMetadata().getName());
                 }else{
                     created = false;
+                    log.error("Error occured while creating Kubernetes ingress : " + ing + "for service : " +
+                            service.getMetadata().getName());
                 }
             }
         }

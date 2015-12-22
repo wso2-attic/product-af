@@ -21,7 +21,7 @@ package org.wso2.carbon.appfactory.provisioning.runtime;
  */
 public class KubernetesPovisioningConstants {
 
-    public static final String KUB_MASTER_URL = "10.245.1.2";
+    public static final String KUB_MASTER_URL = "https://10.245.1.2/";
     public static final String KUB_API_VERSION = "v1";
 
     public static String MASTER_USERNAME;

@@ -42,10 +42,13 @@ public class KubernetesProvisioningUtils {
 
         //todo need to modify config object with master credentials properly
         Config config = new Config();
+        config.setUsername("vagrant");
+        config.setPassword("vagrant");
+        config.setNoProxy(new String[]{"localhost","10.245.1.2"});
         config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
         config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
 
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+        KubernetesClient kubernetesClient = new DefaultKubernetesClient(config);
         return kubernetesClient;
     }
 
@@ -133,6 +136,7 @@ public class KubernetesProvisioningUtils {
         applicationContext.setId(id);
         applicationContext.setVersion(version);
         applicationContext.setType(type);
+        applicationContext.setCurrentStage(stage);
         TenantInfo tenantInfo = new TenantInfo();
         tenantInfo.setTenantId(tenantId);
         tenantInfo.setTenantDomain(tenantDomain);
