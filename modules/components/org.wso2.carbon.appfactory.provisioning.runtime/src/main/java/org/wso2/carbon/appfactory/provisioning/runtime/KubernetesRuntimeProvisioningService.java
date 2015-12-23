@@ -173,7 +173,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     Service service = new ServiceBuilder()
                             .withKind(KubernetesPovisioningConstants.KIND_SERVICE)
                             .withSpec(serviceSpec)
-                            .withMetadata(new ObjectMetaBuilder().withName(serviceName).build())
+                            .withMetadata(new ObjectMetaBuilder().withName(serviceName.toLowerCase()).build())
                             .build();
                     serviceList.add(service);
                 }
