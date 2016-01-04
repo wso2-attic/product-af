@@ -115,13 +115,12 @@ $(document).ready(function () {
                 downloadFile:"false",
                 pageNumber : 1
             },function (result) {
-                var resultJson = JSON.parse(result);
-                if(!resultJson.error && resultJson.logEvents) {
-                    $('#view-logs-content').html(resultJson.logEvents);
-                    $('.log-container').show();
-                } else {
-                    jagg.message({content: "No logs available for version" + selectedVersion + " in stage " + selectedStage + " .", type: 'error', id:'view_log'});
-                }
+                 if(!result) {
+                     $('#view-logs-content').html(result);
+                     $('.log-container').show();
+                 } else {
+                     jagg.message({content: "No logs available for version" + selectedVersion + " in stage " + selectedStage + " .", type: 'error', id:'view_log'});
+                 }
             },function (jqXHR, textStatus, errorThrown) {
                 jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
             });        

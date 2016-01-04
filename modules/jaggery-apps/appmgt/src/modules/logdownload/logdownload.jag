@@ -27,32 +27,8 @@ var log = new Log("module/logdownload/logdownload.jag");
 var modManager = jagg.module("manager");
 
 var downloadLogFile = function (applicationKey, stage, version, date, pageNumber) {
-/*    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_VISIBILITY_STAGE+stage);
 
-    var appName = "" ;
-
-    if(version == "trunk"){
-        appName = applicationKey + "-default-SNAPSHOT";
-    }else{
-        appName = applicationKey + "-" + version;
-    }
-
-    if(!date  || date == ""){
-        date = constructCurrentDate();
-        return downloadDailyLogs(appName, stage, pageNumber);
-    }else{
-        var currentDate = constructCurrentDate();
-        if(currentDate == date){
-            return downloadDailyLogs(appName, stage, pageNumber);
-        }else if(compareDates(currentDate,date)){
-            var fileName= date  +'.log';
-            return downloadArchivedLogFile(appName, stage, fileName);
-        }else{
-            log.debug("Given date is greater than the current date");
-        }
-    }
-    return "";*/
-
+      return getRuntimeLogs();
 };
 
 var  compareDates = function(current, original){
@@ -77,27 +53,23 @@ var constructCurrentDate = function(){
 
 // Calling getRuntimeLogs in KubernetesRuntimeProvisioningService to retrieve logs
 var getRuntimeLogs = function () {
-    var KubernetesRuntimeProvisioningService = Packages.org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
+
+    var KubernetesRuntime = Packages.org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
     var ApplicationContext = Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
-    var appContext = new ApplicationContext();
-
-    //for testing on demo tomcat deployment with kubernetes
-
-    var TenantInfo = Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo();
+    var applicationCtx = new ApplicationContext();
+    var TenantInfo = org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
     var tenantInfo = new TenantInfo();
+
+    //values are hard coded for the purpose of testing on a tomcat deployment with kubernetes
     tenantInfo.setTenantId(5);
     tenantInfo.setTenantDomain("wso2.org");
-
     applicationCtx.setCurrentStage("DEV");
     applicationCtx.setName("My-JAXRS");
     applicationCtx.setVersion("1.0.0");
     applicationCtx.setTenantInfo(tenantInfo);
     applicationCtx.setId("MYJAXRSAPPID");
 
-    // end of demo tomcat deployment
-
-
-    var kubService = new KubernetesRuntimeProvisioningService(appContext);
+    var kubService = new KubernetesRuntime(applicationCtx);
     var deploymentLog = kubService.getRuntimeLogs(null);
 
     return deploymentLog;
