@@ -45,8 +45,8 @@ public class KubernetesProvisioningUtils {
 
         //todo need to modify config object with master credentials properly
         Config config = new Config();
-        config.setUsername("vagrant");
-        config.setPassword("vagrant");
+        //config.setUsername("vagrant");
+        //config.setPassword("vagrant");
         config.setNoProxy(new String[]{"https://192.168.19.249:8080"});
         config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
         config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
