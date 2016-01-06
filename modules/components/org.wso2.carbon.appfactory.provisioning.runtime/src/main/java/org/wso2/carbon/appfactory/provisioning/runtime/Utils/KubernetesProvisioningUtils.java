@@ -44,7 +44,7 @@ public class KubernetesProvisioningUtils {
         Config config = new Config();
         config.setUsername("vagrant");
         config.setPassword("vagrant");
-        config.setNoProxy(new String[]{"localhost","10.245.1.2"});
+        config.setNoProxy(new String[]{"https://192.168.19.249:8080"});
         config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
         config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
 

@@ -39,4 +39,11 @@ public final class ApplicationTypeConstants {
     public static final String ICON_IMAGE_CLASS = "IconImageClass";
 	public static final String INITIAL_DEPLOYER_CLASS_NAME = "InitialDeployerClassName";
 	public static final String PERSIST_APPLICATION_ENDPOINT_METADATA = "PersistApplicationEndPointMetaData";
+    //Kubernetes
+    public static final String BASE_IMAGE_NAME = "BaseImageName";
+    public static final String BASE_IMAGE_VERSION = "BaseImageVersion";
+    public static final String ENV_VARIABLE_KV_LIST = "EnvVarialbleKVList";
+    public static final String SERVICE_NAME = "ServiceName";
+    public static final String SERVICE_PORT = "ServicePort";
+    public static final String SERVICE_PROTOCOL = "ServiceProtocol";
 }
