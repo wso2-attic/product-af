@@ -20,6 +20,8 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
@@ -32,6 +34,7 @@ import java.util.Map;
  */
 
 public class KubernetesProvisioningUtils {
+    private static final Log log = LogFactory.getLog(KubernetesProvisioningUtils.class);
 
     /**
      * This method will create a common Kubernetes client object with authentication to the Kubernetes master server
@@ -63,6 +66,8 @@ public class KubernetesProvisioningUtils {
         // todo: consider constraints of 24 character limit in namespace.
         String ns = applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage();
         ns = ns.replace(".", "-").toLowerCase();
+
+        log.info("Constructing a namespace with value: "+ns);
         ObjectMeta metadata = new ObjectMetaBuilder()
                 .withName(ns)
                 .build();
