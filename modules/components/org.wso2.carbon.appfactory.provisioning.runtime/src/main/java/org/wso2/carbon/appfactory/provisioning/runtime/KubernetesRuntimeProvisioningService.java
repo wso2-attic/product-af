@@ -138,7 +138,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     .build();
 
             PodTemplateSpec podTemplateSpec = new PodTemplateSpecBuilder()
-                    .withMetadata(new ObjectMetaBuilder().withLabels(config.getLables()).build())
+                    .withMetadata(new ObjectMetaBuilder()
+                    .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext))
+                    .build())
                     .withSpec(podSpec)
                     .build();
 
