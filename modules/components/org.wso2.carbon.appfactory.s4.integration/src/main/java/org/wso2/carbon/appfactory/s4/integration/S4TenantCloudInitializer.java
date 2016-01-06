@@ -29,6 +29,7 @@ import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningExcept
 import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningService;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
+import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 
 import java.io.IOException;
 import java.util.Map;
@@ -54,7 +55,9 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
             // create "tenant creation" messages
             ObjectMapper mapper = new ObjectMapper();
             TenantInfo tenantInfo = new TenantInfo();
-            tenantInfo.setTenantDomain(tenantInfoJson);
+            TenantInfoBean tenantInfoBean = mapper.readValue(tenantInfoJson, TenantInfoBean.class);
+            tenantInfo.setTenantDomain(tenantInfoBean.getTenantDomain());
+            
             String[] stages = mapper.readValue(stageJson, String[].class);
             for (String stage : stages) {
                 ApplicationContext applicationContext = new ApplicationContext();
