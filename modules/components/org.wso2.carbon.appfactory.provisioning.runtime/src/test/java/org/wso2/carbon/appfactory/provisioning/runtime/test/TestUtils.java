@@ -80,6 +80,8 @@ public class TestUtils {
     public Deployment createDeployment() {
         Map<String, String> labelsMap = new HashMap<String, String>();
         labelsMap.put("app", getAppCtx().getId());
+        labelsMap.put("version", getAppCtx().getVersion());
+        labelsMap.put("stage", getAppCtx().getCurrentStage());
         Deployment deployment = new DeploymentBuilder()
                 .withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
                 .withKind("Deployment")

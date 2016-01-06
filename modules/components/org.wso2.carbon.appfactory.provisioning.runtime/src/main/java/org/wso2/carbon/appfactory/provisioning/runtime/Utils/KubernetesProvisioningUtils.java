@@ -84,7 +84,7 @@ public class KubernetesProvisioningUtils {
      */
     public static PodList getPods (ApplicationContext applicationContext){
 
-        Map<String, String> selector = getSelector(applicationContext);
+        Map<String, String> selector = getLableMap(applicationContext);
         KubernetesClient kubernetesClient = getFabric8KubernetesClient();
         PodList podList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
                 .getName()).pods().withLabels(selector).list();
@@ -98,7 +98,7 @@ public class KubernetesProvisioningUtils {
      * @return list of services related for the current application context
      */
     public static ServiceList getServices(ApplicationContext applicationContext){
-        Map<String, String> selector = getSelector(applicationContext);
+        Map<String, String> selector = getLableMap(applicationContext);
         KubernetesClient kubernetesClient = getFabric8KubernetesClient();
         ServiceList serviceList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
                 .getName()).services().withLabels(selector).list();
@@ -111,13 +111,13 @@ public class KubernetesProvisioningUtils {
      * @param applicationContext context of the current application
      * @return selector which can be use to filter out certain kinds
      */
-    public static Map<String, String> getSelector(ApplicationContext applicationContext) {
+    public static Map<String, String> getLableMap(ApplicationContext applicationContext) {
 
         //todo generate a common selector valid for all types of application
         Map<String, String> selector = new HashMap<>();
         selector.put("app", applicationContext.getId());
-        //selector.put("version", applicationContext.getVersion());
-        //selector.put("stage",applicationContext.getCurrentStage());
+        selector.put("version", applicationContext.getVersion());
+        selector.put("stage",applicationContext.getCurrentStage());
         return selector;
     }
 
