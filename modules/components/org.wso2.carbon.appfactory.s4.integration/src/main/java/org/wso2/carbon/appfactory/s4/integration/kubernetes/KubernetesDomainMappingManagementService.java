@@ -75,7 +75,7 @@ public class KubernetesDomainMappingManagementService {
         String appName = ApplicationDAO.getInstance().getApplicationInfo(appKey).getName();
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         int tenantId =  CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        ApplicationContext applicationContext = KubernetesProvisioningUtils.getApplicationContext(appName, appKey,
+        ApplicationContext applicationContext = KubernetesProvisioningUtils.getApplicationContext(appKey,
                 version, stage, appType, tenantId, tenantDomain);
 
         KubernetesRuntimeProvisioningService kubernetesRuntimeProvisioningService =
@@ -398,7 +398,7 @@ public class KubernetesDomainMappingManagementService {
         String appType = ApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
         String appName = ApplicationDAO.getInstance().getApplicationInfo(appKey).getName();
         int tenantId =  CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        ApplicationContext applicationContext = KubernetesProvisioningUtils.getApplicationContext(appName, appKey,
+        ApplicationContext applicationContext = KubernetesProvisioningUtils.getApplicationContext(appKey,
                 version, stage, appType, tenantId, tenantDomain);
 
         KubernetesRuntimeProvisioningService kubernetesRuntimeProvisioningService =
@@ -607,7 +607,7 @@ public class KubernetesDomainMappingManagementService {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String appName = ApplicationDAO.getInstance().getApplicationInfo(appKey).getName();
         int tenantId =  CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        ApplicationContext applicationContext = KubernetesProvisioningUtils.getApplicationContext(appName, appKey,
+        ApplicationContext applicationContext = KubernetesProvisioningUtils.getApplicationContext(appKey,
                 version, stage, appType, tenantId, tenantDomain);
 
         KubernetesRuntimeProvisioningService kubernetesRuntimeProvisioningService =

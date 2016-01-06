@@ -28,7 +28,7 @@ var modManager = jagg.module("manager");
 
 var downloadLogFile = function (applicationKey, stage, version, date, pageNumber) {
 
-      return getRuntimeLogs();
+      return getRuntimeLogs(applicationKey, stage, version, date, pageNumber);
 };
 
 var  compareDates = function(current, original){
@@ -52,7 +52,7 @@ var constructCurrentDate = function(){
 };
 
 // Calling getRuntimeLogs in KubernetesRuntimeProvisioningService to retrieve logs
-var getRuntimeLogs = function () {
+var getRuntimeLogs = function (applicationKey, stage, version, date, pageNumber) {
 
     var KubernetesRuntime = Packages.org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
     var ApplicationContext = Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
@@ -61,13 +61,13 @@ var getRuntimeLogs = function () {
     var tenantInfo = new TenantInfo();
 
     //values are hard coded for the purpose of testing on a tomcat deployment with kubernetes
-    //tenantInfo.setTenantId(5);
-    //tenantInfo.setTenantDomain("wso2.org");
-    //applicationCtx.setCurrentStage("DEV");
-    //applicationCtx.setName("My-JAXRS");
-    //applicationCtx.setVersion("1.0.0");
+    //tenantInfo.setTenantId(modManager.getTenantId());
+    //tenantInfo.setTenantDomain(modManager.getTenantDomain());
+    //applicationCtx.setCurrentStage(stage);
+    //applicationCtx.setName(applicationKey);
+    //applicationCtx.setVersion(version);
     //applicationCtx.setTenantInfo(tenantInfo);
-    //applicationCtx.setId("MYJAXRSAPPID");
+    //applicationCtx.setId(applicationKey);
 
     var kubService = new KubernetesRuntime(applicationCtx);
     var deploymentLog = kubService.getRuntimeLogs(null);

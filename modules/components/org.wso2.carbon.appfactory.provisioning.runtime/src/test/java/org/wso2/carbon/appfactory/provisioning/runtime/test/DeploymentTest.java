@@ -116,13 +116,12 @@ public class DeploymentTest  {
 
         ApplicationContext applicationCtx = new ApplicationContext();
         applicationCtx.setCurrentStage("DEV");
-        applicationCtx.setName("My-JAXRS");
         applicationCtx.setVersion("1.0.0");
         TenantInfo tenant = new TenantInfo();
         tenant.setTenantId(5);
         tenant.setTenantDomain("wso2.org");
         applicationCtx.setTenantInfo(tenant);
-        applicationCtx.setId("MYJAXRSAPPID");
+        applicationCtx.setId("My-JAXRS");
 
         return applicationCtx;
     }

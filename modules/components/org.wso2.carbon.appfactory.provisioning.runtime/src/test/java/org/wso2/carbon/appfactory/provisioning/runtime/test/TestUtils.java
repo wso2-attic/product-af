@@ -54,14 +54,14 @@ public class TestUtils {
 
     public void createService() {
         Map<String, String> labelsMap = new HashMap<String, String>();
-        labelsMap.put("app", getAppCtx().getName());
+        labelsMap.put("app", getAppCtx().getId());
         labelsMap.put("version", getAppCtx().getVersion());
         labelsMap.put("stage", getAppCtx().getCurrentStage());
         Service service = new ServiceBuilder()
                 .withApiVersion(Service.ApiVersion.V_1)
                 .withKind(KubernetesPovisioningConstants.KIND_SERVICE)
                 .withNewMetadata()
-                .withName((getAppCtx().getName() + "-" + getAppCtx().getVersion().replace(".","-")).toLowerCase())
+                .withName((getAppCtx().getId() + "-" + getAppCtx().getVersion().replace(".","-")).toLowerCase())
                 .withLabels(labelsMap)
                 .endMetadata()
                 .withNewSpec()
@@ -79,12 +79,12 @@ public class TestUtils {
 
     public Deployment createDeployment() {
         Map<String, String> labelsMap = new HashMap<String, String>();
-        labelsMap.put("app", getAppCtx().getName());
+        labelsMap.put("app", getAppCtx().getId());
         Deployment deployment = new DeploymentBuilder()
                 .withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
                 .withKind("Deployment")
                 .withNewMetadata()
-                .withName((getAppCtx().getName() + "-" + getAppCtx().getVersion().replace(".","-")).toLowerCase())
+                .withName((getAppCtx().getId() + "-" + getAppCtx().getVersion().replace(".","-")).toLowerCase())
                 .endMetadata()
                 .withNewSpec()
                 .withReplicas(2)
@@ -125,13 +125,12 @@ public class TestUtils {
 
         ApplicationContext applicationCtx = new ApplicationContext();
         applicationCtx.setCurrentStage("DEV");
-        applicationCtx.setName("My-JAXRS");
         applicationCtx.setVersion("1.0.0");
         TenantInfo tenant = new TenantInfo();
         tenant.setTenantId(5);
         tenant.setTenantDomain("wso2.org");
         applicationCtx.setTenantInfo(tenant);
-        applicationCtx.setId("MYJAXRSAPPID");
+        applicationCtx.setId("My-JAXRS");
 
         return applicationCtx;
     }
