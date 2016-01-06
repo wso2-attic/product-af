@@ -31,7 +31,6 @@ include("/jagg/config_reader.jag");
         return;
     }
     if (action == "downloadLogFile") {
-
         var applicationKey = request.getParameter("applicationKey");
         var stage = request.getParameter("applicationStage");
         var version = request.getParameter("applicationVersion");
@@ -47,39 +46,32 @@ include("/jagg/config_reader.jag");
 
         var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
         if (jagg.module("permission").isUserAccessGrantedForPlatform(deployToStagePermission)){
-            try {
-                var result = mod.downloadLogFile(applicationKey, stage, version, date, pageNumber);
+            var result = mod.downloadLogFile(applicationKey, stage, version, date, pageNumber);
 
-                if (downloadFile == "true") {
+            var deploymentLogs = "";
+            if (result instanceof Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentLogs){
+               var map = result.getDeploymentLogs();
+               var iterator = map.entrySet().iterator();
+               while (iterator.hasNext()) {
+                   var entry = iterator.next();
+                   deploymentLogs += entry.getKey() + "\n";
+                   deploymentLogs += "-----------------------------------------------------\n";
 
-                    var fileName;
-                    if (date == null || date == "") {
-
-                        var d = new Date();
-                        var curr_date = ("0" + d.getDate()).slice(-2);
-
-                        var curr_month = ("0" + (d.getMonth() + 1)).slice(-2); //Months are zero based
-                        var curr_year = d.getFullYear();
-                        fileName = applicationKey + "_" + curr_year + "_" + curr_month + "_" + curr_date + ".log";
-                    } else {
-                        fileName = applicationKey + "_" + date + ".log";
-                    }
-                    response.error = false;
-                    response.contentType = 'application/txt';
-                    response.addHeader('Content-Disposition', 'attachment;filename=' + fileName.toString());
-                    print(result.logEvents);
-                    return;
-                }
-                print(result);
-            } catch (e) {
-                print({error: true, message: "Unable to download logs"});
+                   var record = "";
+                   while ((record = entry.getValue().readLine()) != null) {
+                       deploymentLogs += record + "\n";
+                   }
+                   deploymentLogs += "\n\n\n\n"
+               }
             }
+            response.error = false;
+            response.contentType = 'application/txt';
+            print(deploymentLogs);
         } else {
             response.error = true;
             response.message = "You don't have permission to download the log file";
             print(response);
         }
-
 
     } else if (action === "getAppVersionsInStages") {
 

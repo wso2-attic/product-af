@@ -102,7 +102,8 @@ public class ApplicationManagementServiceComponent {
 			}
 		}
 
-		try {
+		// Todo: remove below code segment when authorization listener code is properly removed.
+		/*try {
 			priority =
 			           Integer.parseInt(appFactoryConfiguration.getFirstProperty("EventHandlers.EnvironmentAuthorizationHandler.priority"));
 			bundleContext.registerService(ApplicationEventsHandler.class.getName(),
@@ -112,7 +113,7 @@ public class ApplicationManagementServiceComponent {
 		} catch (NumberFormatException nfe) {
 			log.error("Invalid priority provided for EnvironmentAuthorizationListener", nfe);
 		}
-
+*/
 		Dictionary<String, Object> propsNonBuild = new Hashtable<String, Object>();
 		propsNonBuild.put(AppFactoryConstants.STORAGE_TYPE,
 		                  AppFactoryConstants.BUILDABLE_STORAGE_TYPE);

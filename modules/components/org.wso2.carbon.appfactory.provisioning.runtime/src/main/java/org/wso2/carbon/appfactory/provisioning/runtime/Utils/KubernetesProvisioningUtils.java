@@ -20,6 +20,8 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
@@ -32,6 +34,7 @@ import java.util.Map;
  */
 
 public class KubernetesProvisioningUtils {
+    private static final Log log = LogFactory.getLog(KubernetesProvisioningUtils.class);
 
     /**
      * This method will create a common Kubernetes client object with authentication to the Kubernetes master server
@@ -63,6 +66,8 @@ public class KubernetesProvisioningUtils {
         // todo: consider constraints of 24 character limit in namespace.
         String ns = applicationContext.getTenantInfo().getTenantDomain() + "-" + applicationContext.getCurrentStage();
         ns = ns.replace(".", "-").toLowerCase();
+
+        log.info("Constructing a namespace with value: "+ns);
         ObjectMeta metadata = new ObjectMetaBuilder()
                 .withName(ns)
                 .build();
@@ -79,7 +84,7 @@ public class KubernetesProvisioningUtils {
      */
     public static PodList getPods (ApplicationContext applicationContext){
 
-        Map<String, String> selector = getSelector(applicationContext);
+        Map<String, String> selector = getLableMap(applicationContext);
         KubernetesClient kubernetesClient = getFabric8KubernetesClient();
         PodList podList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
                 .getName()).pods().withLabels(selector).list();
@@ -93,7 +98,7 @@ public class KubernetesProvisioningUtils {
      * @return list of services related for the current application context
      */
     public static ServiceList getServices(ApplicationContext applicationContext){
-        Map<String, String> selector = getSelector(applicationContext);
+        Map<String, String> selector = getLableMap(applicationContext);
         KubernetesClient kubernetesClient = getFabric8KubernetesClient();
         ServiceList serviceList = kubernetesClient.inNamespace(getNameSpace(applicationContext).getMetadata()
                 .getName()).services().withLabels(selector).list();
@@ -106,13 +111,13 @@ public class KubernetesProvisioningUtils {
      * @param applicationContext context of the current application
      * @return selector which can be use to filter out certain kinds
      */
-    public static Map<String, String> getSelector(ApplicationContext applicationContext) {
+    public static Map<String, String> getLableMap(ApplicationContext applicationContext) {
 
         //todo generate a common selector valid for all types of application
         Map<String, String> selector = new HashMap<>();
-        selector.put("app", applicationContext.getName());
-        //selector.put("version", applicationContext.getVersion());
-        //selector.put("stage",applicationContext.getCurrentStage());
+        selector.put("app", applicationContext.getId());
+        selector.put("version", applicationContext.getVersion());
+        selector.put("stage",applicationContext.getCurrentStage());
         return selector;
     }
 
@@ -125,14 +130,13 @@ public class KubernetesProvisioningUtils {
      */
     public static String createIngressMetaName(ApplicationContext applicationContext, String domain, String serviceName){
         //
-        return (applicationContext.getName() + "-" + applicationContext.getVersion() + "-" + domain + "-" + serviceName)
+        return (applicationContext.getId() + "-" + applicationContext.getVersion() + "-" + domain + "-" + serviceName)
                 .replace(".","-").toLowerCase();
     }
 
-    public static ApplicationContext getApplicationContext(String name, String id, String version, String stage,
+    public static ApplicationContext getApplicationContext(String id, String version, String stage,
             String type, int tenantId, String tenantDomain){
         ApplicationContext applicationContext = new ApplicationContext();
-        applicationContext.setName(name);
         applicationContext.setId(id);
         applicationContext.setVersion(version);
         applicationContext.setType(type);

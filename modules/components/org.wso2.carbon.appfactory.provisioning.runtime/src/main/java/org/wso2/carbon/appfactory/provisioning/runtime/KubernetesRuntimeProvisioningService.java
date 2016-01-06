@@ -138,7 +138,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     .build();
 
             PodTemplateSpec podTemplateSpec = new PodTemplateSpecBuilder()
-                    .withMetadata(new ObjectMetaBuilder().withLabels(config.getLables()).build())
+                    .withMetadata(new ObjectMetaBuilder()
+                    .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext))
+                    .build())
                     .withSpec(podSpec)
                     .build();
 
@@ -269,7 +271,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                                 .sinceSeconds(query.getDurationInHours() * 3600);
                     } else {
                         throw new RuntimeProvisioningException("Error in log retrieving query while querying logs"
-                                + " of application : " + applicationContext.getName());
+                                + " of application : " + applicationContext.getId());
                     }
                     logs = (String) prettyLoggable.getLog(true);
                     InputStream is = new ByteArrayInputStream(logs.getBytes());
@@ -319,7 +321,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             switch (runtimeProperty.getPropertyType()) {
             case SENSITIVE:
                 if (log.isDebugEnabled()) {
-                    String message = "Creating property type secret for the application:" + applicationContext.getName()
+                    String message = "Creating property type secret for the application:" + applicationContext.getId()
                             + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
                     log.debug(message);
                 }
@@ -347,7 +349,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             case ENVIRONMENT:
                 if (log.isDebugEnabled()) {
                     String message = "Creating property type environment for the application:"
-                            + applicationContext.getName() + " for the tenant domain:"
+                            + applicationContext.getId() + " for the tenant domain:"
                             + applicationContext.getTenantInfo().getTenantDomain();
                     log.debug(message);
                 }
@@ -405,7 +407,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             switch (runtimeProperty.getPropertyType()) {
             case SENSITIVE:
                 if (log.isDebugEnabled()) {
-                    String message = "Updating property type secret for the application:" + applicationContext.getName()
+                    String message = "Updating property type secret for the application:" + applicationContext.getId()
                             + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
 
                     log.debug(message);
@@ -436,7 +438,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             case ENVIRONMENT:
                 if (log.isDebugEnabled()) {
                     String message = "Updating property type environment for the application:"
-                            + applicationContext.getName() + " for the tenant domain:"
+                            + applicationContext.getId() + " for the tenant domain:"
                             + applicationContext.getTenantInfo().getTenantDomain();
 
                     log.debug(message);
@@ -486,7 +488,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         }
 
         Pod pod = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                .withName(applicationContext.getName()).get();
+                .withName(applicationContext.getId()).get();
 
         //get only first container from the container list
         List<EnvVar> envVarList = pod.getSpec().getContainers().get(0).getEnv();

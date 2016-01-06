@@ -50,7 +50,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
         </div>
         <div class='row'>
             <div id="push"></div>
-            <div class="col-md-6 forms cloud-tab">
+            <div class="col-md-6 forms cloud-tab" style="width:100%;">
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#recent" aria-controls="general" role="tab" data-toggle="tab">Recent Logs</a></li>
