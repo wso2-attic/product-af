@@ -115,7 +115,7 @@ public class KubernetesProvisioningUtils {
 
         //todo generate a common selector valid for all types of application
         Map<String, String> selector = new HashMap<>();
-        selector.put("app", applicationContext.getName());
+        selector.put("app", applicationContext.getId());
         //selector.put("version", applicationContext.getVersion());
         //selector.put("stage",applicationContext.getCurrentStage());
         return selector;
@@ -130,14 +130,13 @@ public class KubernetesProvisioningUtils {
      */
     public static String createIngressMetaName(ApplicationContext applicationContext, String domain, String serviceName){
         //
-        return (applicationContext.getName() + "-" + applicationContext.getVersion() + "-" + domain + "-" + serviceName)
+        return (applicationContext.getId() + "-" + applicationContext.getVersion() + "-" + domain + "-" + serviceName)
                 .replace(".","-").toLowerCase();
     }
 
-    public static ApplicationContext getApplicationContext(String name, String id, String version, String stage,
+    public static ApplicationContext getApplicationContext(String id, String version, String stage,
             String type, int tenantId, String tenantDomain){
         ApplicationContext applicationContext = new ApplicationContext();
-        applicationContext.setName(name);
         applicationContext.setId(id);
         applicationContext.setVersion(version);
         applicationContext.setType(type);

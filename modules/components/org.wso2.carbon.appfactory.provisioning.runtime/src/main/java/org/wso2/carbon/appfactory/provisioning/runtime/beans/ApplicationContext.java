@@ -19,7 +19,6 @@ package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 public class ApplicationContext {
 
     private String id;
-    private String name;
     private String version;
     private String currentStage;
     private String type;
@@ -33,10 +32,6 @@ public class ApplicationContext {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public String getVersion() {
         return version;
     }
@@ -47,10 +42,6 @@ public class ApplicationContext {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setVersion(String version) {
