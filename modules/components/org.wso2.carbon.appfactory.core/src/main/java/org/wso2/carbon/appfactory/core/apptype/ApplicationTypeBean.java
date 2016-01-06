@@ -52,6 +52,13 @@ public class ApplicationTypeBean {
 	//Fully qualified class name of application undeployer
 	private String undeployerClassName;
 	private boolean persistApplicationEndPointMetaData;
+	private String baseImageName;
+	private String baseImageVersion;
+	private String envVariableKVList;
+	private String serviceName;
+	private String servicePort;
+	private String serviceProtocol;
+
 	public ApplicationTypeBean(){
 	}
 
@@ -260,5 +267,53 @@ public class ApplicationTypeBean {
 
 	public void setPersistApplicationEndPointMetaData(boolean persistApplicationEndPointMetaData) {
 		this.persistApplicationEndPointMetaData = persistApplicationEndPointMetaData;
+	}
+
+	public String getBaseImageName() {
+		return baseImageName;
+	}
+
+	public void setBaseImageName(String baseImageName) {
+		this.baseImageName = baseImageName;
+	}
+
+	public String getBaseImageVersion() {
+		return baseImageVersion;
+	}
+
+	public void setBaseImageVersion(String baseImageVersion) {
+		this.baseImageVersion = baseImageVersion;
+	}
+
+	public String getEnvVariableKVList() {
+		return envVariableKVList;
+	}
+
+	public void setEnvVariableKVList(String envVariableKVList) {
+		this.envVariableKVList = envVariableKVList;
+	}
+
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public String getServicePort() {
+		return servicePort;
+	}
+
+	public void setServicePort(String servicePort) {
+		this.servicePort = servicePort;
+	}
+
+	public String getServiceProtocol() {
+		return serviceProtocol;
+	}
+
+	public void setServiceProtocol(String serviceProtocol) {
+		this.serviceProtocol = serviceProtocol;
 	}
 }
