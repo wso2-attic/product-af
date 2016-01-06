@@ -24,6 +24,11 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.TenantCloudInitializer;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
+import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
+import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
+import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningService;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
 import java.io.IOException;
 import java.util.Map;
@@ -46,18 +51,28 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 			String runtimesJson = properties.get(AppFactoryConstants.RUNTIMES);
 			String tenantInfoJson = properties.get(AppFactoryConstants.TENANT_INFO);
 
-			// create "tenant creation" messages
-			ObjectMapper mapper = new ObjectMapper();
-			String[] stages = mapper.readValue(stageJson, String[].class);
-			for (String stage : stages) {
-				publishToQueue(runtimesJson, tenantInfoJson, properties, stage,
-				               stage + AppFactoryConstants.TENANT_CREATION_TOPIC);
-			}
+            // create "tenant creation" messages
+            ObjectMapper mapper = new ObjectMapper();
+            TenantInfo tenantInfo = new TenantInfo();
+            tenantInfo.setTenantDomain(tenantInfoJson);
+            String[] stages = mapper.readValue(stageJson, String[].class);
+            for (String stage : stages) {
+                ApplicationContext applicationContext = new ApplicationContext();
+                applicationContext.setTenantInfo(tenantInfo);
+                applicationContext.setCurrentStage(stage);
 
-			// create "cartridge subscription" message
-			publishToQueue(runtimesJson, tenantInfoJson, properties, stageJson,
-			               AppFactoryConstants.TENANT_SUBSCRIPTION_TOPIC);
-			log.info("successfully created messages for tenant creation and cartridge subscription");
+                RuntimeProvisioningService runtimeProvisioningService = new KubernetesRuntimeProvisioningService(applicationContext);
+                runtimeProvisioningService.createOrganization(tenantInfo);
+
+//				publishToQueue(runtimesJson, tenantInfoJson, properties, stage,
+//                        stage + AppFactoryConstants.TENANT_CREATION_TOPIC);
+                log.info("Tenant creation event is successfully handled by runtime provisioning client for stage:"
+                        + stage + " on tenant:" + tenantInfo.getTenantDomain());
+            }
+
+            // create "cartridge subscription" message
+            //			publishToQueue(runtimesJson, tenantInfoJson, properties, stageJson,
+            //			               AppFactoryConstants.TENANT_SUBSCRIPTION_TOPIC);
 
 		} catch (JsonParseException e) {
 			String msg = "Error while converting the json to object.";
@@ -68,12 +83,15 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 		} catch (IOException e) {
 			String msg = "Error while converting the json to object.";
 			log.error(msg, e);
-		} catch (AppFactoryException e) {
+		}/* catch (AppFactoryException e) {
 			String msg = "Can not continue tenant creation due to " + e.getLocalizedMessage();
 			log.error(msg, e);
-		}
+		} */catch (RuntimeProvisioningException e) {
+            String msg = "Can not continue tenant creation due to " + e.getLocalizedMessage();
+            log.error(msg, e);
+        }
 
-	}
+    }
 
 	/**
 	 * Publish message to queue
