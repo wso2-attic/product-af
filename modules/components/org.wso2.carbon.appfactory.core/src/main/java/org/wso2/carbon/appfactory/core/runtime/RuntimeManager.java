@@ -121,7 +121,8 @@ public class RuntimeManager {
 			if (config.get(AppFactoryConstants.RUNTIME_SERVER_URL) != null) {
 				applicationRuntimeBean.setServerURL(config.remove(AppFactoryConstants.RUNTIME_SERVER_URL));
 			}
-
+            applicationRuntimeBean.setBaseDockerImageName(config.remove(AppFactoryConstants.BASE_DOCKER_IMAGE_NAME));
+            applicationRuntimeBean.setDeploymentPath(config.remove(AppFactoryConstants.DEPLOYMENT_PATH));
 			applicationRuntimeBean.setProperties(config);
 			runtimeManager.getRuntimeBeanMap().put(runtimeName, applicationRuntimeBean);
 		} catch (NullPointerException e) {

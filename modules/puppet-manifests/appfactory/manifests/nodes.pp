@@ -61,6 +61,11 @@ node basenode {
   $kubernetes_host_ip = $kubernetes_host
   $kubernetes_port = $kubernetes_port
 
+  $docker_registry_url = "registry.docker.appfactory.private.wso2.com"
+  $docker_registry_port = 5000
+  $docker_api_version = "v2"
+  $docker_base_repository_name = "appfac"
+
 # Jenkins Configs
   $jenkins_keystore_name = "/mnt/${ipaddress}/jenkins/security/wso2carbon.jks"
   $jenkins_keystore_password = 'wso2carbon'

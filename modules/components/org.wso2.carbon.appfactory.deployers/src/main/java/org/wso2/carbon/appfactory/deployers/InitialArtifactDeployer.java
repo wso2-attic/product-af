@@ -55,16 +55,6 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 		}
 	}
 
-//	@Override
-//	public void run() {
-//		try {
-//			deployLatestSuccessArtifact(parameters);
-//		} catch (AppFactoryException e) {
-//			log.error("Deploying the initial artifact failed for application " +
-//			          DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_ID));
-//		}
-//	}
-
 	protected File[] getLastBuildArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
 		return getArtifact(path, extension, stage, applicationId, isForLabel);
 	}

@@ -1810,6 +1810,9 @@ public class RestBasedJenkinsCIConnector {
                                               runtimeBean.getDataCartridgeAlias()));
 	    parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
 	                                          Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME, runtimeBean.getRuntimeName()));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.BASE_DOCKER_IMAGE_NAME, runtimeBean.getRuntimeName()));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOYMENT_PATH, runtimeBean.getRuntimeName()));
     }
 
     /**

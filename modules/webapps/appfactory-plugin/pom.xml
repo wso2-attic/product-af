@@ -94,6 +94,10 @@
                     <groupId>org.wso2.carbon.appfactory</groupId>
                     <artifactId>org.wso2.carbon.appfactory.core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.wso2.carbon.appfactory</groupId>
+                    <artifactId>org.wso2.carbon.appfactory.provisioning.runtime</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -144,6 +148,10 @@
                 <exclusion>
                     <groupId>org.wso2.carbon.appfactory</groupId>
                     <artifactId>org.wso2.carbon.appfactory.common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.wso2.carbon.appfactory</groupId>
+                    <artifactId>org.wso2.carbon.appfactory.provisioning.runtime</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

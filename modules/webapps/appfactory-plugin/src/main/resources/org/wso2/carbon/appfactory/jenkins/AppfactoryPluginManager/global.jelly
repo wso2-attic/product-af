@@ -52,5 +52,14 @@
               description="Deploy server admin password">
             <f:textbox />
     </f:entry>
+    <f:entry title="Docker Registry API URL" field="dockerRegistryApiUrl" description="Docker Registry API URL">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="Docker Image Tag Prefix" field="dockerImageTagPrefix" description="Docker Image Tag Prefix">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="Docker Base Images Repository" field="dockerBaseRepositoryName" description="Docker Base Images Repository">
+        <f:textbox />
+    </f:entry>
   </f:section>
 </j:jelly>
