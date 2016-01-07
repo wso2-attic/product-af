@@ -204,6 +204,25 @@ public class ApplicationTypeManager {
             applicationTypeBean.setProperties(properties);
 			applicationTypeProcessor.setProperties(properties);
 			applicationTypeBean.setProcessor(applicationTypeProcessor);
+			//Kubernetes
+			if (properties.getProperty(ApplicationTypeConstants.BASE_IMAGE_NAME) != null) {
+                applicationTypeBean.setBaseImageName(properties.getProperty(ApplicationTypeConstants.BASE_IMAGE_NAME));
+            }
+			if (properties.getProperty(ApplicationTypeConstants.BASE_IMAGE_VERSION) != null) {
+				applicationTypeBean.setBaseImageVersion(properties.getProperty(ApplicationTypeConstants.BASE_IMAGE_VERSION));
+			}
+			if (properties.getProperty(ApplicationTypeConstants.ENV_VARIABLE_KV_LIST) != null) {
+				applicationTypeBean.setEnvVariableKVList(properties.getProperty(ApplicationTypeConstants.ENV_VARIABLE_KV_LIST));
+			}
+			if (properties.getProperty(ApplicationTypeConstants.SERVICE_PROTOCOL) != null) {
+				applicationTypeBean.setServiceProtocol(properties.getProperty(ApplicationTypeConstants.SERVICE_PROTOCOL));
+			}
+			if (properties.getProperty(ApplicationTypeConstants.SERVICE_NAME) != null) {
+				applicationTypeBean.setServiceName(properties.getProperty(ApplicationTypeConstants.SERVICE_NAME));
+			}
+			if (properties.getProperty(ApplicationTypeConstants.SERVICE_PORT) != null) {
+				applicationTypeBean.setServicePort(properties.getProperty(ApplicationTypeConstants.SERVICE_PORT));
+			}
 			applicationTypeManager.getApplicationTypeBeanMap().put(type, applicationTypeBean);
 		} catch (ClassNotFoundException e) {
 			String msg = "Processor class " + className + " not found";

@@ -47,7 +47,7 @@ public class KubernetesProvisioningUtils {
         Config config = new Config();
         //config.setUsername("vagrant");
         //config.setPassword("vagrant");
-        config.setNoProxy(new String[]{"192.168.19.149:8080"});
+        config.setNoProxy(new String[]{"https://192.168.19.249:8080"});
         config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
         config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
 
@@ -129,7 +129,7 @@ public class KubernetesProvisioningUtils {
      * @return generated unique name for ingress (appName-appVersion-service)
      */
     public static String createIngressMetaName(ApplicationContext applicationContext, String domain, String serviceName){
-        //
+
         return (applicationContext.getId() + "-" + applicationContext.getVersion() + "-" + domain + "-" + serviceName)
                 .replace(".","-").toLowerCase();
     }
