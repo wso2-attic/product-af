@@ -128,7 +128,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 
 			//Create Deployment using run time provisioning API
 			ApplicationContext appCtx = KubernetesProvisioningUtils
-					.getApplicationContext(application.getName(), application.getId(), version, stage, application.getType(),
+					.getApplicationContext(application.getId(), version, stage, application.getType(),
 							tenantId, tenantDomain);
 			appCtx.setCurrentStage(stage);
 			KubernetesRuntimeProvisioningService afKubClient;
