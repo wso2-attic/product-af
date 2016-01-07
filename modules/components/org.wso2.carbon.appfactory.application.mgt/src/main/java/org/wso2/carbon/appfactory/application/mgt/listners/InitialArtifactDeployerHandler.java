@@ -283,8 +283,8 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 				.getApplicationTypeBean(application.getType())
 				.getServicePort();
 		if(servicePort !=null && !servicePort.isEmpty()) {
-			serviceProxy.setServicePort(Integer.getInteger(servicePort));
-			serviceProxy.setServiceBackendPort(Integer.getInteger(servicePort));
+			serviceProxy.setServicePort(Integer.valueOf(servicePort));
+			serviceProxy.setServiceBackendPort(Integer.valueOf(servicePort));
 			serviceProxyList.add(serviceProxy);
 		}
 		return serviceProxyList;
