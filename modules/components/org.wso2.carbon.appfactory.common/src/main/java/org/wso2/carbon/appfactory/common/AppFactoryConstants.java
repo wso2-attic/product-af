@@ -294,6 +294,12 @@ public class AppFactoryConstants {
 	public static final String CLASS_NAME="ClassName";
 	public static final String URL_PATTERN = "URLPattern";
 	public static final String BASE_URL = "BaseURL";
+    public static final String DEPLOYMENT_PATH = "DeploymentPath";
+    public static final String BASE_DOCKER_IMAGE_NAME = "BaseDockerImageName";
+	public static final String DOCKER_FILE_NAME = "Dockerfile";
+	public static final String DOCKER_REGISTRY_API_URL = "dockerRegistryApiUrl";
+	public static final String DOCKER_REGISTRY_TAG_PREFIX = "dockerImageTagPrefix";
+	public static final String BUILD_ID = "buildId";
 
 	public static final String ESB_ARTIFACT_DEPLOYMENT_PATH = "synapse-configs"
 			+ File.separator + "default";

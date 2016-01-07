@@ -1,0 +1,13 @@
+<Runtime>
+    <Runtime>tomcat</Runtime>
+    <DeployerClassName>org.wso2.carbon.appfactory.jenkins.deploy.JenkinsArtifactDeployer</DeployerClassName>
+    <UndeployerClassName>org.wso2.carbon.appfactory.deployers.JenkinsStratosUndeployer</UndeployerClassName>
+    <BaseDockerImageName>appfac/wso2-tomcat-base:latest</BaseDockerImageName>
+    <DeploymentPath>/usr/local/tomcat/webapps</DeploymentPath>
+    <PAASArtifactStorageURLPattern>{@stage}/as</PAASArtifactStorageURLPattern>
+    <AliasPrefix><%= @appserver_cartridge_alias_prefix %></AliasPrefix>
+    <CartridgeTypePrefix><%= @appserver_cartridge_type_prefix %></CartridgeTypePrefix>
+    <DeploymentPolicy>af-deployment</DeploymentPolicy>
+    <AutoscalePolicy>economy</AutoscalePolicy>
+    <SubscribeOnDeployment>false</SubscribeOnDeployment>
+</Runtime>

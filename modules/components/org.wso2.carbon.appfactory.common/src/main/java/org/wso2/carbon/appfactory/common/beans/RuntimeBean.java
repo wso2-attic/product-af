@@ -51,6 +51,8 @@ public class RuntimeBean {
 	//server url type
 	private String serverURL;
 	private Map<String, String> properties = new HashMap<String, String>();
+    private String baseDockerImageName;
+    private String deploymentPath;
 
 	public String getRuntimeName() {
 		return runtimeName;
@@ -146,5 +148,21 @@ public class RuntimeBean {
 
     public void setStratosAppId(String stratosAppId) {
         this.stratosAppId = stratosAppId;
+    }
+
+    public String getBaseDockerImageName() {
+        return baseDockerImageName;
+    }
+
+    public void setBaseDockerImageName(String baseDockerImageName) {
+        this.baseDockerImageName = baseDockerImageName;
+    }
+
+    public String getDeploymentPath() {
+        return deploymentPath;
+    }
+
+    public void setDeploymentPath(String deploymentPath) {
+        this.deploymentPath = deploymentPath;
     }
 }
