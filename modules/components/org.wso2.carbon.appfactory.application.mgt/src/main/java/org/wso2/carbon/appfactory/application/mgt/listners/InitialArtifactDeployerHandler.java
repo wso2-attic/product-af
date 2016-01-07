@@ -142,9 +142,9 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			deploymentConfig.setContainers(containerList);
 			//Default replication count should be a user input
 			deploymentConfig.setReplicas(DEPLOYMET_REPLICATION_COUNT);
-			Map<String,String> labels = new HashMap<>();
-			labels.put(DEPLOYMET_NAME,deploymentName);
-			deploymentConfig.setLables(labels);
+//			Map<String,String> labels = new HashMap<>();
+//			labels.put(DEPLOYMET_NAME,deploymentName);
+//			deploymentConfig.setLables(labels);
 			
 			afKubClient.deployApplication(deploymentConfig);
 
