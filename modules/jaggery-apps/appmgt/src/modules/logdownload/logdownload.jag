@@ -55,19 +55,20 @@ var constructCurrentDate = function(){
 var getRuntimeLogs = function (applicationKey, stage, version, date, pageNumber) {
 
     var KubernetesRuntime = Packages.org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
-    var ApplicationContext = Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
-    var applicationCtx = new ApplicationContext();
+
+    //set tenant info
     var TenantInfo = org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
     var tenantInfo = new TenantInfo();
+    tenantInfo.setTenantId(modManager.getTenantId());
+    tenantInfo.setTenantDomain(modManager.getTenantDomain());
 
-    //values are hard coded for the purpose of testing on a tomcat deployment with kubernetes
-    //tenantInfo.setTenantId(modManager.getTenantId());
-    //tenantInfo.setTenantDomain(modManager.getTenantDomain());
-    //applicationCtx.setCurrentStage(stage);
-    //applicationCtx.setName(applicationKey);
-    //applicationCtx.setVersion(version);
-    //applicationCtx.setTenantInfo(tenantInfo);
-    //applicationCtx.setId(applicationKey);
+    //set the application context
+    var ApplicationContext = Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+    var applicationCtx = new ApplicationContext();
+    applicationCtx.setCurrentStage(stage);
+    applicationCtx.setVersion(version);
+    applicationCtx.setTenantInfo(tenantInfo);
+    applicationCtx.setId(applicationKey);
 
     var kubService = new KubernetesRuntime(applicationCtx);
     var deploymentLog = kubService.getRuntimeLogs(null);
