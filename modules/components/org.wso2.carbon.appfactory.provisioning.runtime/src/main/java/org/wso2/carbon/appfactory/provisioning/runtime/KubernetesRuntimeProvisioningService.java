@@ -184,14 +184,16 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
-            if (kubClient.inNamespace(namespace.getMetadata().getName()).extensions().deployments().withName(config.getDeploymentName()).get() != null) {
+            Deployment currentDeployement = kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
+                    .deployments().withName(config.getDeploymentName()).get();
+            if (currentDeployement != null) {
                 //Redeployment
                 //Deployment recreation should happen after comparing the new Deployment config with
                 // running service configs.
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().withName(config.getDeploymentName()).replace(deployment);
 
-                //todo need to change replacement
+                //todo need to change service replacement because need to check whether service object is available
                 //Service recreation should happen after comparing the new service config with running service configs.
 //                for (Service service : serviceList) {
 //                    kubClient.inNamespace(namespace.getMetadata().getName()).services().replace(service);
@@ -314,10 +316,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties,
             DeploymentConfig deploymentConfig) throws RuntimeProvisioningException {
 
-        //check whether is there any runtime properties exists
-        if (!getRuntimeProperties().isEmpty()) {
-            runtimeProperties.addAll(getRuntimeProperties());
-        }
+        runtimeProperties.addAll(getRuntimeProperties());
 
         //list of secretes
         List secrets = new ArrayList();
@@ -342,7 +341,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 Secret currentSecret = kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
                         .withName(runtimeProperty.getName()).get();
 
-                //if secrete is exists replace the same secrete, otherwise create a new secrete
+                //if secrete exists then replace the same secrete, otherwise create a new secrete
                 if (currentSecret != null) {
                     kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
                             .withName(runtimeProperty.getName()).replace(currentSecret);
@@ -382,18 +381,16 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             case ENVIRONMENT:
                 if (log.isDebugEnabled()) {
                     String message = "Creating property type environment for the application:"
-                            + applicationContext.getId() + " for the tenant domain:"
+                            + applicationContext.getId() + " for the tenant domain : "
                             + applicationContext.getTenantInfo().getTenantDomain();
                     log.debug(message);
                 }
 
-                for (Map.Entry<String, String> entry : runtimeProperty.getProperties().entrySet()) {
-                    envVariables.put(entry.getKey(), entry.getValue());
-                }
+                envVariables.putAll(runtimeProperty.getProperties());
 
                 break;
             default:
-                String message = "Runtime property type is not support, property type:" + runtimeProperty.getPropertyType();
+                String message = "Runtime property type : " + runtimeProperty.getPropertyType() + " not supported.";
 
                 throw new IllegalArgumentException(message);
 
@@ -513,8 +510,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         }
 
-        PodList podList = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext)).list();
+        PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
 
         HashMap<String, String> data = new HashMap<>();
 
