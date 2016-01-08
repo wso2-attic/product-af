@@ -115,7 +115,7 @@ $(document).ready(function () {
                 downloadFile:"false",
                 pageNumber : 1
             },function (result) {
-                 if(!result) {
+                 if(result) {
                      $('#view-logs-content').html(result);
                      $('.log-container').show();
                  } else {
