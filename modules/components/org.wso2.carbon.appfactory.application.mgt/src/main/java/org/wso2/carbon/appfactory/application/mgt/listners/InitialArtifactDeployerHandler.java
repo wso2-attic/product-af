@@ -97,6 +97,9 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			String stratosServerURL = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DEPLOYMENT_STAGES
 					+ AppFactoryConstants.DOT_SEPERATOR + stage + AppFactoryConstants.DOT_SEPERATOR
 					+ AppFactoryConstants.TENANT_MGT_URL);
+            String dockerRegistryApiUrl = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_REGISTRY_API_URL_PATH);
+            String dockerRegistryTagPrefix = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX_PATH);
+            String dockerBaseRepoName = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_BASE_REPO_NAME_PATH);
 			tenantId = Util.getRealmService().getTenantManager().getTenantId(tenantDomain);
 
 			deployInfoMap.put(AppFactoryConstants.TENANT_DOMAIN, new String[]{tenantDomain});
@@ -104,6 +107,11 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			deployInfoMap.put("tenantId", new String[]{Integer.toString(tenantId)});
 			deployInfoMap.put(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME, new String[]{paasRepositoryProviderClassName});
 			deployInfoMap.put(AppFactoryConstants.TENANT_MGT_URL, new String[]{stratosServerURL});
+			deployInfoMap.put(AppFactoryConstants.DOCKER_REGISTRY_API_URL, new String[]{dockerRegistryApiUrl});
+			deployInfoMap.put(AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX, new String[]{dockerRegistryTagPrefix});
+			deployInfoMap.put(AppFactoryConstants.DOCKER_BASE_REPO_NAME, new String[]{dockerBaseRepoName});
+			deployInfoMap.put(AppFactoryConstants.BUILD_ID, new String[]{AppFactoryConstants.INITIAL_BUILD_ID});
+
 			initialDeployerClassName = ApplicationTypeManager.getInstance()
 					.getApplicationTypeBean(application.getType())
 					.getInitialDeployerClassName();

@@ -25,6 +25,9 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.PushImageResultCallback;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryException;
 
 import java.io.File;
 
@@ -32,6 +35,7 @@ import java.io.File;
  * This docker client is used to call local docker deamon REST api and execute docker commands with java docker client
  */
 public class DockerServiceClient {
+    private static final Log log = LogFactory.getLog(DockerServiceClient.class);
 
     private DockerClient dockerClient;
 
@@ -43,12 +47,25 @@ public class DockerServiceClient {
     }
 
 
-    public void buildDockerImage(File dockerFile, String imageTagName) {
-        dockerClient.buildImageCmd(dockerFile).withTag(imageTagName).exec(new BuildImageResultCallback());
+    public void buildDockerImage(File dockerFile, String imageTagName) throws AppFactoryException {
+        try {
+            dockerClient.buildImageCmd(dockerFile).withTag(imageTagName).exec(new BuildImageResultCallback().awaitCompletion());
+        } catch (InterruptedException e) {
+            String msg = "Error while building docker image for image : " + imageTagName;
+            log.error(msg, e);
+            throw new AppFactoryException(e);
+
+        }
     }
 
-    public void pushDockerImage(String imageTagName) {
-        dockerClient.pushImageCmd(imageTagName).exec(new PushImageResultCallback());
+    public void pushDockerImage(String imageTagName) throws AppFactoryException {
+        try {
+            dockerClient.pushImageCmd(imageTagName).exec(new PushImageResultCallback().awaitCompletion());
+        } catch (InterruptedException e) {
+            String msg = "Error while pushing docker image for image : " + imageTagName;
+            log.error(msg, e);
+            throw new AppFactoryException(e);
+        }
     }
 
 }
