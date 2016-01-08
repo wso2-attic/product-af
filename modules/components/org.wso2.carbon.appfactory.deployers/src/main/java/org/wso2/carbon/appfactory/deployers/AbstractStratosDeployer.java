@@ -415,10 +415,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         if (parameters != null && artifactsToDeploy != null && artifactsToDeploy.length > 0) {
             try {
 
-                // Assume
                 File firstArtifact = artifactsToDeploy[0];
                 File parentDir = firstArtifact.getParentFile();
-                File dockerFile = new File(parentDir.getPath() + AppFactoryConstants.DOCKER_FILE_NAME);
+                File dockerFile = new File(parentDir.getPath() + File.separator +  AppFactoryConstants.DOCKER_FILE_NAME);
 
                 generateDockerFile(artifactsToDeploy, dockerFile, parameters);
                 buildDockerImage(parameters, dockerFile);
@@ -434,41 +433,43 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
     private void generateDockerFile(File[] artifactsToDeploy, File dockerFile, Map<String, String[]> parameters) throws IOException {
         // docker image related parameters
         String deploymentPath = DeployerUtil.getParameter(parameters, AppFactoryConstants.DEPLOYMENT_PATH);
-        String dockerTagRegistryName = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_REGISTRY_TAG_PREFIX);
+        String dockerTagRegistryName = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX);
         String dockerBaseImage = DeployerUtil.getParameter(parameters, AppFactoryConstants.BASE_DOCKER_IMAGE_NAME);
 
         synchronized (dockerFile) {
-            if (!dockerFile.exists()) {
-                dockerFile.createNewFile();
-
-                // add content to docker file
-                // docker tag name format
-                // <dockerRegistryUrl>:<port>/<tenantDomain>/<runtimeName>-<applicationId>:build-<buildId>
-                // Ex : registry.docker.appfactory.private.wso2.com:5000/appfac/tomcat-myapp-dev:build-1
-                String baseImangeCmd = "FROM " +  dockerTagRegistryName + "/" + dockerBaseImage;
-
-                // copy artifacts
-                // format is ADD <artifactname> <location>
-                // Ex : ADD sample.war /usr/local/tomcat/webapps
-                StringBuffer addArtifactCmds = new StringBuffer();
-                for (File file : artifactsToDeploy) {
-                    if(file != null && file.exists()) {
-                        addArtifactCmds.append("ADD " + file.getName() + " " +  deploymentPath + System.getProperty("line.separator"));
-                    }
-                }
-                List<String> dockerCommands = new ArrayList<String>();
-                dockerCommands.add(baseImangeCmd);
-                dockerCommands.add(addArtifactCmds.toString());
-                FileUtils.writeLines(dockerFile, dockerCommands);
+            // delete the previous file
+            if (dockerFile.exists()) {
+                dockerFile.delete();
             }
+            dockerFile.createNewFile();
+
+            // add content to docker file
+            // docker tag name format
+            // <dockerRegistryUrl>:<port>/<tenantDomain>/<runtimeName>-<applicationId>:build-<buildId>
+            // Ex : registry.docker.appfactory.private.wso2.com:5000/appfac/tomcat-myapp-dev:build-1
+            String baseImangeCmd = "FROM " + dockerTagRegistryName + "/" + dockerBaseImage;
+
+            // copy artifacts
+            // format is ADD <artifactname> <location>
+            // Ex : ADD sample.war /usr/local/tomcat/webapps
+            StringBuffer addArtifactCmds = new StringBuffer();
+            for (File file : artifactsToDeploy) {
+                if (file != null && file.exists()) {
+                    addArtifactCmds.append("ADD " + file.getName() + " " + deploymentPath + System.getProperty("line.separator"));
+                }
+            }
+            List<String> dockerCommands = new ArrayList<String>();
+            dockerCommands.add(baseImangeCmd);
+            dockerCommands.add(addArtifactCmds.toString());
+            FileUtils.writeLines(dockerFile, dockerCommands);
         }
     }
 
-    private void buildDockerImage(Map<String, String[]> parameters, File dockerFile) {
+    private void buildDockerImage(Map<String, String[]> parameters, File dockerFile) throws AppFactoryException {
         String stageName = DeployerUtil.getParameterValue(parameters, AppFactoryConstants.DEPLOY_STAGE);
         String applicationId = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_ID);
         String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
-        String tagPrefix = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_REGISTRY_TAG_PREFIX);
+        String tagPrefix = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX);
         String buildId = DeployerUtil.getParameter(parameters, AppFactoryConstants.BUILD_ID);
         String runtime = DeployerUtil.getParameter(parameters, AppFactoryConstants.RUNTIME);
         String registryApiUrl = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_REGISTRY_API_URL);
@@ -478,11 +479,11 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         dockerClient.buildDockerImage(dockerFile, tagName);
     }
 
-    private void pushDockerImageToRegistry(Map<String, String[]> parameters) {
+    private void pushDockerImageToRegistry(Map<String, String[]> parameters) throws AppFactoryException {
         String stageName = DeployerUtil.getParameterValue(parameters, AppFactoryConstants.DEPLOY_STAGE);
         String applicationId = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_ID);
         String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
-        String tagPrefix = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_REGISTRY_TAG_PREFIX);
+        String tagPrefix = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX);
         String buildId = DeployerUtil.getParameter(parameters, AppFactoryConstants.BUILD_ID);
         String runtime = DeployerUtil.getParameter(parameters, AppFactoryConstants.RUNTIME);
         String registryApiUrl = DeployerUtil.getParameter(parameters, AppFactoryConstants.DOCKER_REGISTRY_API_URL);

@@ -950,8 +950,6 @@ public class RestBasedJenkinsCIConnector {
         HttpResponse deployResponse = null;
 
         try {
-            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
             ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance().getApplicationTypeBean(
                     artifactType);
 
@@ -975,8 +973,15 @@ public class RestBasedJenkinsCIConnector {
             String paasRepositoryProviderClassName = appfactoryConfiguration.getFirstProperty(
                     AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
 
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
+            String dockerRegistryApiUrl = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_REGISTRY_API_URL_PATH);
+            String dockerRegistryTagPrefix = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX_PATH);
+            String dockerBaseRepoName = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_BASE_REPO_NAME_PATH);
+
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE, runtimeNameForAppType));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.JOB_NAME, jobName));
@@ -984,12 +989,15 @@ public class RestBasedJenkinsCIConnector {
             parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_ACTION, deployAction));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,
                                                   paasRepositoryProviderClassName));
-
 	        addAppTypeParameters(parameters, applicationTypeBean);
             addRunTimeParameters(stage, parameters, runtimeBean);
 	        parameters.add(new BasicNameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
 	        String tenantUserName = userName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
 	        parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_USER_NAME, tenantUserName));
+
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.DOCKER_REGISTRY_API_URL, dockerRegistryApiUrl));
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX, dockerRegistryTagPrefix));
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.DOCKER_BASE_REPO_NAME, dockerBaseRepoName));
 
             deployLatestSuccessArtifactMethod = createPost(deployLatestSuccessArtifactUrl, parameters, null,
                                                            tenantDomain);
@@ -1086,10 +1094,13 @@ public class RestBasedJenkinsCIConnector {
         }
 
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+        String paasRepositoryProviderClassName =
+                appfactoryConfiguration.getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
+        String dockerRegistryApiUrl = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_REGISTRY_API_URL_PATH);
+        String dockerRegistryTagPrefix = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX_PATH);
+        String dockerBaseRepoName = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DOCKER_BASE_REPO_NAME_PATH);
 
         List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-        String paasRepositoryProviderClassName = appfactoryConfiguration.getFirstProperty(
-                AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
         parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,
                                               paasRepositoryProviderClassName));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
@@ -1105,6 +1116,11 @@ public class RestBasedJenkinsCIConnector {
 
 	    addAppTypeParameters(parameters, applicationTypeBean);
         addRunTimeParameters(stage, parameters, runtimeBean);
+
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.DOCKER_REGISTRY_API_URL, dockerRegistryApiUrl));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.DOCKER_IMAGE_TAG_PREFIX, dockerRegistryTagPrefix));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.DOCKER_BASE_REPO_NAME, dockerBaseRepoName));
+
 
         HttpPost deployPromotedArtifactMethod;
         HttpResponse deployResponse = null;
@@ -1811,8 +1827,8 @@ public class RestBasedJenkinsCIConnector {
 	    parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
 	                                          Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME, runtimeBean.getRuntimeName()));
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.BASE_DOCKER_IMAGE_NAME, runtimeBean.getRuntimeName()));
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOYMENT_PATH, runtimeBean.getRuntimeName()));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.BASE_DOCKER_IMAGE_NAME, runtimeBean.getBaseDockerImageName()));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOYMENT_PATH, runtimeBean.getDeploymentPath()));
     }
 
     /**

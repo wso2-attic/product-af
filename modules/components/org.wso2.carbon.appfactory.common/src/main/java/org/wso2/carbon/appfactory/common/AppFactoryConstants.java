@@ -92,6 +92,10 @@ public class AppFactoryConstants {
 	public static final String JOB_NAME_KEY = "name";
 	public static final String JOB_TAG_NAME = "job";
 
+    public static final String DOCKER_REGISTRY_API_URL_PATH = "Docker.DockerRegistryApiUrl";
+    public static final String DOCKER_IMAGE_TAG_PREFIX_PATH = "Docker.DockerImageTagPrefix";
+    public static final String DOCKER_BASE_REPO_NAME_PATH = "Docker.DockerBaseRepositoryName";
+
 	/*
 	*  constants for cartridge subscription info
 	* */
@@ -298,8 +302,10 @@ public class AppFactoryConstants {
     public static final String BASE_DOCKER_IMAGE_NAME = "BaseDockerImageName";
 	public static final String DOCKER_FILE_NAME = "Dockerfile";
 	public static final String DOCKER_REGISTRY_API_URL = "dockerRegistryApiUrl";
-	public static final String DOCKER_REGISTRY_TAG_PREFIX = "dockerImageTagPrefix";
+	public static final String DOCKER_IMAGE_TAG_PREFIX = "dockerImageTagPrefix";
+	public static final String DOCKER_BASE_REPO_NAME = "dockerBaseRepoName";
 	public static final String BUILD_ID = "buildId";
+	public static final String INITIAL_BUILD_ID = "0";
 
 	public static final String ESB_ARTIFACT_DEPLOYMENT_PATH = "synapse-configs"
 			+ File.separator + "default";

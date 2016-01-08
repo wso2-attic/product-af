@@ -308,9 +308,6 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
         private String stratosAdminUsername;
         private String stratosAdminPassword;
         private String stratosServerURL;
-        private String dockerRegistryApiUrl;
-        private String dockerImageTagPrefix;
-        private String dockerBaseRepositoryName;
 
         // private String jenkinsHome;String applicationId, String artifactType, String stage, String tenantDomainString applicationId, String artifactType, String stage, String tenantDomain
 
@@ -369,9 +366,6 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             setStratosAdminUsername(formData.getString("stratosAdminUsername"));
             setStratosAdminPassword(formData.getString("stratosAdminPassword"));
             setStratosServerURL(formData.getString("StratosServerURL"));
-            setDockerRegistryApiUrl(formData.getString("dockerRegistryApiUrl"));
-            setDockerImageTagPrefix(formData.getString("dockerImageTagPrefix"));
-            setDockerBaseRepositoryName(formData.getString("dockerBaseRepositoryName"));
 
             //To persist global configuration information
             save();
@@ -496,30 +490,6 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 
         public void setKeyStorePassword(String keyStorePassword) {
             this.keyStorePassword = keyStorePassword;
-        }
-
-        public void setDockerImageTagPrefix(String dockerImageTagPrefix) {
-            this.dockerImageTagPrefix = dockerImageTagPrefix;
-        }
-
-        public void setDockerBaseRepositoryName(String dockerBaseRepositoryName) {
-            this.dockerBaseRepositoryName = dockerBaseRepositoryName;
-        }
-
-        public void setDockerRegistryApiUrl(String dockerRegistryApiUrl) {
-            this.dockerRegistryApiUrl = dockerRegistryApiUrl;
-        }
-
-        public String getDockerImageTagPrefix() {
-            return dockerImageTagPrefix;
-        }
-
-        public String getDockerBaseRepositoryName() {
-            return dockerBaseRepositoryName;
-        }
-
-        public String getDockerRegistryApiUrl() {
-            return dockerRegistryApiUrl;
         }
 
     }
