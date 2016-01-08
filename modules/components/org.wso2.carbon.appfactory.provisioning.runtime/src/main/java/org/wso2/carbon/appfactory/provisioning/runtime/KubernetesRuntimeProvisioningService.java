@@ -246,7 +246,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         .withName(pod.getMetadata().getName()).inContainer(container.getName()).watchLog();
 
                 BufferedReader logStream = new BufferedReader(new InputStreamReader(logs.getOutput()));
-                logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), logStream);
+                logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logStream);
                 deploymentLogs.setDeploymentLogs(logOutPut);
             }
         }
@@ -280,7 +280,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     logs = (String) prettyLoggable.getLog(true);
                     InputStream is = new ByteArrayInputStream(logs.getBytes());
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-                    logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), bufferedReader);
+                    logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), bufferedReader);
                     deploymentLogs.setDeploymentLogs(logOutPut);
                 }
             }
@@ -292,12 +292,12 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             .withName(pod.getMetadata().getName()).inContainer(container.getName())
                             .getLog(true);
                     if(log.isDebugEnabled()){
-                        log.debug(pod.getMetadata().getName() + ":" + container.getName() + " : log output");
+                        log.debug(pod.getMetadata().getName() + "-" + container.getName() + " : log output");
                         log.debug(logs);
                     }
                     InputStream is = new ByteArrayInputStream(logs.getBytes());
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-                    logOutPut.put(pod.getMetadata().getName() + ":" + container.getName(), bufferedReader);
+                    logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), bufferedReader);
                 }
             }
             deploymentLogs.setDeploymentLogs(logOutPut);
