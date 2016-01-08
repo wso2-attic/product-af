@@ -167,7 +167,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             .withTargetPort(new IntOrString(serviceProxy.getServiceBackendPort()))
                             .build();
                     ServiceSpec serviceSpec = new ServiceSpecBuilder()
-                            .withSelector(config.getLables())
+                            .withSelector(KubernetesProvisioningUtils.getLableMap(applicationContext))
                             .withPorts(servicePorts)
                             .build();
                     //Deployment Unique service name is built using deployment name and the service name.
