@@ -240,6 +240,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
         if (podList != null) {
             try {
+                int podCounter = 1;
                 for (Pod pod : podList.getItems()) {
                     for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
                         if (log.isDebugEnabled()) {
@@ -252,9 +253,10 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         //logStream should close by after the streaming done in front end
                         //you can use closeLogStream() method in DeploymentStreamLogs
                         BufferedReader logStream = new BufferedReader(new InputStreamReader(logs.getOutput()));
-                        logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logStream);
+                        logOutPut.put("Replica-" + podCounter + "-" + container.getName(), logStream);
                         deploymentLogStream.setDeploymentLogs(logOutPut);
                     }
+                    podCounter++;
                 }
             } catch (KubernetesClientException e) {
                 log.error("Error while streaming runtime logs for application : " + applicationContext.getId()
@@ -283,6 +285,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
         if (podList != null) {
             try {
+                int podCounter = 1;
                 for (Pod pod : podList.getItems()) {
                     for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
                         if (query == null || (query.getDurationInHours() < 0 && query.getTailingLines() < 0)) {
@@ -315,9 +318,10 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                                     .getName());
                         }
                         String logs = (String) prettyLoggable.getLog(true);
-                        logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logs);
+                        logOutPut.put("Replica-" + podCounter + "-" + container.getName(), logs);
                         deploymentLogs.setDeploymentLogs(logOutPut);
                     }
+                    podCounter++;
                 }
             } catch (KubernetesClientException e) {
                 log.error("Error while getting snapshot logs for application : " + applicationContext.getId()
