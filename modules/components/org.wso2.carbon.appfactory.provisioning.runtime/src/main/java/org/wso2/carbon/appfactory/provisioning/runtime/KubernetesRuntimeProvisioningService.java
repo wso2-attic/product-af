@@ -238,57 +238,102 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         Map<String, BufferedReader> logOutPut = new HashMap<>();
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
-        for (Pod pod : podList.getItems()) {
-            for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
-                LogWatch logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                        .withName(pod.getMetadata().getName()).inContainer(container.getName()).watchLog();
+        if (podList != null) {
+            try {
+                for (Pod pod : podList.getItems()) {
+                    for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Streaming logs in pod : " + pod.getMetadata().getName() + "-" + container
+                                    .getName());
+                        }
+                        LogWatch logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                                .withName(pod.getMetadata().getName()).inContainer(container.getName()).watchLog();
 
-                BufferedReader logStream = new BufferedReader(new InputStreamReader(logs.getOutput()));
-                logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logStream);
-                deploymentLogStream.setDeploymentLogs(logOutPut);
+                        //logStream should close by after the streaming done in front end
+                        //you can use closeLogStream() method in DeploymentStreamLogs
+                        BufferedReader logStream = new BufferedReader(new InputStreamReader(logs.getOutput()));
+                        logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logStream);
+                        deploymentLogStream.setDeploymentLogs(logOutPut);
+                    }
+                }
+            } catch (KubernetesClientException e) {
+                log.error("Error while streaming runtime logs for application : " + applicationContext.getId()
+                        + " tenant domain : " + applicationContext.getTenantInfo().getTenantDomain(), e);
+                throw new RuntimeProvisioningException(
+                        "Error while streaming runtime logs for application : " + applicationContext.getId()
+                                + " tenant domain : " + applicationContext.getTenantInfo().getTenantDomain(), e);
             }
+        } else {
+            log.error("Pod list returned as null for application : " + applicationContext.getId() + " tenant domain : "
+                    + applicationContext.getTenantInfo().getTenantDomain());
+            throw new RuntimeProvisioningException(
+                    "Pod list returned as null for application : " + applicationContext.getId() + " tenant domain : "
+                            + applicationContext.getTenantInfo().getTenantDomain());
         }
         return deploymentLogStream;
     }
 
     @Override
     public DeploymentLogs getRuntimeLogs(LogQuery query) throws RuntimeProvisioningException {
+
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         DeploymentLogs deploymentLogs = new DeploymentLogs();
         Map<String, String> logOutPut = new HashMap<>();
         PrettyLoggable prettyLoggable;
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
-        for (Pod pod : podList.getItems()) {
-            for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
-                if (query == null || (query.getDurationInHours() < 0 && query.getTailingLines() < 0)) {
-                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                            .withName(pod.getMetadata().getName()).inContainer(container.getName());
-                } else if (query != null && query.getDurationInHours() < 0 && query.getTailingLines() > 0) {
-                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                            .withName(pod.getMetadata().getName()).inContainer(container.getName())
-                            .tailingLines(query.getTailingLines());
-                } else if (query != null && query.getDurationInHours() > 0 && query.getTailingLines() < 0) {
-                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                            .withName(pod.getMetadata().getName()).inContainer(container.getName())
-                            .sinceSeconds(query.getDurationInHours() * 3600);
-                } else if (query != null && query.getDurationInHours() > 0 && query.getTailingLines() > 0) {
-                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                            .withName(pod.getMetadata().getName()).inContainer(container.getName())
-                            .sinceSeconds(query.getDurationInHours() * 3600).tailingLines(query.getTailingLines());
-                } else {
-                    throw new RuntimeProvisioningException(
-                            "Error in log retrieving query while querying logs of application : "
-                                    + applicationContext.getId());
+        if (podList != null) {
+            try {
+                for (Pod pod : podList.getItems()) {
+                    for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
+                        if (query == null || (query.getDurationInHours() < 0 && query.getTailingLines() < 0)) {
+                            prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                                    .withName(pod.getMetadata().getName()).inContainer(container.getName());
+                        } else if (query.getDurationInHours() < 0 && query.getTailingLines() > 0) {
+                            prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                                    .withName(pod.getMetadata().getName()).inContainer(container.getName())
+                                    .tailingLines(query.getTailingLines());
+                        } else if (query.getDurationInHours() > 0 && query.getTailingLines() < 0) {
+                            prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                                    .withName(pod.getMetadata().getName()).inContainer(container.getName())
+                                    .sinceSeconds(query.getDurationInHours() * 3600);
+                        } else if (query.getDurationInHours() > 0 && query.getTailingLines() > 0) {
+                            prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                                    .withName(pod.getMetadata().getName()).inContainer(container.getName())
+                                    .sinceSeconds(query.getDurationInHours() * 3600)
+                                    .tailingLines(query.getTailingLines());
+                        } else {
+                            log.error("Error in log query while getting snapshot logs of application : "
+                                    + applicationContext.getId() + " tenant domain : " + applicationContext
+                                    .getTenantInfo().getTenantDomain());
+                            throw new RuntimeProvisioningException(
+                                    "Error in log query while getting snapshot logs of application : "
+                                            + applicationContext.getId() + " tenant domain : " + applicationContext
+                                            .getTenantInfo().getTenantDomain());
+                        }
+                        if (log.isDebugEnabled()) {
+                            log.debug("Retrieving logs in pod : " + pod.getMetadata().getName() + "-" + container
+                                    .getName());
+                        }
+                        String logs = (String) prettyLoggable.getLog(true);
+                        logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logs);
+                        deploymentLogs.setDeploymentLogs(logOutPut);
+                    }
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug("Retrieving logs in pod : " + pod.getMetadata().getName() + "-" + container.getName());
-                }
-                String logs = (String) prettyLoggable.getLog(true);
-                logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logs);
-                deploymentLogs.setDeploymentLogs(logOutPut);
+            } catch (KubernetesClientException e) {
+                log.error("Error while getting snapshot logs for application : " + applicationContext.getId()
+                        + " tenant domain : " + applicationContext.getTenantInfo().getTenantDomain(), e);
+                throw new RuntimeProvisioningException(
+                        "Error while getting snapshot logs for application : " + applicationContext.getId()
+                                + " tenant domain : " + applicationContext.getTenantInfo().getTenantDomain(), e);
             }
+            return deploymentLogs;
+        } else {
+            log.error("Pod list returned as null for application : " + applicationContext.getId() + " tenant domain : "
+                    + applicationContext.getTenantInfo().getTenantDomain());
+            throw new RuntimeProvisioningException(
+                    "Pod list returned as null for application : " + applicationContext.getId() + " tenant domain : "
+                            + applicationContext.getTenantInfo().getTenantDomain());
         }
-        return deploymentLogs;
     }
 
     /**
