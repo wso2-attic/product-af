@@ -116,18 +116,37 @@ $(document).ready(function () {
                 pageNumber : 1
             },function (result) {
                  if(result) {
-                     $('#view-logs-content').html(result);
+                 var obj = jQuery.parseJSON(result);
+
+                 //Generate the tab pane
+                 var tabPane = "<div><ul class=\"nav nav-tabs\" role=\"tablist\">";
+                     for (var key in obj) {
+                         if (obj.hasOwnProperty(key)) {
+                             tabPane += "<li role=\"presentation\"><a href=\"#" + key +"\"" +"aria-controls=" + key + " role=\"tab\" data-toggle=\"tab\">" + key + "</a></li>";
+                         }
+                     }
+                     tabPane += "</ul><div class=\"tab-content\">";
+
+                     for (var key in obj) {
+                         if (obj.hasOwnProperty(key)) {
+                             tabPane += "<div role=\"tabpanel\" class=\"tab-pane\" id=" + key + ">" + obj[key] + "</div>";
+                         }
+                     }
+                     tabPane += "</div></div>";
+
+                     $('#view-logs-content').html(tabPane);
                      $('.log-container').show();
                  } else {
                      jagg.message({content: "No logs available for version" + selectedVersion + " in stage " + selectedStage + " .", type: 'error', id:'view_log'});
                  }
             },function (jqXHR, textStatus, errorThrown) {
                 jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
-            });        
+            });
         }
         $('#view-log').loadingButton({action : "hide"});
-      });
-    
+    });
+
+
     $('#download-log').click(function(){
         $('#download-log').loadingButton({action : "show"});
         var selectedDate = $('#date').val();

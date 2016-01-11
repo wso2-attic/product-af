@@ -47,26 +47,23 @@ include("/jagg/config_reader.jag");
         var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
         if (jagg.module("permission").isUserAccessGrantedForPlatform(deployToStagePermission)){
             var result = mod.downloadLogFile(applicationKey, stage, version, date, pageNumber);
-
-            var deploymentLogs = "";
+            var logMap = {};
             if (result instanceof Packages.org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentLogs){
-               var map = result.getDeploymentLogs();
-               var iterator = map.entrySet().iterator();
-               while (iterator.hasNext()) {
+                var map = result.getDeploymentLogs();
+                var iterator = map.entrySet().iterator();
+                while (iterator.hasNext()) {
                    var entry = iterator.next();
-                   deploymentLogs += entry.getKey() + "\n";
-                   deploymentLogs += "-----------------------------------------------------\n";
-
                    var record = "";
+                   var containerLog = "";
                    while ((record = entry.getValue().readLine()) != null) {
-                       deploymentLogs += record + "\n";
+                      containerLog += record + "\n";
                    }
-                   deploymentLogs += "\n\n\n\n"
-               }
+                   logMap[entry.getKey()] = containerLog;
+                }
             }
             response.error = false;
             response.contentType = 'application/txt';
-            print(deploymentLogs);
+            print(logMap);
         } else {
             response.error = true;
             response.message = "You don't have permission to download the log file";
