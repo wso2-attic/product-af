@@ -28,7 +28,7 @@ public interface RuntimeProvisioningService {
      * @param applicationContext application details
      * @throws RuntimeProvisioningException
      */
-    public void setApplicationContext(ApplicationContext applicationContext) throws RuntimeProvisioningException;
+    void setApplicationContext(ApplicationContext applicationContext) throws RuntimeProvisioningException;
 
     /**
      * Create an organization for given tenant details
@@ -36,7 +36,7 @@ public interface RuntimeProvisioningService {
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
      */
-    public void createOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
+    void createOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
     /**
      * Update an organization details
@@ -44,7 +44,7 @@ public interface RuntimeProvisioningService {
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
      */
-    public void updateOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
+    void updateOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
     /**
      * Delete an organization related details
@@ -52,7 +52,7 @@ public interface RuntimeProvisioningService {
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
      */
-    public void deleteOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
+    void deleteOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
     /**
      * Archive an organization
@@ -60,7 +60,7 @@ public interface RuntimeProvisioningService {
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
      */
-    public void archiveOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
+    void archiveOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
    
     /**
@@ -70,7 +70,7 @@ public interface RuntimeProvisioningService {
      * @return list of endpoints
      * @throws RuntimeProvisioningException
      */
-    public List<String> deployApplication(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException;
+    List<String> deployApplication(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException;
 
     /**
      * Provide deployment related details
@@ -78,7 +78,7 @@ public interface RuntimeProvisioningService {
      * @return Whether deployment fail or not
      * @throws RuntimeProvisioningException
      */
-    public boolean getDeploymentStatus(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException;
+    boolean getDeploymentStatus(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException;
 
     /**
      * Provide runtime log stream
@@ -86,7 +86,7 @@ public interface RuntimeProvisioningService {
      * @return log out put stream
      * @throws RuntimeProvisioningException
      */
-    public DeploymentLogStream streamRuntimeLogs() throws RuntimeProvisioningException;
+    DeploymentLogStream streamRuntimeLogs() throws RuntimeProvisioningException;
 
     /**
      * Provide snapshot logs
@@ -95,7 +95,7 @@ public interface RuntimeProvisioningService {
      * @return Snapshot logs of application
      * @throws RuntimeProvisioningException
      */
-    public DeploymentLogs getRuntimeLogs(LogQuery query)
+    DeploymentLogs getRuntimeLogs(LogQuery query)
             throws RuntimeProvisioningException;
 
     /**
@@ -104,7 +104,7 @@ public interface RuntimeProvisioningService {
      * @param runtimeProperties runtime properties
      * @throws RuntimeProvisioningException
      */
-    public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties, DeploymentConfig deploymentConfig)
+    void setRuntimeProperties(List<RuntimeProperty> runtimeProperties, DeploymentConfig deploymentConfig)
             throws RuntimeProvisioningException;
 
     /**
@@ -113,7 +113,7 @@ public interface RuntimeProvisioningService {
      * @param runtimeProperty runtime property
      * @throws RuntimeProvisioningException
      */
-    public void updateRuntimeProperties(List<RuntimeProperty> runtimeProperty, DeploymentConfig deploymentConfig)
+    void updateRuntimeProperties(List<RuntimeProperty> runtimeProperty, DeploymentConfig deploymentConfig)
             throws RuntimeProvisioningException;
 
     /**
@@ -122,7 +122,7 @@ public interface RuntimeProvisioningService {
      * @return List of runtime properties
      * @throws RuntimeProvisioningException
      */
-    public List<RuntimeProperty> getRuntimeProperties() throws RuntimeProvisioningException;
+    List<RuntimeProperty> getRuntimeProperties() throws RuntimeProvisioningException;
 
     /**
      * Adding a custom domain mapping to a particular application
@@ -130,7 +130,7 @@ public interface RuntimeProvisioningService {
      * @param domains set of domains
      * @throws RuntimeProvisioningException
      */
-    public boolean addCustomDomain(Set<String> domains) throws RuntimeProvisioningException;
+    boolean addCustomDomain(Set<String> domains) throws RuntimeProvisioningException;
 
     /**
      * Update a certain custom domain mapping for a particular application version
@@ -139,7 +139,7 @@ public interface RuntimeProvisioningService {
      * @param newDomain new domain name to be changed to
      * @throws RuntimeProvisioningException
      */
-    public boolean updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException;
+    boolean updateCustomDomain(String oldDomain, String newDomain) throws RuntimeProvisioningException;
 
     /**
      * Return custom domain mappings of a certain application version
@@ -147,7 +147,7 @@ public interface RuntimeProvisioningService {
      * @return set of domains
      * @throws RuntimeProvisioningException
      */
-    public Set<String> getCustomDomains() throws RuntimeProvisioningException;
+    Set<String> getCustomDomains() throws RuntimeProvisioningException;
 
     /**
      * Delete a certain custom domain mapping
@@ -155,5 +155,5 @@ public interface RuntimeProvisioningService {
      * @param domain domain name
      * @throws RuntimeProvisioningException
      */
-    public boolean deleteCustomDomain(String domain) throws RuntimeProvisioningException;
+    boolean deleteCustomDomain(String domain) throws RuntimeProvisioningException;
 }
