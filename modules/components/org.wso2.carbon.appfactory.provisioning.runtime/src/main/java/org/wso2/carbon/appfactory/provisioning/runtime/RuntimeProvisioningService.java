@@ -86,7 +86,7 @@ public interface RuntimeProvisioningService {
      * @return log out put stream
      * @throws RuntimeProvisioningException
      */
-    public DeploymentLogs streamRuntimeLogs() throws RuntimeProvisioningException;
+    public DeploymentLogStream streamRuntimeLogs() throws RuntimeProvisioningException;
 
     /**
      * Provide snapshot logs

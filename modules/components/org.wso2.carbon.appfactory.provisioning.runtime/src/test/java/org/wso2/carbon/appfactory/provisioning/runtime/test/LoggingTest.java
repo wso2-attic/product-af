@@ -76,20 +76,11 @@ public class LoggingTest {
                 Thread.sleep(10000);
 
                 deploymentLogs = afKubClient.getRuntimeLogs(null);
-                Map<String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
+                Map<String, String> logs = deploymentLogs.getDeploymentLogs();
 
-                for (Map.Entry<String, BufferedReader> logEntry : logs.entrySet()) {
-                    String record;
-                    StringBuffer buffer = new StringBuffer();
-                    try {
-                        while ((record = logEntry.getValue().readLine()) != null) {
-                            buffer.append(record);
-                        }
-                    } catch (IOException e) {
-                        log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
-                                .getName(), e);
-                    }
-                    Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
+                for (Map.Entry<String, String> logEntry : logs.entrySet()) {
+                    String logSegment = logEntry.getValue();
+                    Assert.assertTrue(logSegment.indexOf("Starting service Catalina") > 0);
                 }
                 break;
             } else {
@@ -134,20 +125,11 @@ public class LoggingTest {
                 Thread.sleep(10000);
 
                 deploymentLogs = afKubClient.getRuntimeLogs(query);
-                Map<String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
+                Map<String, String> logs = deploymentLogs.getDeploymentLogs();
 
-                for (Map.Entry<String, BufferedReader> logEntry : logs.entrySet()) {
-                    String record;
-                    StringBuffer buffer = new StringBuffer();
-                    try {
-                        while ((record = logEntry.getValue().readLine()) != null) {
-                            buffer.append(record);
-                        }
-                    } catch (IOException e) {
-                        log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
-                                .getName(), e);
-                    }
-                    Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
+                for (Map.Entry<String, String> logEntry : logs.entrySet()) {
+                    String logSegment = logEntry.getValue();
+                    Assert.assertTrue(logSegment.indexOf("Starting service Catalina") > 0);
                 }
                 break;
             } else {
@@ -192,20 +174,11 @@ public class LoggingTest {
                 Thread.sleep(10000);
 
                 deploymentLogs = afKubClient.getRuntimeLogs(query);
-                Map<String, BufferedReader> logs = deploymentLogs.getDeploymentLogs();
+                Map<String, String> logs = deploymentLogs.getDeploymentLogs();
 
-                for (Map.Entry<String, BufferedReader> logEntry : logs.entrySet()) {
-                    String record;
-                    StringBuffer buffer = new StringBuffer();
-                    try {
-                        while ((record = logEntry.getValue().readLine()) != null) {
-                            buffer.append(record);
-                        }
-                    } catch (IOException e) {
-                        log.error("Error while reading from the log of deployment : " + deployment.getMetadata()
-                                .getName(), e);
-                    }
-                    Assert.assertTrue(buffer.indexOf("Starting service Catalina") > 0);
+                for (Map.Entry<String, String> logEntry : logs.entrySet()) {
+                    String logSegment = logEntry.getValue();
+                    Assert.assertTrue(logSegment.indexOf("Starting service Catalina") > 0);
                 }
                 break;
             } else {

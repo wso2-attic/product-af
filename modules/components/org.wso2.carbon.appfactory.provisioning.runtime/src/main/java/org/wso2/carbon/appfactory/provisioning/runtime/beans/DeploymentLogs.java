@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+* Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,19 +16,17 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-import java.io.BufferedReader;
 import java.util.Map;
 
 public class DeploymentLogs {
 
-    private Map<String, BufferedReader> deploymentLogs;
+    private Map<String, String> deploymentLogs;
 
-    public void setDeploymentLogs(Map<String, BufferedReader> deploymentLogs) {
+    public void setDeploymentLogs(Map<String, String> deploymentLogs) {
         this.deploymentLogs = deploymentLogs;
     }
 
-    public Map<String, BufferedReader> getDeploymentLogs() {
+    public Map<String, String> getDeploymentLogs() {
         return deploymentLogs;
     }
 }
-

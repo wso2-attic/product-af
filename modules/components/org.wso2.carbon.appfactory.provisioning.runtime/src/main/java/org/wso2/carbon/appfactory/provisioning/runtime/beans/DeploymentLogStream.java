@@ -16,30 +16,19 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-public class LogQuery {
+import java.io.BufferedReader;
+import java.util.Map;
 
-    private int tailingLines = -1;
-    private int durationInHours = -1;
+public class DeploymentLogStream {
 
-    public LogQuery(boolean isFollowing, int previousRecords, int timeStamp) {
+    private Map<String, BufferedReader> deploymentLogs;
 
-        this.tailingLines = previousRecords;
-        this.durationInHours = timeStamp;
+    public void setDeploymentLogs(Map<String, BufferedReader> deploymentLogs) {
+        this.deploymentLogs = deploymentLogs;
     }
 
-    public int getTailingLines() {
-        return tailingLines;
-    }
-
-    public int getDurationInHours() {
-        return durationInHours;
-    }
-
-    public void setTailingLines(int tailingLines) {
-        this.tailingLines = tailingLines;
-    }
-
-    public void setDurationInHours(int durationInHours) {
-        this.durationInHours = durationInHours;
+    public Map<String, BufferedReader> getDeploymentLogs() {
+        return deploymentLogs;
     }
 }
+
