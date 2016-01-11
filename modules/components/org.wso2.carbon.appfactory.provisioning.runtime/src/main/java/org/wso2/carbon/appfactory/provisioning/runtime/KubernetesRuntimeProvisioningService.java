@@ -31,8 +31,6 @@ import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
@@ -234,9 +232,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public DeploymentLogs streamRuntimeLogs() throws RuntimeProvisioningException {
+    public DeploymentLogStream streamRuntimeLogs() throws RuntimeProvisioningException {
 
-        DeploymentLogs deploymentLogs = new DeploymentLogs();
+        DeploymentLogStream deploymentLogStream = new DeploymentLogStream();
         Map<String, BufferedReader> logOutPut = new HashMap<>();
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
@@ -247,60 +245,48 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
                 BufferedReader logStream = new BufferedReader(new InputStreamReader(logs.getOutput()));
                 logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logStream);
-                deploymentLogs.setDeploymentLogs(logOutPut);
+                deploymentLogStream.setDeploymentLogs(logOutPut);
             }
         }
-        return deploymentLogs;
+        return deploymentLogStream;
     }
 
     @Override
-    public DeploymentLogs getRuntimeLogs(LogQuery query)
-            throws RuntimeProvisioningException {
+    public DeploymentLogs getRuntimeLogs(LogQuery query) throws RuntimeProvisioningException {
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         DeploymentLogs deploymentLogs = new DeploymentLogs();
-        Map<String, BufferedReader> logOutPut = new HashMap<>();
-        String logs;
-        if (query != null) {
-            PrettyLoggable prettyLoggable;
-            PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
-            for (Pod pod : podList.getItems()) {
-                for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
-                    if (query.getPreviousRecordsCount() > 0) {
-                        prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                                .withName(pod.getMetadata().getName()).inContainer(container.getName())
-                                .tailingLines(query.getPreviousRecordsCount());
-                    } else if (query.getDurationInHours() > 0) {
-                        prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
-                                .withName(pod.getMetadata().getName()).inContainer(container.getName())
-                                .sinceSeconds(query.getDurationInHours() * 3600);
-                    } else {
-                        throw new RuntimeProvisioningException("Error in log retrieving query while querying logs"
-                                + " of application : " + applicationContext.getId());
-                    }
-                    logs = (String) prettyLoggable.getLog(true);
-                    InputStream is = new ByteArrayInputStream(logs.getBytes());
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-                    logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), bufferedReader);
-                    deploymentLogs.setDeploymentLogs(logOutPut);
-                }
-            }
-        } else {
-            PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
-            for (Pod pod : podList.getItems()) {
-                for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
-                    logs = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+        Map<String, String> logOutPut = new HashMap<>();
+        PrettyLoggable prettyLoggable;
+        PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
+        for (Pod pod : podList.getItems()) {
+            for (io.fabric8.kubernetes.api.model.Container container : KubernetesHelper.getContainers(pod)) {
+                if (query == null || (query.getDurationInHours() < 0 && query.getTailingLines() < 0)) {
+                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                            .withName(pod.getMetadata().getName()).inContainer(container.getName());
+                } else if (query != null && query.getDurationInHours() < 0 && query.getTailingLines() > 0) {
+                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
                             .withName(pod.getMetadata().getName()).inContainer(container.getName())
-                            .getLog(true);
-                    if(log.isDebugEnabled()){
-                        log.debug(pod.getMetadata().getName() + "-" + container.getName() + " : log output");
-                        log.debug(logs);
-                    }
-                    InputStream is = new ByteArrayInputStream(logs.getBytes());
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-                    logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), bufferedReader);
+                            .tailingLines(query.getTailingLines());
+                } else if (query != null && query.getDurationInHours() > 0 && query.getTailingLines() < 0) {
+                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                            .withName(pod.getMetadata().getName()).inContainer(container.getName())
+                            .sinceSeconds(query.getDurationInHours() * 3600);
+                } else if (query != null && query.getDurationInHours() > 0 && query.getTailingLines() > 0) {
+                    prettyLoggable = kubernetesClient.pods().inNamespace(namespace.getMetadata().getName())
+                            .withName(pod.getMetadata().getName()).inContainer(container.getName())
+                            .sinceSeconds(query.getDurationInHours() * 3600).tailingLines(query.getTailingLines());
+                } else {
+                    throw new RuntimeProvisioningException(
+                            "Error in log retrieving query while querying logs of application : "
+                                    + applicationContext.getId());
                 }
+                if (log.isDebugEnabled()) {
+                    log.debug("Retrieving logs in pod : " + pod.getMetadata().getName() + "-" + container.getName());
+                }
+                String logs = (String) prettyLoggable.getLog(true);
+                logOutPut.put(pod.getMetadata().getName() + "-" + container.getName(), logs);
+                deploymentLogs.setDeploymentLogs(logOutPut);
             }
-            deploymentLogs.setDeploymentLogs(logOutPut);
         }
         return deploymentLogs;
     }

@@ -53,12 +53,7 @@ include("/jagg/config_reader.jag");
                 var iterator = map.entrySet().iterator();
                 while (iterator.hasNext()) {
                    var entry = iterator.next();
-                   var record = "";
-                   var containerLog = "";
-                   while ((record = entry.getValue().readLine()) != null) {
-                      containerLog += record + "\n";
-                   }
-                   logMap[entry.getKey()] = containerLog;
+                   logMap[entry.getKey()] = entry.getValue();
                 }
             }
             response.error = false;
