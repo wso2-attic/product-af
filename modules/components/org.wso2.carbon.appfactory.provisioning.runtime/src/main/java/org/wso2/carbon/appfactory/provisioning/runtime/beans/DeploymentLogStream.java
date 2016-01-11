@@ -17,6 +17,7 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Map;
 
 public class DeploymentLogStream {
@@ -29,6 +30,12 @@ public class DeploymentLogStream {
 
     public Map<String, BufferedReader> getDeploymentLogs() {
         return deploymentLogs;
+    }
+
+    public void closeLogStream() throws IOException {
+        for (Map.Entry <String, BufferedReader> entry : this.deploymentLogs.entrySet()) {
+            entry.getValue().close();
+        }
     }
 }
 
