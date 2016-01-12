@@ -183,13 +183,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
             Deployment currentDeployement = kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
-                    .deployments().withName(config.getDeploymentName()).get();
+                    .deployments().withName(config.getDeploymentName().toLowerCase()).get();
             if (currentDeployement != null) {
                 //Redeployment
                 //Deployment recreation should happen after comparing the new Deployment config with
                 // running service configs.
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
-                        .deployments().withName(config.getDeploymentName()).replace(deployment);
+                        .deployments().withName(config.getDeploymentName().toLowerCase()).replace(deployment);
 
                 //todo need to change service replacement because need to check whether service object is available
                 //Service recreation should happen after comparing the new service config with running service configs.
