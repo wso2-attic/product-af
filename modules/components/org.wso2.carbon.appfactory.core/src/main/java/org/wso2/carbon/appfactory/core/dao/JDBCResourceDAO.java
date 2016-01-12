@@ -25,7 +25,11 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.cache.JDBCResourceCacheManager;
 import org.wso2.carbon.appfactory.core.dto.Resource;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
+import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
 import org.wso2.carbon.appfactory.core.util.AppFactoryDBUtil;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ServiceProxy;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 
@@ -33,6 +37,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -374,6 +379,157 @@ public class JDBCResourceDAO {
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
         return false;
+    }
+
+    /**
+     * Add deployement config details
+     *
+     * @param deploymentConfig deployement config
+     */
+    public void addDeploymentConfig(DeploymentConfig deploymentConfig) throws AppFactoryException {
+        Connection connection = null;
+        PreparedStatement addDeploymentPreparedStatement = null;
+        PreparedStatement addContainerPreparedStatement = null;
+        PreparedStatement addProxiesPreparedStatement = null;
+
+        try {
+            connection = AppFactoryDBUtil.getConnection();
+            addDeploymentPreparedStatement = connection.prepareStatement(SQLConstants.ADD_DEPLOYMENT);
+            addContainerPreparedStatement = connection.prepareStatement(SQLConstants.ADD_CONTAINERS);
+            addProxiesPreparedStatement = connection.prepareStatement(SQLConstants.ADD_SERVICE_PROXIES);
+
+            addDeploymentPreparedStatement.setString(1, deploymentConfig.getDeploymentName());
+            addDeploymentPreparedStatement.setInt(2, deploymentConfig.getReplicas());
+            addDeploymentPreparedStatement.executeUpdate();
+            connection.commit();
+
+            List<Container> containerList = deploymentConfig.getContainers();
+            for (Container container : containerList) {
+                addContainerPreparedStatement.setString(1, container.getBaseImageName());
+                addContainerPreparedStatement.setString(2, container.getBaseImageVersion());
+                addContainerPreparedStatement.setString(3, deploymentConfig.getDeploymentName());
+                addContainerPreparedStatement.executeUpdate();
+                connection.commit();
+
+                List<ServiceProxy> serviceProxyList = container.getServiceProxies();
+
+                for (ServiceProxy serviceProxy : serviceProxyList) {
+                    addProxiesPreparedStatement.setString(1, serviceProxy.getServiceName());
+                    addProxiesPreparedStatement.setString(2, serviceProxy.getServiceProtocol());
+                    addProxiesPreparedStatement.setInt(3, serviceProxy.getServicePort());
+                    addProxiesPreparedStatement.setInt(4, serviceProxy.getServiceBackendPort());
+                    addProxiesPreparedStatement.setString(5, container.getBaseImageName());
+                    addProxiesPreparedStatement.setString(6, container.getBaseImageVersion());
+                    addProxiesPreparedStatement.setString(7, deploymentConfig.getDeploymentName());
+                    addProxiesPreparedStatement.executeUpdate();
+                    connection.commit();
+                }
+            }
+
+        } catch (SQLException e) {
+            String message = "Error while adding database for deployement config : "
+                    + deploymentConfig.getDeploymentName();
+            log.error(message, e);
+            throw new AppFactoryException(message, e);
+        } finally {
+            AppFactoryDBUtil.closePreparedStatement(addDeploymentPreparedStatement);
+            AppFactoryDBUtil.closePreparedStatement(addContainerPreparedStatement);
+            AppFactoryDBUtil.closePreparedStatement(addProxiesPreparedStatement);
+            AppFactoryDBUtil.closeConnection(connection);
+        }
+    }
+
+    /**
+     * Get deployement config
+     *
+     * @param applicationId id of the application
+     * @param stage         stage of the application
+     * @return deployement config
+     */
+    public DeploymentConfig getDeploymentConfig(String applicationId, String stage) throws AppFactoryException {
+        Connection databaseConnection = null;
+        PreparedStatement getDeployementPreparedStatement = null;
+        PreparedStatement getContainerPreparedStatement = null;
+        PreparedStatement getServicePreparedStatement = null;
+        ResultSet deployementResultSet = null;
+        ResultSet containerResultSet = null;
+        ResultSet serviceResultSet = null;
+
+        List<Container> containers = new ArrayList<Container>();
+        DeploymentConfig deploymentConfig = new DeploymentConfig();
+
+        try {
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            getDeployementPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_DEPLOYEMENET);
+
+            String deploymentName = applicationId + "-" + stage;
+            getDeployementPreparedStatement.setString(1, deploymentName);
+
+            deployementResultSet = getDeployementPreparedStatement.executeQuery();
+
+            int deployementId = 0;
+
+            while (deployementResultSet.next()) {
+                deployementId = deployementResultSet.getInt(SQLParameterConstants.COLUMN_NAME_DEPLOYMENT_ID);
+                deploymentConfig.setDeploymentName(
+                        deployementResultSet.getString(SQLParameterConstants.COLUMN_NAME_DEPLOYMENT_NAME));
+                deploymentConfig.setReplicas(deployementResultSet.getInt(SQLParameterConstants.COLUMN_NAME_REPLICAS));
+            }
+
+            getContainerPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_CONTAINER);
+            getServicePreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_SERVICE_PROXY);
+            getContainerPreparedStatement.setInt(1, deployementId);
+            containerResultSet = getContainerPreparedStatement.executeQuery();
+
+            //Adding container details
+            while (containerResultSet.next()) {
+                Container container = new Container();
+                container.setBaseImageName(
+                        containerResultSet.getString(SQLParameterConstants.COLUMN_NAME_BASEIMAGE_NAME));
+                container.setBaseImageVersion(
+                        containerResultSet.getString(SQLParameterConstants.COLUMN_NAME_BASEIMAGE_VERSION));
+                int containerId = containerResultSet.getInt(SQLParameterConstants.COLUMN_NAME_CONTAINER_ID);
+                getServicePreparedStatement.setInt(1, containerId);
+                serviceResultSet = getServicePreparedStatement.executeQuery();
+
+                List<ServiceProxy> serviceProxies = new ArrayList<ServiceProxy>();
+
+                //Adding service proxy details
+                while (serviceResultSet.next()) {
+                    ServiceProxy serviceProxy = new ServiceProxy();
+                    serviceProxy
+                            .setServiceName(serviceResultSet.getString(SQLParameterConstants.COLUMN_NAME_SERVICE_NAME));
+                    serviceProxy.setServiceProtocol(
+                            serviceResultSet.getString(SQLParameterConstants.COLUMN_NAME_SERVICE_PROTOCOL));
+                    serviceProxy
+                            .setServicePort(serviceResultSet.getInt(SQLParameterConstants.COLUMN_NAME_SERVICE_PORT));
+                    serviceProxy.setServiceBackendPort(
+                            serviceResultSet.getInt(SQLParameterConstants.COLUMN_NAME_SERVICE_BACKEND_PORT));
+                    serviceProxies.add(serviceProxy);
+                }
+
+                container.setServiceProxies(serviceProxies);
+                containers.add(container);
+            }
+
+            deploymentConfig.setContainers(containers);
+
+        } catch (SQLException e) {
+            String message = "Error while getting deployement config for application id : " + applicationId
+                    + " in stage : " + stage;
+            log.error(message, e);
+            throw new AppFactoryException(message, e);
+        } finally {
+            AppFactoryDBUtil.closeResultSet(deployementResultSet);
+            AppFactoryDBUtil.closeResultSet(containerResultSet);
+            AppFactoryDBUtil.closeResultSet(serviceResultSet);
+            AppFactoryDBUtil.closePreparedStatement(getDeployementPreparedStatement);
+            AppFactoryDBUtil.closePreparedStatement(getContainerPreparedStatement);
+            AppFactoryDBUtil.closePreparedStatement(getServicePreparedStatement);
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
+
+        return deploymentConfig;
     }
 
 }

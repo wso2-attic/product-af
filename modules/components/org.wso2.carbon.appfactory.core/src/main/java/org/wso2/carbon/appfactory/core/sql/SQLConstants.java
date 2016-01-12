@@ -39,6 +39,18 @@ public class SQLConstants {
 	public static final String ADD_FAILED_APPLICATION_SQL =
 			"REPLACE INTO AF_FAILED_APPLICATION (APPLICATION_KEY, TENANT_ID, CREATE_START_TIME) VALUES(?,?,?)";
 
+    public static final String ADD_DEPLOYMENT = "INSERT INTO AF_DEPLOYMENT (DEPLOYMENT_NAME, REPLICAS)" +
+            "VALUES(?,?)";
+
+    public static final String ADD_CONTAINERS = "INSERT INTO AF_CONTAINER (BASEIMAGE_NAME, BASEIMAGE_VERSION, "
+            + "DEPLOYMENT_ID) VALUES(?, ?, (SELECT DEPLOYMENT_ID FROM AF_DEPLOYMENT WHERE DEPLOYMENT_NAME = ?))";
+
+    public static final String ADD_SERVICE_PROXIES = "INSERT INTO AF_SERVICE_PROXY(SERVICE_NAME, SERVICE_PROTOCOL, "
+            + "SERVICE_PORT, SERVICE_BACKEND_PORT, CONTAINER_ID) VALUES(?, ?, ?, ?, (SELECT container.CONTAINER_ID FROM"
+            + " AF_CONTAINER container INNER JOIN AF_DEPLOYMENT "
+            + "deployment on deployment.DEPLOYMENT_ID = container.DEPLOYMENT_ID WHERE container.BASEIMAGE_NAME = ? "
+            + "AND container.BASEIMAGE_VERSION = ? AND deployment.DEPLOYMENT_NAME = ?))";
+
 
     //**************************************************Select Queries
     public static final String GET_APPLICATION_SQL = "SELECT ID FROM AF_APPLICATION " +
@@ -89,6 +101,23 @@ public class SQLConstants {
             "FROM AF_REPOSITORY WHERE VERSION_ID=? AND IS_FORKED=1 AND GIT_USER_ID=?";
     public static final String GET_APPLICATION_CREATION_STATUS_SQL = "SELECT STATUS FROM " +
             "AF_APPLICATION WHERE APPLICATION_KEY=? AND TENANT_ID=?";
+
+    public static final String GET_DEPLOYEMENET = "SELECT DEPLOYMENT_ID, DEPLOYMENT_NAME, REPLICAS FROM AF_DEPLOYMENT "
+            + "WHERE DEPLOYMENT_NAME = ?";
+
+    public static final String GET_CONTAINER = "SELECT CONTAINER_ID, BASEIMAGE_NAME, BASEIMAGE_VERSION FROM AF_CONTAINER"
+            + " WHERE DEPLOYMENT_ID = ?";
+
+    public static final String GET_SERVICE_PROXY = "SELECT SERVICE_NAME, SERVICE_PROTOCOL, SERVICE_PORT, "
+            + "SERVICE_BACKEND_PORT FROM AF_SERVICE_PROXY WHERE CONTAINER_ID = ?";
+
+    public static final String GET_DEPLOYEMENT_CONFIG = "SELECT deployment.DEPLOYMENT_NAME, deployment.REPLICAS,"
+            + "container.BASEIMAGE_NAME, container.BASEIMAGE_VERSION,"
+            + "service.SERVICE_NAME, service.SERVICE_PROTOCOL, service.SERVICE_PORT, service.SERVICE_BACKEND_PORT"
+            + "FROM AF_DEPLOYMENT deployment"
+            + "INNER JOIN AF_CONTAINER container ON deployment.DEPLOYMENT_ID = container.DEPLOYMENT_ID"
+            + "INNER JOIN AF_SERVICE_PROXY service ON container.CONTAINER_ID = service.CONTAINER_ID"
+            + "WHERE deployment.DEPLOYMENT_NAME = ?";
 
     // NOTE: we have put %s inside IN clause since place holders of the IN clause should be created dynamically.
     public static final String GET_APPLICATION_CREATION_STATUS_BY_APPKEYS_SQL = "SELECT APPLICATION_KEY ,STATUS FROM " +
