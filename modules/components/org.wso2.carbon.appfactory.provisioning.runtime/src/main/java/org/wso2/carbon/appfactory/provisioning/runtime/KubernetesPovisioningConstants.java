@@ -21,11 +21,11 @@ package org.wso2.carbon.appfactory.provisioning.runtime;
  */
 public class KubernetesPovisioningConstants {
 
-    public static final String KUB_MASTER_URL = "http://192.168.19.249:8080/";
+    public static final String KUB_MASTER_URL = "https://192.168.19.249/";
     public static final String KUB_API_VERSION = "v1";
 
-    public static String MASTER_USERNAME;
-    public static String MASTER_PASSWORD;
+    public static String MASTER_USERNAME = "vagrant";
+    public static String MASTER_PASSWORD = "vagrant";
 
     public static final String INGRESS_API_NAMESPACE_RESOURCE_PATH = "apis/extensions/v1beta1/namespaces/";
     public static final String INGRESS_API_RESOURCE_PATH_SUFFIX = "/ingresses/";
