@@ -26,7 +26,6 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.dao.JDBCResourceDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
@@ -146,7 +145,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			List<Container> containerList = new ArrayList<>();
 			containerList.add(container);
 			DeploymentConfig deploymentConfig = new DeploymentConfig();
-			String deploymentName = application.getId() + "-" + stage;
+			String deploymentName = application.getName() + "-" + stage;
 			deploymentConfig.setDeploymentName(deploymentName);
 			deploymentConfig.setContainers(containerList);
 			//Default replication count should be a user input
@@ -156,7 +155,6 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 //			deploymentConfig.setLables(labels);
 			
 			afKubClient.deployApplication(deploymentConfig);
-			JDBCResourceDAO.getInstance().addDeploymentConfig(deploymentConfig);
 
 		} catch (UserStoreException e) {
 			throw new AppFactoryException("Initial code committing error " + application.getName(), e);

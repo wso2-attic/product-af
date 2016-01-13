@@ -42,14 +42,4 @@ public class SQLParameterConstants {
     public static final String COLUMN_NAME_SUB_DOMAIN = "SUBDOMAIN";
     public static final String VERSION_TRUNK = "trunk";
     public static final String VERSION_1_0_0 = "1.0.0";
-    public static final String COLUMN_NAME_DEPLOYMENT_ID = "DEPLOYMENT_ID";
-    public static final String COLUMN_NAME_DEPLOYMENT_NAME = "DEPLOYMENT_NAME";
-    public static final String COLUMN_NAME_REPLICAS = "REPLICAS";
-    public static final String COLUMN_NAME_CONTAINER_ID = "CONTAINER_ID";
-    public static final String COLUMN_NAME_BASEIMAGE_NAME = "BASEIMAGE_NAME";
-    public static final String COLUMN_NAME_BASEIMAGE_VERSION = "BASEIMAGE_VERSION";
-    public static final String COLUMN_NAME_SERVICE_NAME = "SERVICE_NAME";
-    public static final String COLUMN_NAME_SERVICE_PROTOCOL = "SERVICE_PROTOCOL";
-    public static final String COLUMN_NAME_SERVICE_PORT = "SERVICE_PORT";
-    public static final String COLUMN_NAME_SERVICE_BACKEND_PORT = "SERVICE_BACKEND_PORT";
 }
