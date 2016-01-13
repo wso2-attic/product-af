@@ -15,9 +15,11 @@
  */
 package org.wso2.carbon.appfactory.core;
 
+import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.dto.Dependency;
 import org.wso2.carbon.appfactory.core.registry.AppFacResource;
-import org.wso2.carbon.appfactory.common.AppFactoryException;
+
+import java.util.List;
 
 public interface RemoteRegistryService {
 
@@ -49,7 +51,7 @@ public interface RemoteRegistryService {
 
 	/**
 	 * Retrieves resource value from a given registry location
-	 * 
+	 *
 	 * @param serverURL
 	 *            registry residing server url
 	 * @param cookie
@@ -115,7 +117,7 @@ public interface RemoteRegistryService {
 
 	/**
 	 * Return all the resources under given resource path
-	 * 
+	 *
 	 * @param serverURL
 	 *            registry residing server url
 	 * @param cookie
@@ -132,7 +134,7 @@ public interface RemoteRegistryService {
 
 	/**
 	 * Return the resource of given resource path
-	 * 
+	 *
 	 * @param serverURL
 	 *            registry residing server url
 	 * @param cookie
@@ -158,6 +160,31 @@ public interface RemoteRegistryService {
 	 */
 	public abstract void copyNonExistingResources(String sourceServerUrl, String sourcePath,
 	                                              String destServerUrl, String appId, String username)
+			throws AppFactoryException;
+
+	/**
+	 * Create runtime properties on Kubernetes for a application
+	 *
+	 * @param applicationKey key of the application
+	 * @param version        version of the application
+	 * @param stage          stage of the application
+	 * @param key            key of the property
+	 * @param value          value of the property
+	 * @param isSecured      property is secured or not
+	 * @throws AppFactoryException
+	 */
+	public abstract void addRuntimeProperty(String applicationKey, String version, String stage, String key,
+			String value, boolean isSecured) throws AppFactoryException;
+
+	/**
+	 * Get runtime properties from Kubernetes of the application
+	 *
+	 * @param applicationKey key of the application
+	 * @param stage          stage of the application
+	 * @param version        version of the application
+	 * @return list of resources as runtime properties
+	 */
+	public abstract List getRuntimeProperties(String applicationKey, String stage, String version)
 			throws AppFactoryException;
 
 }
