@@ -17,25 +17,16 @@
 package org.wso2.carbon.appfactory.core.registry;
 
 import org.apache.axis2.AxisFault;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
-import org.wso2.carbon.appfactory.core.dao.JDBCResourceDAO;
 import org.wso2.carbon.appfactory.core.dto.Dependency;
-import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesRuntimeProvisioningService;
-import org.wso2.carbon.appfactory.provisioning.runtime.RuntimeProvisioningException;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.RuntimeProperty;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 import org.wso2.carbon.appfactory.resource.mgt.services.xsd.AppFactoryResource;
 import org.wso2.carbon.appfactory.resource.mgt.services.xsd.ResourceProperty;
 import org.wso2.carbon.appfactory.resource.mgt.stub.AppFactoryResourceManagementServiceAppFactoryExceptionException;
 import org.wso2.carbon.appfactory.resource.mgt.stub.AppFactoryResourceManagementServiceStub;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
@@ -44,12 +35,7 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.registry.ws.client.registry.WSRegistryServiceClient;
 
-import java.nio.charset.Charset;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Service implementation to enable CRUD operation to remote registries
@@ -545,135 +531,8 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
     	
     }
 
-    /**
-     * Create runtime properties in Kubernetes for applcations
-     *
-     * @param applicationId id of the application
-     * @param stage         stage of the application
-     * @param key           property key
-     * @param value         property value
-     * @param isSecured     property is secured or not
-     * @param version       version of the application
-     */
-    @Override
-    public void addRuntimeProperty(String applicationKey, String version, String stage, String key,
-            String value, boolean isSecured) throws AppFactoryException {
-        String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
-
-        if (log.isDebugEnabled()) {
-            log.debug("Adding runtime property for application : " + applicationKey + " and version : " + version
-                    + " in stage " + stage + " with property : " + key + " in tenant domain : " + tenantDomain);
-        }
-
-        RuntimeProperty runtimeProperty = new RuntimeProperty();
-        Map<String, String> properties = new HashMap<String, String>();
-
-        boolean isChecked = isSecured;
-
-        //Checked whether the property type is secured
-        if (isChecked) {
-            runtimeProperty.setPropertyType(RuntimeProperty.PropertyType.SENSITIVE);
-            //the value is encoding base64 
-            byte[] encodedValue = Base64.encodeBase64(value.getBytes(Charset.forName("UTF-8")));
-            properties.put(key, new String(encodedValue, Charset.forName("UTF-8")));
-        } else {
-            runtimeProperty.setPropertyType(RuntimeProperty.PropertyType.ENVIRONMENT);
-            properties.put(key, value);
-        }
-
-        runtimeProperty.setName(key);
-        runtimeProperty.setProperties(properties);
-        List<RuntimeProperty> runtimeProperties = new ArrayList<RuntimeProperty>();
-        runtimeProperties.add(runtimeProperty);
-
-        ApplicationContext applicationContext = new ApplicationContext();
-        applicationContext.setCurrentStage(stage);
-        applicationContext.setId(applicationKey);
-        applicationContext.setVersion(version);
-
-        int tenantId = PrivilegedCarbonContext.getCurrentContext().getTenantId();
-        TenantInfo tenantInfo = new TenantInfo();
-        tenantInfo.setTenantId(tenantId);
-        tenantInfo.setTenantDomain(tenantDomain);
-        applicationContext.setTenantInfo(tenantInfo);
-
-        KubernetesRuntimeProvisioningService kubernetesRuntimeProvisioningService
-                = new KubernetesRuntimeProvisioningService(applicationContext);
-
-        try {
-            DeploymentConfig deploymentConfig = JDBCResourceDAO.getInstance().getDeploymentConfig(applicationKey, stage);
-            kubernetesRuntimeProvisioningService.setRuntimeProperties(runtimeProperties, deploymentConfig);
-        } catch (RuntimeProvisioningException e) {
-            String message = "Unable to create runtime property for application : " + applicationKey +
-                    " and version : " + version + " in stage : " + stage + " with property : " + key +
-                    " in tenant domain : " + tenantDomain;
-            log.error(message, e);
-            throw new AppFactoryException(message, e);
-        }
-
-    }
-
-    /**
-     * Get runtime propeties from kubernetes for application
-     *
-     * @param applicationKey id of the application
-     * @param stage          stage of the application
-     * @return list of resources as runtime properties
-     */
-    @Override
-    public List<org.wso2.carbon.appfactory.core.dto.Resource> getRuntimeProperties(String applicationKey,
-            String stage, String version) throws AppFactoryException{
-        String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
-
-        if (log.isDebugEnabled()) {
-            log.debug("Getting runtime propertie for application : " + applicationKey + " and version : " + version
-                    + " in stage " + stage + " in tenant domain : " + tenantDomain);
-        }
-
-        ApplicationContext applicationContext = new ApplicationContext();
-        applicationContext.setCurrentStage(stage);
-        applicationContext.setId(applicationKey);
-        applicationContext.setVersion(version);
-
-
-        int tenantId = PrivilegedCarbonContext.getCurrentContext().getTenantId();
-        TenantInfo tenantInfo = new TenantInfo();
-        tenantInfo.setTenantId(tenantId);
-        tenantInfo.setTenantDomain(tenantDomain);
-        applicationContext.setTenantInfo(tenantInfo);
-
-        KubernetesRuntimeProvisioningService kubernetesRuntimeProvisioningService
-                = new KubernetesRuntimeProvisioningService(applicationContext);
-
-        List<org.wso2.carbon.appfactory.core.dto.Resource> resources
-                = new ArrayList<org.wso2.carbon.appfactory.core.dto.Resource>();
-
-        try {
-
-            List<RuntimeProperty> runtimeProperties = kubernetesRuntimeProvisioningService.getRuntimeProperties();
-            for (RuntimeProperty runtimeProperty : runtimeProperties) {
-
-                for (Map.Entry<String, String> entry : runtimeProperty.getProperties().entrySet()) {
-                    org.wso2.carbon.appfactory.core.dto.Resource resource
-                            = new org.wso2.carbon.appfactory.core.dto.Resource();
-
-                    resource.setName(entry.getKey());
-                    resource.setDescription(entry.getValue());
-                    resources.add(resource);
-                }
-
-            }
-        } catch (RuntimeProvisioningException e) {
-            String message = "Unable to retreview runtime properties for application : " + applicationKey +
-                    " in stage : " + stage + " with version : " + version + " in tenant domain : " + tenantDomain;
-            log.error(message, e);
-            throw new AppFactoryException(message ,e);
-        }
-
-        return resources;
-    }
-
 }
+	
 
 
 
