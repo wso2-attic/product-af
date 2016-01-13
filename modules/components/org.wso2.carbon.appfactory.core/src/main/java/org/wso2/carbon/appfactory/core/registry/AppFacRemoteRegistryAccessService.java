@@ -556,50 +556,45 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
      * @param version       version of the application
      */
     @Override
-    public void addRuntimeProperties(String applicationKey, String stage, String key, String value,
-            String isSecured, String version) {
+    public void addRuntimeProperty(String applicationKey, String version, String stage, String key,
+            String value, boolean isSecured) throws AppFactoryException {
+        String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Adding runtime property for application : " + applicationKey + " and version : " + version
+                    + " in stage " + stage + " with property : " + key + " in tenant domain : " + tenantDomain);
+        }
 
         RuntimeProperty runtimeProperty = new RuntimeProperty();
         Map<String, String> properties = new HashMap<String, String>();
 
-        boolean isChecked = Boolean.parseBoolean(isSecured);
+        boolean isChecked = isSecured;
 
         //Checked whether the property type is secured
         if (isChecked) {
             runtimeProperty.setPropertyType(RuntimeProperty.PropertyType.SENSITIVE);
-            runtimeProperty.setName(key);
+            //the value is encoding base64 
             byte[] encodedValue = Base64.encodeBase64(value.getBytes(Charset.forName("UTF-8")));
-
             properties.put(key, new String(encodedValue, Charset.forName("UTF-8")));
-            runtimeProperty.setProperties(properties);
-
         } else {
             runtimeProperty.setPropertyType(RuntimeProperty.PropertyType.ENVIRONMENT);
-            runtimeProperty.setName(key);
-
             properties.put(key, value);
-
-            runtimeProperty.setProperties(properties);
-
         }
 
+        runtimeProperty.setName(key);
+        runtimeProperty.setProperties(properties);
         List<RuntimeProperty> runtimeProperties = new ArrayList<RuntimeProperty>();
         runtimeProperties.add(runtimeProperty);
 
         ApplicationContext applicationContext = new ApplicationContext();
-
         applicationContext.setCurrentStage(stage);
         applicationContext.setId(applicationKey);
         applicationContext.setVersion(version);
 
-        TenantInfo tenantInfo = new TenantInfo();
-
         int tenantId = PrivilegedCarbonContext.getCurrentContext().getTenantId();
-        String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
-
+        TenantInfo tenantInfo = new TenantInfo();
         tenantInfo.setTenantId(tenantId);
         tenantInfo.setTenantDomain(tenantDomain);
-
         applicationContext.setTenantInfo(tenantInfo);
 
         KubernetesRuntimeProvisioningService kubernetesRuntimeProvisioningService
@@ -609,12 +604,11 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
             DeploymentConfig deploymentConfig = JDBCResourceDAO.getInstance().getDeploymentConfig(applicationKey, stage);
             kubernetesRuntimeProvisioningService.setRuntimeProperties(runtimeProperties, deploymentConfig);
         } catch (RuntimeProvisioningException e) {
-            String message = "Unable to create runtime property : " + key + " for application "
-                    + applicationKey + " in tenant " + tenantDomain;
+            String message = "Unable to create runtime property for application : " + applicationKey +
+                    " and version : " + version + " in stage : " + stage + " with property : " + key +
+                    " in tenant domain : " + tenantDomain;
             log.error(message, e);
-        } catch (AppFactoryException e){
-            String message = "Unable to getting deployement config details from the database";
-            log.error(message, e);
+            throw new AppFactoryException(message, e);
         }
 
     }
@@ -628,22 +622,24 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
      */
     @Override
     public List<org.wso2.carbon.appfactory.core.dto.Resource> getRuntimeProperties(String applicationKey,
-            String stage, String version) {
+            String stage, String version) throws AppFactoryException{
+        String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Getting runtime propertie for application : " + applicationKey + " and version : " + version
+                    + " in stage " + stage + " in tenant domain : " + tenantDomain);
+        }
 
         ApplicationContext applicationContext = new ApplicationContext();
-
         applicationContext.setCurrentStage(stage);
         applicationContext.setId(applicationKey);
         applicationContext.setVersion(version);
 
-        TenantInfo tenantInfo = new TenantInfo();
 
         int tenantId = PrivilegedCarbonContext.getCurrentContext().getTenantId();
-        String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
-
+        TenantInfo tenantInfo = new TenantInfo();
         tenantInfo.setTenantId(tenantId);
         tenantInfo.setTenantDomain(tenantDomain);
-
         applicationContext.setTenantInfo(tenantInfo);
 
         KubernetesRuntimeProvisioningService kubernetesRuntimeProvisioningService
@@ -668,9 +664,10 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
 
             }
         } catch (RuntimeProvisioningException e) {
-            String message = "Unable to retreview runtime properties for application : " + applicationKey
-                    + " tenant : " + tenantDomain;
+            String message = "Unable to retreview runtime properties for application : " + applicationKey +
+                    " in stage : " + stage + " with version : " + version + " in tenant domain : " + tenantDomain;
             log.error(message, e);
+            throw new AppFactoryException(message ,e);
         }
 
         return resources;

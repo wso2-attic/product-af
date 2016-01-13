@@ -389,52 +389,34 @@ public class JDBCResourceDAO {
     public void addDeploymentConfig(DeploymentConfig deploymentConfig) throws AppFactoryException {
         Connection connection = null;
         PreparedStatement addDeploymentPreparedStatement = null;
-        PreparedStatement addContainerPreparedStatement = null;
-        PreparedStatement addProxiesPreparedStatement = null;
 
         try {
             connection = AppFactoryDBUtil.getConnection();
             addDeploymentPreparedStatement = connection.prepareStatement(SQLConstants.ADD_DEPLOYMENT);
-            addContainerPreparedStatement = connection.prepareStatement(SQLConstants.ADD_CONTAINERS);
-            addProxiesPreparedStatement = connection.prepareStatement(SQLConstants.ADD_SERVICE_PROXIES);
-
             addDeploymentPreparedStatement.setString(1, deploymentConfig.getDeploymentName());
             addDeploymentPreparedStatement.setInt(2, deploymentConfig.getReplicas());
             addDeploymentPreparedStatement.executeUpdate();
-            connection.commit();
 
             List<Container> containerList = deploymentConfig.getContainers();
-            for (Container container : containerList) {
-                addContainerPreparedStatement.setString(1, container.getBaseImageName());
-                addContainerPreparedStatement.setString(2, container.getBaseImageVersion());
-                addContainerPreparedStatement.setString(3, deploymentConfig.getDeploymentName());
-                addContainerPreparedStatement.executeUpdate();
+            addContainer(containerList, deploymentConfig.getDeploymentName(), connection);
+            if(addDeploymentPreparedStatement.getUpdateCount() > 0){
                 connection.commit();
-
-                List<ServiceProxy> serviceProxyList = container.getServiceProxies();
-
-                for (ServiceProxy serviceProxy : serviceProxyList) {
-                    addProxiesPreparedStatement.setString(1, serviceProxy.getServiceName());
-                    addProxiesPreparedStatement.setString(2, serviceProxy.getServiceProtocol());
-                    addProxiesPreparedStatement.setInt(3, serviceProxy.getServicePort());
-                    addProxiesPreparedStatement.setInt(4, serviceProxy.getServiceBackendPort());
-                    addProxiesPreparedStatement.setString(5, container.getBaseImageName());
-                    addProxiesPreparedStatement.setString(6, container.getBaseImageVersion());
-                    addProxiesPreparedStatement.setString(7, deploymentConfig.getDeploymentName());
-                    addProxiesPreparedStatement.executeUpdate();
-                    connection.commit();
-                }
             }
 
         } catch (SQLException e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException rollbackExcpetion) {
+                log.error("Error while rolling back the added application", rollbackExcpetion);
+            }
             String message = "Error while adding database for deployement config : "
                     + deploymentConfig.getDeploymentName();
             log.error(message, e);
             throw new AppFactoryException(message, e);
         } finally {
             AppFactoryDBUtil.closePreparedStatement(addDeploymentPreparedStatement);
-            AppFactoryDBUtil.closePreparedStatement(addContainerPreparedStatement);
-            AppFactoryDBUtil.closePreparedStatement(addProxiesPreparedStatement);
             AppFactoryDBUtil.closeConnection(connection);
         }
     }
@@ -448,24 +430,19 @@ public class JDBCResourceDAO {
      */
     public DeploymentConfig getDeploymentConfig(String applicationId, String stage) throws AppFactoryException {
         Connection databaseConnection = null;
-        PreparedStatement getDeployementPreparedStatement = null;
-        PreparedStatement getContainerPreparedStatement = null;
-        PreparedStatement getServicePreparedStatement = null;
+        PreparedStatement getDeploymentPreparedStatement = null;
         ResultSet deployementResultSet = null;
-        ResultSet containerResultSet = null;
-        ResultSet serviceResultSet = null;
 
-        List<Container> containers = new ArrayList<Container>();
         DeploymentConfig deploymentConfig = new DeploymentConfig();
 
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
-            getDeployementPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_DEPLOYEMENET);
+            getDeploymentPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_DEPLOYEMENET);
 
             String deploymentName = applicationId + "-" + stage;
-            getDeployementPreparedStatement.setString(1, deploymentName);
+            getDeploymentPreparedStatement.setString(1, deploymentName);
 
-            deployementResultSet = getDeployementPreparedStatement.executeQuery();
+            deployementResultSet = getDeploymentPreparedStatement.executeQuery();
 
             int deployementId = 0;
 
@@ -476,9 +453,98 @@ public class JDBCResourceDAO {
                 deploymentConfig.setReplicas(deployementResultSet.getInt(SQLParameterConstants.COLUMN_NAME_REPLICAS));
             }
 
+            List<Container> containers = getContainers(deployementId, databaseConnection);
+            deploymentConfig.setContainers(containers);
+
+        } catch (SQLException e) {
+            String message = "Error while getting deployement config for application id : " + applicationId
+                    + " in stage : " + stage;
+            throw new AppFactoryException(message, e);
+        } finally {
+            AppFactoryDBUtil.closeResultSet(deployementResultSet);
+            AppFactoryDBUtil.closePreparedStatement(getDeploymentPreparedStatement);
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
+
+        return deploymentConfig;
+    }
+
+    /**
+     * Add containers to deployment config
+     *
+     * @param containerList   list of containers
+     * @param deployementName name of the deployement
+     * @param connection      database connection
+     */
+    private void addContainer(List<Container> containerList, String deployementName, Connection connection) {
+        PreparedStatement addContainerPreparedStatement = null;
+        try {
+            addContainerPreparedStatement = connection.prepareStatement(SQLConstants.ADD_CONTAINERS);
+            for (Container container : containerList) {
+                addContainerPreparedStatement.setString(1, container.getBaseImageName());
+                addContainerPreparedStatement.setString(2, container.getBaseImageVersion());
+                addContainerPreparedStatement.setString(3, deployementName);
+                addContainerPreparedStatement.executeUpdate();
+
+                List<ServiceProxy> serviceProxyList = container.getServiceProxies();
+                addServiceProxy(serviceProxyList, container, deployementName, connection);
+            }
+        } catch (SQLException e) {
+            String message = "Error while adding the database for container to deployment : " + deployementName;
+            log.error(message, e);
+        } finally {
+            AppFactoryDBUtil.closePreparedStatement(addContainerPreparedStatement);
+        }
+
+    }
+
+    /**
+     * Add service proxies to container
+     *
+     * @param serviceProxyList list of service proxies
+     * @param container        container details
+     * @param deploymentName   name of the deployment
+     * @param connection       database connection
+     */
+    private void addServiceProxy(List<ServiceProxy> serviceProxyList, Container container, String deploymentName,
+            Connection connection) {
+        PreparedStatement addProxiesPreparedStatement = null;
+        try {
+            addProxiesPreparedStatement = connection.prepareStatement(SQLConstants.ADD_SERVICE_PROXIES);
+            for (ServiceProxy serviceProxy : serviceProxyList) {
+                addProxiesPreparedStatement.setString(1, serviceProxy.getServiceName());
+                addProxiesPreparedStatement.setString(2, serviceProxy.getServiceProtocol());
+                addProxiesPreparedStatement.setInt(3, serviceProxy.getServicePort());
+                addProxiesPreparedStatement.setInt(4, serviceProxy.getServiceBackendPort());
+                addProxiesPreparedStatement.setString(5, container.getBaseImageName());
+                addProxiesPreparedStatement.setString(6, container.getBaseImageVersion());
+                addProxiesPreparedStatement.setString(7, deploymentName);
+                addProxiesPreparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            String message = "Error while adding the database for service proxies to deployement : " + deploymentName;
+            log.error(message, e);
+        } finally {
+            AppFactoryDBUtil.closePreparedStatement(addProxiesPreparedStatement);
+        }
+
+    }
+
+    /**
+     * Get container
+     *
+     * @param deploymentId id of the deployment
+     * @param databaseConnection dabase connection
+     * @return list of containers
+     */
+    private List<Container> getContainers(int deploymentId, Connection databaseConnection) {
+        PreparedStatement getContainerPreparedStatement = null;
+        ResultSet containerResultSet = null;
+        List<Container> containers = new ArrayList<Container>();
+
+        try {
             getContainerPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_CONTAINER);
-            getServicePreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_SERVICE_PROXY);
-            getContainerPreparedStatement.setInt(1, deployementId);
+            getContainerPreparedStatement.setInt(1, deploymentId);
             containerResultSet = getContainerPreparedStatement.executeQuery();
 
             //Adding container details
@@ -488,48 +554,64 @@ public class JDBCResourceDAO {
                         containerResultSet.getString(SQLParameterConstants.COLUMN_NAME_BASEIMAGE_NAME));
                 container.setBaseImageVersion(
                         containerResultSet.getString(SQLParameterConstants.COLUMN_NAME_BASEIMAGE_VERSION));
+
                 int containerId = containerResultSet.getInt(SQLParameterConstants.COLUMN_NAME_CONTAINER_ID);
-                getServicePreparedStatement.setInt(1, containerId);
-                serviceResultSet = getServicePreparedStatement.executeQuery();
-
-                List<ServiceProxy> serviceProxies = new ArrayList<ServiceProxy>();
-
-                //Adding service proxy details
-                while (serviceResultSet.next()) {
-                    ServiceProxy serviceProxy = new ServiceProxy();
-                    serviceProxy
-                            .setServiceName(serviceResultSet.getString(SQLParameterConstants.COLUMN_NAME_SERVICE_NAME));
-                    serviceProxy.setServiceProtocol(
-                            serviceResultSet.getString(SQLParameterConstants.COLUMN_NAME_SERVICE_PROTOCOL));
-                    serviceProxy
-                            .setServicePort(serviceResultSet.getInt(SQLParameterConstants.COLUMN_NAME_SERVICE_PORT));
-                    serviceProxy.setServiceBackendPort(
-                            serviceResultSet.getInt(SQLParameterConstants.COLUMN_NAME_SERVICE_BACKEND_PORT));
-                    serviceProxies.add(serviceProxy);
-                }
-
+                List<ServiceProxy> serviceProxies = getServiceProxies(containerId, databaseConnection);
                 container.setServiceProxies(serviceProxies);
                 containers.add(container);
             }
 
-            deploymentConfig.setContainers(containers);
-
         } catch (SQLException e) {
-            String message = "Error while getting deployement config for application id : " + applicationId
-                    + " in stage : " + stage;
+            String message = "Error while getting containers";
             log.error(message, e);
-            throw new AppFactoryException(message, e);
         } finally {
-            AppFactoryDBUtil.closeResultSet(deployementResultSet);
             AppFactoryDBUtil.closeResultSet(containerResultSet);
-            AppFactoryDBUtil.closeResultSet(serviceResultSet);
-            AppFactoryDBUtil.closePreparedStatement(getDeployementPreparedStatement);
             AppFactoryDBUtil.closePreparedStatement(getContainerPreparedStatement);
-            AppFactoryDBUtil.closePreparedStatement(getServicePreparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
         }
 
-        return deploymentConfig;
+        return containers;
+
+    }
+
+    /**
+     * Get service proxies
+     *
+     * @param containerId        id of the container
+     * @param databaseConnection database connetion
+     * @return list of service proxies
+     */
+    private List<ServiceProxy> getServiceProxies(int containerId, Connection databaseConnection) {
+        PreparedStatement getServicePreparedStatement = null;
+        ResultSet serviceResultSet = null;
+        List<ServiceProxy> serviceProxies = new ArrayList<ServiceProxy>();
+
+        try {
+            getServicePreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_SERVICE_PROXY);
+            getServicePreparedStatement.setInt(1, containerId);
+            serviceResultSet = getServicePreparedStatement.executeQuery();
+
+            //Adding service proxy details
+            while (serviceResultSet.next()) {
+                ServiceProxy serviceProxy = new ServiceProxy();
+                serviceProxy.setServiceName(serviceResultSet.getString(SQLParameterConstants.COLUMN_NAME_SERVICE_NAME));
+                serviceProxy.setServiceProtocol(
+                        serviceResultSet.getString(SQLParameterConstants.COLUMN_NAME_SERVICE_PROTOCOL));
+                serviceProxy.setServicePort(serviceResultSet.getInt(SQLParameterConstants.COLUMN_NAME_SERVICE_PORT));
+                serviceProxy.setServiceBackendPort(
+                        serviceResultSet.getInt(SQLParameterConstants.COLUMN_NAME_SERVICE_BACKEND_PORT));
+                serviceProxies.add(serviceProxy);
+            }
+
+        } catch (SQLException e) {
+            String message = "Error while getting service proxies";
+            log.error(message, e);
+        } finally {
+            AppFactoryDBUtil.closeResultSet(serviceResultSet);
+            AppFactoryDBUtil.closePreparedStatement(getServicePreparedStatement);
+        }
+
+        return serviceProxies;
+
     }
 
 }

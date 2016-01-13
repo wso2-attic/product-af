@@ -166,14 +166,15 @@ public interface RemoteRegistryService {
 	 * Create runtime properties on Kubernetes for a application
 	 *
 	 * @param applicationKey key of the application
+	 * @param version        version of the application
 	 * @param stage          stage of the application
 	 * @param key            key of the property
 	 * @param value          value of the property
 	 * @param isSecured      property is secured or not
-	 * @param version        version of the application
+	 * @throws AppFactoryException
 	 */
-	public abstract void addRuntimeProperties(String applicationKey, String stage, String key, String value,
-			String isSecured, String version);
+	public abstract void addRuntimeProperty(String applicationKey, String version, String stage, String key,
+			String value, boolean isSecured) throws AppFactoryException;
 
 	/**
 	 * Get runtime properties from Kubernetes of the application
@@ -183,6 +184,7 @@ public interface RemoteRegistryService {
 	 * @param version        version of the application
 	 * @return list of resources as runtime properties
 	 */
-	public abstract List getRuntimeProperties(String applicationKey, String stage, String version);
+	public abstract List getRuntimeProperties(String applicationKey, String stage, String version)
+			throws AppFactoryException;
 
 }
