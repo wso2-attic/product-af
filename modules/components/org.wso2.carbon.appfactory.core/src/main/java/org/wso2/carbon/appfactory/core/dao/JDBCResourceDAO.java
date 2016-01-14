@@ -476,7 +476,7 @@ public class JDBCResourceDAO {
      * @param deployementName name of the deployement
      * @param connection      database connection
      */
-    private void addContainer(List<Container> containerList, String deployementName, Connection connection) {
+    private void addContainer(List<Container> containerList, String deployementName, Connection connection) throws SQLException{
         PreparedStatement addContainerPreparedStatement = null;
         try {
             addContainerPreparedStatement = connection.prepareStatement(SQLConstants.ADD_CONTAINERS);
@@ -492,6 +492,7 @@ public class JDBCResourceDAO {
         } catch (SQLException e) {
             String message = "Error while adding the database for container to deployment : " + deployementName;
             log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
             AppFactoryDBUtil.closePreparedStatement(addContainerPreparedStatement);
         }
@@ -507,7 +508,7 @@ public class JDBCResourceDAO {
      * @param connection       database connection
      */
     private void addServiceProxy(List<ServiceProxy> serviceProxyList, Container container, String deploymentName,
-            Connection connection) {
+            Connection connection) throws SQLException {
         PreparedStatement addProxiesPreparedStatement = null;
         try {
             addProxiesPreparedStatement = connection.prepareStatement(SQLConstants.ADD_SERVICE_PROXIES);
@@ -524,6 +525,7 @@ public class JDBCResourceDAO {
         } catch (SQLException e) {
             String message = "Error while adding the database for service proxies to deployement : " + deploymentName;
             log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
             AppFactoryDBUtil.closePreparedStatement(addProxiesPreparedStatement);
         }
@@ -537,7 +539,7 @@ public class JDBCResourceDAO {
      * @param databaseConnection dabase connection
      * @return list of containers
      */
-    private List<Container> getContainers(int deploymentId, Connection databaseConnection) {
+    private List<Container> getContainers(int deploymentId, Connection databaseConnection) throws SQLException{
         PreparedStatement getContainerPreparedStatement = null;
         ResultSet containerResultSet = null;
         List<Container> containers = new ArrayList<Container>();
@@ -564,6 +566,7 @@ public class JDBCResourceDAO {
         } catch (SQLException e) {
             String message = "Error while getting containers";
             log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
             AppFactoryDBUtil.closeResultSet(containerResultSet);
             AppFactoryDBUtil.closePreparedStatement(getContainerPreparedStatement);
@@ -580,7 +583,7 @@ public class JDBCResourceDAO {
      * @param databaseConnection database connetion
      * @return list of service proxies
      */
-    private List<ServiceProxy> getServiceProxies(int containerId, Connection databaseConnection) {
+    private List<ServiceProxy> getServiceProxies(int containerId, Connection databaseConnection) throws SQLException{
         PreparedStatement getServicePreparedStatement = null;
         ResultSet serviceResultSet = null;
         List<ServiceProxy> serviceProxies = new ArrayList<ServiceProxy>();
@@ -605,6 +608,7 @@ public class JDBCResourceDAO {
         } catch (SQLException e) {
             String message = "Error while getting service proxies";
             log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
             AppFactoryDBUtil.closeResultSet(serviceResultSet);
             AppFactoryDBUtil.closePreparedStatement(getServicePreparedStatement);

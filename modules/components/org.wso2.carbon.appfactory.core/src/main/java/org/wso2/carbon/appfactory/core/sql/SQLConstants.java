@@ -113,10 +113,10 @@ public class SQLConstants {
 
     public static final String GET_DEPLOYEMENT_CONFIG = "SELECT deployment.DEPLOYMENT_NAME, deployment.REPLICAS,"
             + "container.BASEIMAGE_NAME, container.BASEIMAGE_VERSION,"
-            + "service.SERVICE_NAME, service.SERVICE_PROTOCOL, service.SERVICE_PORT, service.SERVICE_BACKEND_PORT"
-            + "FROM AF_DEPLOYMENT deployment"
-            + "INNER JOIN AF_CONTAINER container ON deployment.DEPLOYMENT_ID = container.DEPLOYMENT_ID"
-            + "INNER JOIN AF_SERVICE_PROXY service ON container.CONTAINER_ID = service.CONTAINER_ID"
+            + "service.SERVICE_NAME, service.SERVICE_PROTOCOL, service.SERVICE_PORT, service.SERVICE_BACKEND_PORT "
+            + "FROM AF_DEPLOYMENT deployment "
+            + "INNER JOIN AF_CONTAINER container ON deployment.DEPLOYMENT_ID = container.DEPLOYMENT_ID "
+            + "INNER JOIN AF_SERVICE_PROXY service ON container.CONTAINER_ID = service.CONTAINER_ID "
             + "WHERE deployment.DEPLOYMENT_NAME = ?";
 
     // NOTE: we have put %s inside IN clause since place holders of the IN clause should be created dynamically.

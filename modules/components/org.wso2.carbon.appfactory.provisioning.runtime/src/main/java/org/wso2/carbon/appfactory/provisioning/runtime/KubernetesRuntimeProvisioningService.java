@@ -366,7 +366,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         for (RuntimeProperty runtimeProperty : runtimeProperties) {
             switch (runtimeProperty.getPropertyType()) {
-            case SENSITIVE:
+            case SECURED:
                 if (log.isDebugEnabled()) {
                     String message = "Creating property type secret for the application:" + applicationContext.getId()
                             + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
@@ -428,7 +428,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 String message = "Runtime property type : " + runtimeProperty.getPropertyType() + " not supported.";
 
                 throw new IllegalArgumentException(message);
-
             }
         }
 
@@ -462,7 +461,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         for (RuntimeProperty runtimeProperty : runtimeProperties) {
             switch (runtimeProperty.getPropertyType()) {
-            case SENSITIVE:
+            case SECURED:
                 if (log.isDebugEnabled()) {
                     String message = "Updating property type secret for the application:" + applicationContext.getId()
                             + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
@@ -538,7 +537,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         for (Secret secret : secretList.getItems()) {
             RuntimeProperty sensitiveRuntimeProperty = new RuntimeProperty();
-            sensitiveRuntimeProperty.setPropertyType(RuntimeProperty.PropertyType.SENSITIVE);
+            sensitiveRuntimeProperty.setPropertyType(RuntimeProperty.PropertyType.SECURED);
             sensitiveRuntimeProperty.setName(secret.getMetadata().getName());
             sensitiveRuntimeProperty.setProperties(secret.getData());
             runtimeProperties.add(sensitiveRuntimeProperty);

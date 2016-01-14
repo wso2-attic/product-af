@@ -572,7 +572,7 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
 
         //Checked whether the property type is secured
         if (isChecked) {
-            runtimeProperty.setPropertyType(RuntimeProperty.PropertyType.SENSITIVE);
+            runtimeProperty.setPropertyType(RuntimeProperty.PropertyType.SECURED);
             //the value is encoding base64 
             byte[] encodedValue = Base64.encodeBase64(value.getBytes(Charset.forName("UTF-8")));
             properties.put(key, new String(encodedValue, Charset.forName("UTF-8")));

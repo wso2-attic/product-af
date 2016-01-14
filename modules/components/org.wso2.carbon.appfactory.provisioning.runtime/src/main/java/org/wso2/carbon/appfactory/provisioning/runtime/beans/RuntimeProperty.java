@@ -27,7 +27,7 @@ public class RuntimeProperty {
     private String name;
 
     public enum PropertyType {
-        SENSITIVE, ENVIRONMENT
+        SECURED, ENVIRONMENT
     }
 
     public PropertyType getPropertyType() {
