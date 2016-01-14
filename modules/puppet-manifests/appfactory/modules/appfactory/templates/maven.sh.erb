@@ -196,6 +196,25 @@ fi
                 -DarchetypeCatalog=local > /dev/null;
         [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
 
+        ${ECHO} -en "Installing springapp archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/springapp-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.appfactory \
+                -DartifactId=springapp-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating springappdefault .... ";
+        ${MVN} archetype:generate -DartifactId=springappdefault \
+                -DarchetypeGroupId=org.wso2.appfactory \
+                -DarchetypeArtifactId=springapp-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.appfactory \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
 	${ECHO} -en "Removing temp files .... "
 	${RM} -rf /tmp/mvn-tmp
 	[ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
