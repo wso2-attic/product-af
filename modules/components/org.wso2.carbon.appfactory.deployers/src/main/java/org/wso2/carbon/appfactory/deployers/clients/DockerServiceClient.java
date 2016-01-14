@@ -49,8 +49,8 @@ public class DockerServiceClient {
 
     public void buildDockerImage(File dockerFile, String imageTagName) throws AppFactoryException {
         try {
-            dockerClient.buildImageCmd(dockerFile).withTag(imageTagName).exec(new BuildImageResultCallback().awaitCompletion());
-        } catch (InterruptedException e) {
+            dockerClient.buildImageCmd(dockerFile).withTag(imageTagName).exec(new BuildImageResultCallback());
+        } catch (Exception e) {
             String msg = "Error while building docker image for image : " + imageTagName;
             log.error(msg, e);
             throw new AppFactoryException(e);
