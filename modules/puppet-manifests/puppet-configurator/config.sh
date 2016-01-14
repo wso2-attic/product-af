@@ -65,6 +65,14 @@ declare -a STRATOS_INSTALLER_PATCHES=("patch0003" "patch0006" "patch0007");
 declare -a TASK_SERVER=("patch0097" "patch0113");
 declare -a BAM_PATCHES=("patch0401" "patch0623");
 
+## runtimes
+declare -a PAAS_AS_SPRING_RUNTIME=("aopalliance-1.0.jar" "spring-beans-4.1.5.RELEASE.jar" "spring-expression-4.1.5.RELEASE.jar" "spring-jms-4.1.5.RELEASE.jar"
+                                   "spring-test-4.1.5.RELEASE.jar" "spring-webmvc-portlet-4.1.5.RELEASE.jar" "commons-logging-1.1.1.jar" "spring-context-4.1.5.RELEASE.jar"
+                                   "spring-instrument-4.1.5.RELEASE.jar" "spring-messaging-4.1.5.RELEASE.jar" "spring-tx-4.1.5.RELEASE.jar" "spring-websocket-4.1.5.RELEASE.jar"
+                                   "spring-aop-4.1.5.RELEASE.jar" "spring-context-support-4.1.5.RELEASE.jar" "spring-instrument-tomcat-4.1.5.RELEASE.jar" "spring-orm-4.1.5.RELEASE.jar"
+                                   "spring-web-4.1.5.RELEASE.jar" "spring-aspects-4.1.5.RELEASE.jar" "spring-core-4.1.5.RELEASE.jar" "spring-jdbc-4.1.5.RELEASE.jar" "spring-oxm-4.1.5.RELEASE.jar"
+                                   "spring-webmvc-4.1.5.RELEASE.jar");
+
 ## dropins
 declare -a AF_DROPINS=("org.apache.commons.lang3_3.1.0.jar" "org.apache.stratos.common_4.1.3.jar" "org.apache.stratos.messaging_4.1.3.jar" "org.wso2.carbon.andes.stub-4.2.1.jar" "org.wso2.carbon.cloudmgt.users_1.1.0.jar" "org.wso2.carbon.issue.tracker-2.0.0.jar" "org.wso2.carbon.registry.metadata-1.0.0-SNAPSHOT.jar");
 declare -a BAM_DROPINS=("org.wso2.carbon.logging.summarizer_4.2.0.jar");
