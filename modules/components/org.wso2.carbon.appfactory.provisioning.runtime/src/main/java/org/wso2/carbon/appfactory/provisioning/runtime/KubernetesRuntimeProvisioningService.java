@@ -367,50 +367,16 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         for (RuntimeProperty runtimeProperty : runtimeProperties) {
             switch (runtimeProperty.getPropertyType()) {
             case SECURED:
-                if (log.isDebugEnabled()) {
-                    String message = "Creating property type secret for the application:" + applicationContext.getId()
-                            + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
-                    log.debug(message);
+
+                try {
+                    setSecuredRuntimeProperties(secrets, kubernetesClient, volumeMounts, runtimeProperty);
+                }catch (KubernetesClientException e){
+                    String message = "Error while setting secured runtime properties for application : "
+                            + applicationContext.getId() + " in tenant domain "
+                            + applicationContext.getTenantInfo().getTenantDomain();
+
+                    throw new RuntimeProvisioningException(message, e);
                 }
-
-                Secret currentSecret = kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
-                        .withName(runtimeProperty.getName()).get();
-
-                //if secrete exists then replace the same secrete, otherwise create a new secrete
-                if (currentSecret != null) {
-                    kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
-                            .withName(runtimeProperty.getName()).replace(currentSecret);
-                } else {
-                    Secret secret = new SecretBuilder()
-                            .withKind(KubernetesPovisioningConstants.KIND_SECRETS)
-                            .withApiVersion(Secret.ApiVersion.V_1)
-                            .withNewMetadata()
-                            .withNamespace(namespace.getMetadata().getName())
-                            .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext))
-                            .withName(runtimeProperty.getName())
-                            .endMetadata().withData(runtimeProperty.getProperties())
-                            .build();
-
-                    kubernetesClient.secrets().create(secret);
-                }
-
-                Volume volume = new VolumeBuilder()
-                        .withName(runtimeProperty.getName())
-                        .withNewSecret()
-                        .withSecretName(runtimeProperty.getName())
-                        .endSecret()
-                        .build();
-
-                secrets.add(volume);
-
-                //create volume mount for the secretes
-                VolumeMount volumeMount = new VolumeMountBuilder()
-                        .withName(runtimeProperty.getName())
-                        .withMountPath(KubernetesPovisioningConstants.VOLUME_MOUNT_PATH + runtimeProperty.getName())
-                        .withReadOnly(true)
-                        .build();
-
-                volumeMounts.add(volumeMount);
 
                 break;
             case ENVIRONMENT:
@@ -443,6 +409,54 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         //Call deploy application to redeploy application with runtime properties
         deployApplication(deploymentConfig);
 
+    }
+
+    private void setSecuredRuntimeProperties(List secrets, KubernetesClient kubernetesClient,
+            List<VolumeMount> volumeMounts, RuntimeProperty runtimeProperty) {
+        if (log.isDebugEnabled()) {
+            String message = "Creating property type secret for the application:" + applicationContext.getId()
+                    + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
+            log.debug(message);
+        }
+
+        Secret currentSecret = kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
+                .withName(runtimeProperty.getName()).get();
+
+        //if secrete exists then replace the same secrete, otherwise create a new secrete
+        if (currentSecret != null) {
+            kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
+                    .withName(runtimeProperty.getName()).replace(currentSecret);
+        } else {
+            Secret secret = new SecretBuilder()
+                    .withKind(KubernetesPovisioningConstants.KIND_SECRETS)
+                    .withApiVersion(Secret.ApiVersion.V_1)
+                    .withNewMetadata()
+                    .withNamespace(namespace.getMetadata().getName())
+                    .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext))
+                    .withName(runtimeProperty.getName())
+                    .endMetadata().withData(runtimeProperty.getProperties())
+                    .build();
+
+            kubernetesClient.secrets().create(secret);
+        }
+
+        Volume volume = new VolumeBuilder()
+                .withName(runtimeProperty.getName())
+                .withNewSecret()
+                .withSecretName(runtimeProperty.getName())
+                .endSecret()
+                .build();
+
+        secrets.add(volume);
+
+        //create volume mount for the secretes
+        VolumeMount volumeMount = new VolumeMountBuilder()
+                .withName(runtimeProperty.getName())
+                .withMountPath(KubernetesPovisioningConstants.VOLUME_MOUNT_PATH + applicationContext.getId())
+                .withReadOnly(true)
+                .build();
+
+        volumeMounts.add(volumeMount);
     }
 
     /**
