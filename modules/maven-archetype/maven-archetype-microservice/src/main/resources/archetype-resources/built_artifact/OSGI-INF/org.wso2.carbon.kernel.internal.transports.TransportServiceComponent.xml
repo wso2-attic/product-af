@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.wso2.carbon.kernel.internal.transports.TransportServiceComponent" immediate="true" activate="start">
+  <implementation class="org.wso2.carbon.kernel.internal.transports.TransportServiceListenerComponent"/>
+  <service>
+    <provide interface="org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener"/>
+  </service>
+  <reference name="carbon.transport" cardinality="0..n" policy="dynamic" interface="org.wso2.carbon.kernel.transports.CarbonTransport" bind="registerTransport" unbind="unregisterTransport"/>
+  <property name="required-service-interface" type="String" value="org.wso2.carbon.kernel.transports.CarbonTransport"/>
+</scr:component>

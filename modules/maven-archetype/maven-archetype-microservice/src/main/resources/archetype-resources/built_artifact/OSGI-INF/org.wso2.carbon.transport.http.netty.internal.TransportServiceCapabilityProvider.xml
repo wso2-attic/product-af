@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<component name="org.wso2.carbon.transport.http.netty.internal.TransportServiceCapabilityProvider" immediate="true">
+  <implementation class="org.wso2.carbon.transport.http.netty.internal.TransportServiceCapabilityProvider"/>
+  <service>
+    <provide interface="org.wso2.carbon.kernel.startupresolver.CapabilityProvider"/>
+  </service>
+</component>
