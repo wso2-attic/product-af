@@ -47,10 +47,16 @@ public class KubernetesProvisioningUtils {
      */
     public static KubernetesClient getFabric8KubernetesClient() {
 
-        String stage = "Development";
+        String stage = KubernetesPovisioningConstants.DEFAULT_STAGE;
         return getFabric8KubernetesClient(stage);
     }
 
+    /**
+     * Create Kubernetes client for given stage
+     *
+     * @param stage stage of the application
+     * @return Kubernetes client
+     */
     public static KubernetesClient getFabric8KubernetesClient(String stage) {
         KubernetesClient kubernetesClient = null;
         try {
@@ -68,7 +74,7 @@ public class KubernetesProvisioningUtils {
             config.setApiVersion(APIVersion);
             config.setUsername(userName);
             config.setPassword(password);
-            config.setNoProxy(new String[]{masterURL});
+            config.setNoProxy(new String[] { masterURL });
 
             kubernetesClient = new DefaultKubernetesClient(config);
 

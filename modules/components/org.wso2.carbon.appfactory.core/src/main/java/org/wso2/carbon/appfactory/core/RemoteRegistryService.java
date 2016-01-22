@@ -173,7 +173,7 @@ public interface RemoteRegistryService {
 	 * @param isSecured      property is secured or not
 	 * @throws AppFactoryException
 	 */
-	public abstract void addRuntimeProperty(String applicationKey, String version, String stage, String key,
+	public abstract void addRuntimeProperty(String applicationKey, String version, String stage, String type, String key,
 			String value, boolean isSecured) throws AppFactoryException;
 
 	/**
@@ -184,7 +184,7 @@ public interface RemoteRegistryService {
 	 * @param version        version of the application
 	 * @return list of resources as runtime properties
 	 */
-	public abstract List getRuntimeProperties(String applicationKey, String stage, String version)
+	public abstract List getRuntimeProperties(String applicationKey, String stage, String version, String type)
 			throws AppFactoryException;
 
 }

@@ -351,14 +351,12 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties,
             DeploymentConfig deploymentConfig) throws RuntimeProvisioningException {
 
+        //adding already created runtime properties to current list
         runtimeProperties.addAll(getRuntimeProperties());
-
         //list of secretes
         List secrets = new ArrayList();
-
         //list of env variables
         HashMap<String, String> envVariables = new HashMap<>();
-
         //create a instance of kubernetes client to invoke service call
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
 
@@ -397,18 +395,18 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             }
         }
 
-        //Initially assume first container is the application and set volume mounts
-        deploymentConfig.getContainers().get(0).setVolumeMounts(volumeMounts);
+        //set volume mounts and env variables for all the containers
+        List<Container> containers = deploymentConfig.getContainers();
+        for(Container container : containers){
+            container.setVolumeMounts(volumeMounts);
+            container.setEnvVariables(envVariables);
+        }
 
         //Set secretes to a pod
         deploymentConfig.setSecrets(secrets);
 
-        //Initially assume first container is the application
-        deploymentConfig.getContainers().get(0).setEnvVariables(envVariables);
-
         //Call deploy application to redeploy application with runtime properties
         deployApplication(deploymentConfig);
-
     }
 
     private void setSecuredRuntimeProperties(List secrets, KubernetesClient kubernetesClient,
