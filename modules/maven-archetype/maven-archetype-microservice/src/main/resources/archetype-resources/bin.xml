@@ -1,0 +1,15 @@
+<assembly>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <id>deploy_artifact_gen</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <filtered>false</filtered>
+            <directory>built_artifact</directory>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>
+

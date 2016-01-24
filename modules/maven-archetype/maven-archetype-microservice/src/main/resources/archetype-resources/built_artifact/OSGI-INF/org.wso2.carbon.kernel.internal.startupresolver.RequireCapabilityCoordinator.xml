@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.wso2.carbon.kernel.internal.startupresolver.RequireCapabilityCoordinator" immediate="true" activate="start" deactivate="stop">
+  <implementation class="org.wso2.carbon.kernel.internal.startupresolver.RequireCapabilityCoordinator"/>
+  <reference name="capability.provider.service" cardinality="0..n" policy="dynamic" interface="org.wso2.carbon.kernel.startupresolver.CapabilityProvider" bind="registerCapabilityProvider" unbind="unregisterCapabilityProvider"/>
+  <reference name="require.capability.listener.service" cardinality="0..n" policy="dynamic" interface="org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener" bind="registerRequireCapabilityListener" unbind="deregisterRequireCapabilityListener"/>
+</scr:component>

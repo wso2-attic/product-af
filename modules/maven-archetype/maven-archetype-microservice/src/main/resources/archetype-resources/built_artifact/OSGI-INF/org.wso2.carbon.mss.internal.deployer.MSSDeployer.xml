@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<component name="org.wso2.carbon.mss.internal.deployer.MSSDeployer" immediate="true">
+  <implementation class="org.wso2.carbon.mss.internal.deployer.MSSDeployer"/>
+  <service>
+    <provide interface="org.wso2.carbon.kernel.deployment.Deployer"/>
+  </service>
+</component>
