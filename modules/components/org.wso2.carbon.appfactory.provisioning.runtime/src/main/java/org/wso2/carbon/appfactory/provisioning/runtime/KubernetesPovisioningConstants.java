@@ -21,10 +21,10 @@ package org.wso2.carbon.appfactory.provisioning.runtime;
  */
 public class KubernetesPovisioningConstants {
 
-    public static final String KUB_MASTER_URL = "KubernetesClusterConfig.{0}.Property.MasterURL";
-    public static final String KUB_API_VERSION = "KubernetesClusterConfig.{0}.Property.APIVersion";
-    public static final String KUB_API_SERVER_USERNAME = "KubernetesClusterConfig.{0}.Property.UserName";
-    public static final String KUB_API_SERVER_PASSWORD = "KubernetesClusterConfig.{0}.Property.Password";
+    public static final String PROPERTY_KUB_MASTER_URL = "KubernetesClusterConfig.{0}.Property.MasterURL";
+    public static final String PROPERTY_KUB_API_VERSION = "KubernetesClusterConfig.{0}.Property.APIVersion";
+    public static final String PROPERTY_KUB_API_SERVER_USERNAME = "KubernetesClusterConfig.{0}.Property.UserName";
+    public static final String PROPERTY_KUB_API_SERVER_PASSWORD = "KubernetesClusterConfig.{0}.Property.Password";
 
     public static String MASTER_USERNAME;
     public static String MASTER_PASSWORD;

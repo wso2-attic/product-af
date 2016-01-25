@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
@@ -61,13 +60,13 @@ public class KubernetesProvisioningUtils {
         KubernetesClient kubernetesClient = null;
         try {
             String masterURL = AppFactoryUtil.getAppfactoryConfiguration()
-                    .getFirstProperty(MessageFormat.format(KubernetesPovisioningConstants.KUB_MASTER_URL, stage));
+                    .getFirstProperty(MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_MASTER_URL, stage));
             String APIVersion = AppFactoryUtil.getAppfactoryConfiguration()
-                    .getFirstProperty(MessageFormat.format(KubernetesPovisioningConstants.KUB_API_VERSION, stage));
+                    .getFirstProperty(MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_API_VERSION, stage));
             String userName = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-                    MessageFormat.format(KubernetesPovisioningConstants.KUB_API_SERVER_USERNAME, stage));
+                    MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_API_SERVER_USERNAME, stage));
             String password = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-                    MessageFormat.format(KubernetesPovisioningConstants.KUB_API_SERVER_PASSWORD, stage));
+                    MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_API_SERVER_PASSWORD, stage));
 
             Config config = new Config();
             config.setMasterUrl(masterURL);
