@@ -21,7 +21,7 @@ set -e
 prgdir=`dirname "$0"`
 script_path=`cd "$prgdir"; pwd`
 echo ${script_path}
-wso2_ppaas_version="4.1.0-SNAPSHOT"
+wso2_ppaas_version="4.1.3"
 wso2_product_type="as"
 wso2_product_version="5.2.1"
 wso2_product_template_module_path=`cd ${script_path}/templates-module/; pwd`

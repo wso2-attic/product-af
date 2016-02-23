@@ -22,7 +22,7 @@ MAINTAINER dev@wso2.org
 ENV DEBIAN_FRONTEND noninteractive
 
 # PCA
-ENV PCA_VERSION 4.1.1
+ENV PCA_VERSION 4.1.3
 ENV PCA_FILENAME apache-stratos-python-cartridge-agent-${PCA_VERSION}
 ENV PCA_HOME /opt/${PCA_FILENAME}
 
@@ -32,8 +32,8 @@ ENV JDK_TAR_FILE jdk-7u60-linux-x64.tar.gz
 ENV JAVA_HOME /opt/jdk${JDK_VERSION}
 
 # Configurator
-ENV PPAAS_VERSION 4.1.0-SNAPSHOT
-ENV CONFIGURATOR_NAME ppaas-configurator-${PPAAS_VERSION}
+ENV PPAAS_VERSION 4.1.3
+ENV CONFIGURATOR_NAME wso2ppaas-configurator-${PPAAS_VERSION}
 ENV CONFIGURATOR_HOME /opt/${CONFIGURATOR_NAME}
 
 # Docker Issue #9299 - for demo purposes

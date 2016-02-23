@@ -21,8 +21,8 @@ set -e
 prgdir=`dirname "$0"`
 script_path=`cd "$prgdir"; pwd`
 
-wso2_ppaas_version="4.1.0-SNAPSHOT"
-wso2_base_image_version="4.1.0"
+wso2_ppaas_version="4.1.3"
+wso2_base_image_version="4.1.3"
 
 
 echo "----------------------------------"
