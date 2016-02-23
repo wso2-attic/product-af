@@ -18,10 +18,10 @@
 
 #set -o nounset
 
-CODE_PATH=/home/amalka/A/git/fork/tenant/product-af
+CODE_PATH=/home/samith/WSO2/AppFactory/git/fork/product-af
 PUPPET_CONFIG_HOME=${CODE_PATH}/modules/puppet-manifests/puppet-configurator
 DOCKER_HOME=${CODE_PATH}/modules/cartridges/docker
-AF_ARTIFACTS_HOME=/home/amalka/A/af_artifacts
+AF_ARTIFACTS_HOME=/home/samith/WSO2/AppFactory/Huawei/sources/af_artifacts
 PATCHES_DIR=${AF_ARTIFACTS_HOME}/patches
 
 if [ -f ${PUPPET_CONFIG_HOME}/config.sh ]; then
@@ -187,7 +187,7 @@ function _copy_files() {
 _copy_files AS_DROPINS[@] dropins wso2as-5.2.1/templates-module/files/repository/components/dropins
 _copy_files AS_LIBS[@] lib wso2as-5.2.1/templates-module/files/repository/components/lib
 
-declare -a BASE_IMAGE=("apache-stratos-python-cartridge-agent-4.1.1.zip" "jdk-7u60-linux-x64.tar.gz" "ppaas-configurator-4.1.0-SNAPSHOT.zip");
+declare -a BASE_IMAGE=("apache-stratos-python-cartridge-agent-4.1.3.zip" "jdk-7u60-linux-x64.tar.gz" "wso2ppaas-configurator-4.1.3.zip");
 declare -a WSO2AS_IMAGE=("jdk-7u60-linux-x64.tar.gz" "mysql-connector-java-5.1.27-bin.jar" "wso2as-5.2.1.zip");
 
 _copy_files BASE_IMAGE[@] docker base-image/packages

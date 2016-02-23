@@ -66,13 +66,13 @@ class WSO2ASStartupHandler(ICartridgeAgentPlugin):
         WSO2ASStartupHandler.log.info("Catalina https proxy por: %s" % https_proxy_port)
 
         if http_proxy_port is not None:
-            command = "sed -i \"s/^#CONFIG_PARAM_HTTP_PROXY_PORT.*/CONFIG_PARAM_HTTP_PROXY_PORT = %s/g\" %s" % (http_proxy_port, "/opt/ppaas-configurator-4.1.0-SNAPSHOT/template-modules/wso2as-5.2.1/module.ini")
+            command = "sed -i \"s/^#CONFIG_PARAM_HTTP_PROXY_PORT.*/CONFIG_PARAM_HTTP_PROXY_PORT = %s/g\" %s" % (http_proxy_port, "/opt/wso2ppaas-configurator-4.1.3/template-modules/wso2as-5.2.1/module.ini")
             p = subprocess.Popen(command, shell=True)
             output, errors = p.communicate()
             WSO2ASStartupHandler.log.info("Successfully updated catalina http proxy port: %s in AS template module" % http_proxy_port)
 
         if http_proxy_port is not None:
-            command = "sed -i \"s/^#CONFIG_PARAM_HTTPS_PROXY_PORT.*/CONFIG_PARAM_HTTPS_PROXY_PORT = %s/g\" %s" % (https_proxy_port, "/opt/ppaas-configurator-4.1.0-SNAPSHOT/template-modules/wso2as-5.2.1/module.ini")
+            command = "sed -i \"s/^#CONFIG_PARAM_HTTPS_PROXY_PORT.*/CONFIG_PARAM_HTTPS_PROXY_PORT = %s/g\" %s" % (https_proxy_port, "/opt/wso2ppaas-configurator-4.1.3/template-modules/wso2as-5.2.1/module.ini")
             p = subprocess.Popen(command, shell=True)
             output, errors = p.communicate()
             WSO2ASStartupHandler.log.info("Successfully updated catalina https proxy port: %s in AS template module" % https_proxy_port)
@@ -80,7 +80,7 @@ class WSO2ASStartupHandler(ICartridgeAgentPlugin):
 
         # configure server
         WSO2ASStartupHandler.log.info("Configuring WSO2 AS...")
-        config_command = "python /opt/ppaas-configurator-4.1.0-SNAPSHOT/configurator.py"
+        config_command = "python /opt/wso2ppaas-configurator-4.1.3/configurator.py"
         env_var = os.environ.copy()
         p = subprocess.Popen(config_command, env=env_var, shell=True)
         output, errors = p.communicate()

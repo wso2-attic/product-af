@@ -567,7 +567,7 @@ $apimgt_http_port     = "9769" # we put this because for minimal deployment we u
   $mailto_smtp_auth   = 'true'
 
 ## Private paas configurations
-  $stratos_version    = "4.1.1"
+  $stratos_version    = "4.1.3"
   $stratos_domain     = "paas.${wso2_env_domain}"
 
 #Private paas IAAS configuration

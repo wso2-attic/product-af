@@ -23,7 +23,7 @@
 
 source /root/.bashrc
 
-export STRATOS_VERSION="4.1.1"
+export STRATOS_VERSION="4.1.3"
 export PCA_HOME="/opt/apache-stratos-python-cartridge-agent-${STRATOS_VERSION}"
 
 set -o posix ; set | sed -e ':a;N;$!ba;s/\n/,/g' > ${PCA_HOME}/payload/launch-params
