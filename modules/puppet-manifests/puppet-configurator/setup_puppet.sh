@@ -61,9 +61,10 @@ function _clean_and_update() {
 
 cd $PUPPET_CONFIG_PATH
 read -p 'Do you want to pull the latest changes from git repository?(y/n): ' is_pull_required
+echo    # (optional) move to a new line
 if [[  $is_pull_required =~ ^[Yy]$ ]]
 then
-    _clean_and_update $PUPPET_CONFIG_PATH
+        _clean_and_update $PUPPET_CONFIG_PATH
 fi
 
 cd $CURRENT_DIR
