@@ -175,6 +175,12 @@ else
 	sed -i "s#METADATA-SERVICE-URL#${METADATA_SERVICE_URL}#g" ${PCA_HOME}/agent.conf
 fi
 
+if [ -z "${CEP_URLS}" ]; then
+	sed -i "s/CEP-URLS/ /g" ${PCA_HOME}/agent.conf
+else
+	sed -i "s#CEP-URLS#${CEP_URLS}#g" ${PCA_HOME}/agent.conf
+fi
+
 if [ -z "${ARTFCT_CLONE_RETRIES}" ]; then
    sed -i "s/ARTFCT_CLONE_RETRIES/5/g" ${PCA_HOME}/agent.conf
 else
