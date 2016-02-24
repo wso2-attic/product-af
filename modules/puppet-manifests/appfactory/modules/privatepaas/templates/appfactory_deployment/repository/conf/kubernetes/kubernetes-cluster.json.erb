@@ -52,6 +52,10 @@
         {
             "name": "payload_parameter.METADATA_SERVICE_URL",
             "value": "https://<%= @ipaddress %>:<%= 9443 + Integer(@offset) %>"
+        },
+        {
+            "name": "payload_parameter.CEP_URLS",
+            "value": "tcp://<%= @ipaddress %>:7731"
         }
     ]
 }
