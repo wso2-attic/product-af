@@ -27,18 +27,23 @@ else
 fi
 
 function _clean_and_update() {
+        branch_name=$(git symbolic-ref -q HEAD)
+        branch_name=${branch_name##refs/heads/}
+        branch_name=${branch_name:-HEAD}
+
         PATH_TO_CLEAN=${1}
         cd ${PATH_TO_CLEAN}
         _echo_green "Cleaning untracked files and directories from ${PATH_TO_CLEAN}"
         git clean -df
 
+        _echo_green "Current branch is: "${branch_name}
         _echo_green "Stashing current changes..."
         git stash clear
         git stash
         git stash list
 
         _echo_green "Pulling changes from the main repo.."
-        git pull origin
+        git pull origin ${branch_name}
 
         read -p 'Do you want to apply the stashed changes?(y/n): ' response
         echo    # (optional) move to a new line
@@ -55,7 +60,11 @@ function _clean_and_update() {
 
 
 cd $PUPPET_CONFIG_PATH
-_clean_and_update $PUPPET_CONFIG_PATH
+read -p 'Do you want to pull the latest changes from git repository?(y/n): ' is_pull_required
+if [[  $is_pull_required =~ ^[Yy]$ ]]
+then
+    _clean_and_update $PUPPET_CONFIG_PATH
+fi
 
 cd $CURRENT_DIR
 if [ -f `pwd`/copy-jars.sh ]; then
