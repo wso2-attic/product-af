@@ -2,6 +2,7 @@ class wso2base{
   include hosts
   include packages
   include java
+  include maven
 
   wso2base::users { 'user':
     puppet_username   => $puppet_username,
