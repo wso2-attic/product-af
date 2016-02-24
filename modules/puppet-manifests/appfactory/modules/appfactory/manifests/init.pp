@@ -58,10 +58,7 @@ class appfactory (
                     "deployment/server/jaggeryapps/dashboard/js/constants.js",
                     "deployment/server/jaggeryapps/cloudmgt/site/conf/cloud-mgt.xml",
                     "deployment/server/jaggeryapps/issuetracker/tracker.json",
-                    "deployment/server/runtimes/iis-1.0.0.xml",
-                    "deployment/server/runtimes/php-1.0.0.xml",
                     "deployment/server/runtimes/appserver-1.0.0.xml",
-                    "deployment/server/runtimes/tomcat-1.0.0.xml",
                     "conf/datasources/appfactory-datasources.xml",
                     "conf/etc/cassandra.yaml",
           ]
