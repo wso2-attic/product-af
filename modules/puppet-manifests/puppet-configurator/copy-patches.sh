@@ -145,6 +145,7 @@ _update_dropins SM_DROPINS[@] dropins privatepaas/files/appfactory_deployment/re
 
 _update_libs AF_LIBS[@] lib appfactory/files/configs/repository/components/lib
 _update_libs GREG_LIBS[@] lib greg/files/configs/repository/components/lib
+_update_libs SM_LIBS[@] lib privatepaas/files/appfactory_deployment/repository/components/lib
 
 #cleaning the extracted patches folder
 #rm -rf ${PATCHES_HOME}

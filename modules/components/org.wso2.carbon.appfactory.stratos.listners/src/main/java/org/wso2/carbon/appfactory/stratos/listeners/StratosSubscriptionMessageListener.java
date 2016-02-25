@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.appfactory.stratos.listeners;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.common.beans.application.signup.ApplicationSignUpBean;
@@ -30,6 +31,9 @@ import org.apache.stratos.messaging.message.receiver.application.ApplicationMana
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
@@ -41,8 +45,15 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
 import org.wso2.carbon.tenant.mgt.util.TenantMgtUtil;
+import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.jms.*;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TopicConnection;
+import javax.jms.TopicSession;
+import javax.jms.TopicSubscriber;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,6 +71,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
     private TopicSession topicSession;
     private TopicSubscriber topicSubscriber;
     private int currentMsgCount = 0;
+    private static String GITIGNORE = ".gitignore";
 
 
     public StratosSubscriptionMessageListener(TopicConnection topicConnection, TopicSession topicSession,
@@ -199,6 +211,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             repoUrl = repoProvider.createRepository();
             repositoryBean.setRepositoryURL(repoUrl);
             log.info("Repo Url : " + repoUrl);
+            doInitialCommit(tenantInfoBean, repoUrl, stage);
         } catch (InstantiationException e) {
             String msg = "Unable to create repository";
             throw new AppFactoryException(msg, e);
@@ -213,6 +226,117 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             throw new AppFactoryException(msg, e);
         }
         return repositoryBean;
+    }
+
+    private void doInitialCommit(TenantInfoBean tenantInfoBean, String repoUrl, String stage)
+            throws AppFactoryException {
+        String tmpPath = getTempPath(tenantInfoBean.getTenantDomain(), stage);
+        synchronized (tmpPath) {
+            File tempTenantGitDir = new File(tmpPath);
+            createTempDir(tempTenantGitDir);
+            try {
+                if (log.isDebugEnabled()) {
+                    log.debug("Temp path to add .gitignore file for repository : " + repoUrl);
+                }
+                addGitIgnore(repoUrl, tempTenantGitDir);
+            } finally {
+                if (tempTenantGitDir.exists()) {
+                    boolean deleteQuietly = FileUtils.deleteQuietly(tempTenantGitDir);
+                    if (!deleteQuietly) {
+                        log.error("Error occurred while deleting temp dir : " + tempTenantGitDir);
+                    }
+                }
+            }
+        }
+    }
+
+    private void createTempDir(File tempTenantGitDir) throws AppFactoryException {
+        if (!tempTenantGitDir.exists()) {
+            if (!tempTenantGitDir.mkdirs()) {
+                String msg = "Unable to create temp directory : "
+                             + tempTenantGitDir.getAbsolutePath();
+                throw new AppFactoryException(msg);
+            }
+        }
+        try {
+            FileUtils.cleanDirectory(tempTenantGitDir);
+        } catch (IOException e) {
+            String msg = "Error occurred while cleaning temp directory : " + tempTenantGitDir.getAbsolutePath();
+            throw new AppFactoryException(msg, e);
+        }
+    }
+
+    /**
+     * Stratos cartridge agent will use the {$code remoteRepoUrl} and will clone it to the
+     * <WSO2_AS>/repository/tenants/TENANT_ID directory.
+     * When an web application is deployed in WSO2 server, it will create folders such as "artifactMetafiles/" ,
+     * "modulemetafiles/" in the <WSO2_AS>/repository/tenants/TENANT_ID directory, to hold the required metadata.
+     * Then cartridge agent will identify them as git "untracked" files will throw an error when pulling for new
+     * changes.
+     * Therefore this will add .gitignore file to the repository given by {@code remoteRepoUrl} such that cartridge agent
+     * will ignore directories such as "artifactMetafiles" , "modulemetafiles" etc.. in the
+     * <WSO2_AS>/repository/tenants/TENANT_ID directory.
+     *
+     * @param remoteRepoUrl    s2git repository url.
+     * @param tempTenantGitDir temp location to clone the repo
+     */
+    private void addGitIgnore(String remoteRepoUrl, File tempTenantGitDir) throws AppFactoryException {
+        // get pre configured .gitignore file
+        String origGtIgnoreFilePath =
+                CarbonUtils.getCarbonConfigDirPath() + File.separator +
+                AppFactoryConstants.CONFIG_FOLDER + File.separator +
+                AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
+                        (AppFactoryConstants.PAAS_ARTIFACT_REPO_INITIAL_GIT_IGNORE_FILE_NAME);
+        File origGtIgnoreFile = new File(origGtIgnoreFilePath);
+        String destinationGitignoreFilePath = tempTenantGitDir.getAbsolutePath() + File.separator + GITIGNORE;
+
+        if (origGtIgnoreFile.exists()) {
+            try {
+                UsernamePasswordCredentialsProvider credentials = getCredentialProvider();
+                Git git = Git.cloneRepository()                                             // clone the repo
+                        .setURI(remoteRepoUrl)
+                        .setDirectory(tempTenantGitDir)
+                        .setNoCheckout(true)
+                        .setCredentialsProvider(credentials).call();
+                File destinationGitignoreFile = new File(destinationGitignoreFilePath);     // copy the .gitignore file
+                FileUtils.copyFile(origGtIgnoreFile, destinationGitignoreFile);
+                git.add().addFilepattern(GITIGNORE).call();                                 // git add .gitignore
+                git.commit().setMessage("Adding .gitignore file").call();                   // git commit
+                git.push().setCredentialsProvider(credentials).call();                      // git push
+                log.info("Successfully added the .ignore file to the repository : " + remoteRepoUrl);
+            } catch (GitAPIException e) {
+                String errorMsg = "Error while adding .gitignore file to the s2git repo : " + remoteRepoUrl;
+                throw new AppFactoryException(errorMsg, e);
+            } catch (IOException e) {
+                String errorMsg = "Error while copying file: " + origGtIgnoreFilePath +
+                                  ", to : " + destinationGitignoreFilePath + ", while adding .gitignore " +
+                                  "file to repository : " + remoteRepoUrl;
+                throw new AppFactoryException(errorMsg, e);
+            }
+        } else {
+            throw new AppFactoryException("Could not found file : " + origGtIgnoreFilePath + " to add the" +
+                                          " .gitignore file to the repository : " + remoteRepoUrl);
+        }
+
+    }
+
+    /**
+     * Return credential provider for jgit client
+     */
+    private UsernamePasswordCredentialsProvider getCredentialProvider() throws AppFactoryException {
+        String s2gitAdminUserName = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
+                (AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
+        String s2gitAdminPassword = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
+                (AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
+        return new UsernamePasswordCredentialsProvider(s2gitAdminUserName, s2gitAdminPassword);
+    }
+
+    /**
+     * Return a temp path to clone and add .gitignore file based on tenant domain.
+     */
+    private String getTempPath(String tenantDomain, String stage) {
+        return CarbonUtils.getTmpDir() + File.separator + "gitignoreAdd" + File.separator + tenantDomain +
+               File.separator + stage;
     }
 
     private String generateRepoUrlFromTemplate(String pattern, int tenantId,
