@@ -401,6 +401,8 @@ public class AppFactoryConstants {
 			PAAS_ARTIFACT_REPO_PROVIDER + ".AdminPassword";
 	public static final String PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME =
 			PAAS_ARTIFACT_REPO_PROVIDER + ".AdminUserName";
+	public static final String PAAS_ARTIFACT_REPO_INITIAL_GIT_IGNORE_FILE_NAME =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".InitialGitIgnoreFileName";
 
 
 	public static final String JENKINS_PROPERTYBASE_URL =
