@@ -154,66 +154,60 @@ CONFIG_PARAM_PAMSWORD=root
 * < AS_HOME >/repository/conf/registry.xml
 
 ###App Factory
+files/
 └── repository
-    └── components
-        ├── dropins
-        │   ├── activemq_broker_5.9.1_1.0.0.jar
-        │   ├── activemq_client_5.9.1_1.0.0.jar
-        │   ├── commons_collections_3.2.1_1.0.0.jar
-        │   ├── commons_lang3_3.1_1.0.0.jar
-        │   ├── geronimo_j2ee_management_1.1_spec_1.0.1_1.0.0.jar
-        │   ├── geronimo_jms_1.1_spec_1.1.1_1.0.0.jar
-        │   ├── hawtbuf_1.9_1.0.0.jar
-        │   ├── jsch_0.1.49.wso2v1_1.0.0.jar
-        │   ├── mysql_connector_java_5.1.27_bin_1.0.0.jar
-        │   ├── nimbus-jose-jwt_2.26.1.wso2v2.jar
-        │   ├── org.apache.stratos.common_4.1.1.jar
-        │   ├── org.apache.stratos.messaging_4.1.1.jar
-        │   ├── org.eclipse.jgit_2.3.1_wso2v2_1.0.0.jar
-        │   ├── org.wso2.carbon.adc.repositoryinformation.service.stub_4.1.1.jar
-        │   ├── org.wso2.carbon.appfactory.application.mgt.stub-2.2.0-SNAPSHOT.jar
-        │   ├── org.wso2.carbon.appfactory.common-2.2.0-SNAPSHOT.jar
-        │   ├── org.wso2.carbon.appfactory.eventing-2.2.0-SNAPSHOT.jar
-        │   ├── org.wso2.carbon.appfactory.ext-2.2.0-SNAPSHOT.jar
-        │   ├── org.wso2.carbon.deployment.synchronizer.git_4.1.1.jar
-        │   ├── org.wso2.carbon.identity.authenticator.mutualssl_4.2.0.jar
-        │   ├── org.wso2.carbon.logging.propfile_1.0.0.jar
-        │   ├── org.wso2.carbon.social.core_1.1.0.jar
-        │   └── signedjwt-authenticator_4.3.3.jar
-        ├── lib
-        │   ├── activemq-broker-5.9.1.jar
-        │   ├── activemq-client-5.9.1.jar
-        │   ├── commons-collections-3.2.1.jar
-        │   ├── commons-lang3-3.1.jar
-        │   ├── geronimo-j2ee-management_1.1_spec-1.0.1.jar
-        │   ├── geronimo-jms_1.1_spec-1.1.1.jar
-        │   ├── hawtbuf-1.9.jar
-        │   ├── jsch_0.1.49.wso2v1.jar
-        │   ├── mysql-connector-java-5.1.27-bin.jar
-        │   └── org.eclipse.jgit_2.3.1-wso2v2.jar
-        └── patches
-            ├── patch0004
-            │   ├── org.wso2.carbon.application.deployer_4.2.0.jar
-            │   ├── org.wso2.carbon.core_4.2.0.jar
-            │   ├── org.wso2.carbon.core.services_4.2.0.jar
-            │   ├── org.wso2.carbon.ui_4.2.0.jar
-            │   ├── org.wso2.carbon.user.core_4.2.0.jar
-            │   └── org.wso2.carbon.utils_4.2.0.jar
-            ├── patch0276
-            │   └── org.wso2.carbon.server.admin_4.2.0.jar
-            ├── patch0277
-            │   └── org.wso2.carbon.usage.agent_2.2.0.jar
-            ├── patch0318
-            │   ├── org.wso2.carbon.service.mgt_4.2.1.jar
-            │   └── org.wso2.carbon.webapp.mgt_4.2.2.jar
-            ├── patch0400
-            │   ├── org.wso2.carbon.dataservices.core-4.2.1.jar
-            │   └── org.wso2.carbon.identity.authenticator.saml2.sso-4.2.0.jar
-            ├── patch0495
-            │   └── org.wso2.carbon.logging.service_4.2.1.jar
-            ├── patch0506
-            │   └── org.wso2.carbon.dataservices.core_4.2.1.jar
-            ├── patch0844
-            │   └── org.wso2.carbon.logging.service_4.2.1.jar
-            └── patch0889
-                └── org.wso2.carbon.webapp.mgt_4.2.2.jar
+        └── components
+            ├── dropins
+            │   ├── nimbus-jose-jwt_2.26.1.wso2v2.jar
+            │   ├── org.apache.stratos.common_4.1.3.jar
+            │   ├── org.apache.stratos.messaging_4.1.3.jar
+            │   ├── org.wso2.carbon.adc.repositoryinformation.service.stub_4.1.1.jar
+            │   ├── org.wso2.carbon.appfactory.application.mgt.stub_2.2.0.SNAPSHOT.jar
+            │   ├── org.wso2.carbon.appfactory.common_2.2.0.SNAPSHOT.jar
+            │   ├── org.wso2.carbon.appfactory.eventing_2.2.0.SNAPSHOT.jar
+            │   ├── org.wso2.carbon.appfactory.ext-2.2.0-SNAPSHOT.jar
+            │   ├── org.wso2.carbon.deployment.synchronizer.git_4.1.1.jar
+            │   ├── org.wso2.carbon.identity.authenticator.mutualssl_4.2.0.jar
+            │   ├── org.wso2.carbon.logging.propfile_1.0.0.jar
+            │   ├── org.wso2.carbon.registry.ws.api_4.2.0.jar
+            │   ├── org.wso2.carbon.registry.ws.client_4.2.0.jar
+            │   ├── org.wso2.carbon.registry.ws.stub_4.2.0.jar
+            │   ├── org.wso2.carbon.social.core_1.1.0.jar
+            │   └── signedjwt-authenticator_4.3.3.jar
+            ├── lib
+            │   ├── activemq-broker-5.9.1.jar
+            │   ├── activemq-client-5.9.1.jar
+            │   ├── commons-collections-3.2.1.jar
+            │   ├── commons-lang3-3.1.jar
+            │   ├── geronimo-j2ee-management_1.1_spec-1.0.1.jar
+            │   ├── geronimo-jms_1.1_spec-1.1.1.jar
+            │   ├── hawtbuf-1.9.jar
+            │   ├── jsch_0.1.49.wso2v1.jar
+            │   ├── mysql-connector-java-5.1.27-bin.jar
+            │   └── org.eclipse.jgit_2.3.1-wso2v2.jar
+            └── patches
+                ├── patch0004
+                │   ├── org.wso2.carbon.application.deployer_4.2.0.jar
+                │   ├── org.wso2.carbon.core_4.2.0.jar
+                │   ├── org.wso2.carbon.core.services_4.2.0.jar
+                │   ├── org.wso2.carbon.ui_4.2.0.jar
+                │   ├── org.wso2.carbon.user.core_4.2.0.jar
+                │   └── org.wso2.carbon.utils_4.2.0.jar
+                ├── patch0276
+                │   └── org.wso2.carbon.server.admin_4.2.0.jar
+                ├── patch0277
+                │   └── org.wso2.carbon.usage.agent_2.2.0.jar
+                ├── patch0318
+                │   ├── org.wso2.carbon.service.mgt_4.2.1.jar
+                │   └── org.wso2.carbon.webapp.mgt_4.2.2.jar
+                ├── patch0400
+                │   ├── org.wso2.carbon.dataservices.core-4.2.1.jar
+                │   └── org.wso2.carbon.identity.authenticator.saml2.sso-4.2.0.jar
+                ├── patch0495
+                │   └── org.wso2.carbon.logging.service_4.2.1.jar
+                ├── patch0506
+                │   └── org.wso2.carbon.dataservices.core_4.2.1.jar
+                ├── patch0844
+                │   └── org.wso2.carbon.logging.service_4.2.1.jar
+                └── patch0889
+                    └── org.wso2.carbon.webapp.mgt_4.2.2.jar
