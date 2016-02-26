@@ -90,7 +90,7 @@ var log = new Log();
         var tenantDomain = request.getParameter("tenantDomain");
         var role = request.getParameter("role");
         log.info("Retrieving pending users of role: " + role + " for the tenant domain " + tenantDomain);
-        var tempArray = [{"email":"clouduser@wso2.com","roleTypes":[{"role":"devops","displayName":"DevOps"}]},{"email":"appuser@wso2.com","roleTypes":[{"role":"qa","displayName":"QA"}]}];
+        var tempArray = [];
         print(tempArray);
     } else {
 	    throw new Error("No action specified");
