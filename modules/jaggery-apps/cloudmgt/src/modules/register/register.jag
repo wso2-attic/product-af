@@ -31,6 +31,7 @@ var senderEmail = emailOM.sender.username.toString();
 var senderPort = emailOM.sender.port.toString();
 var senderPassword= emailOM.sender.password.toString();
 var senderHost= emailOM.sender.host.toString();
+var enableRegEmail =  emailOM.enabled.toString() + "";
 var tls = emailOM.sender.tls.toString();
 emailFile.close();
 var registerOrganization = function (organizationDomain,adminUsername,adminPassword, firstName,lastName,email,usagePlan) {
@@ -303,26 +304,29 @@ var sendRegisterOrganizationEmail = function (organizationDomain,firstName,email
 
 
 var sendEmail = function(name,adminName, domain,to) {
-       var username= adminName+"@"+domain;
-       body = body.replace("$name",name);
-       body = body.replace("$adminName",adminName);
-       body = body.replace("$tenant",domain);
-       body = body.replace("$username",username);
-       var email = require('email');
-       var sender;
-       if (tls == "true") {
-         sender = new email.Sender(senderHost, senderPort, senderEmail,senderPassword,"tls");
-       } else {
-         sender = new email.Sender(senderHost, senderPort, senderEmail,senderPassword);
-       }
-       
-       sender.from = from;
-       sender.to = to;
-       sender.subject = subject;
-       sender.text = body;
-       sender.send();
-       log.info("email successfully sent to " + to);      
+    if(enableRegEmail){
+        var username= adminName+"@"+domain;
+        body = body.replace("$name",name);
+        body = body.replace("$adminName",adminName);
+        body = body.replace("$tenant",domain);
+        body = body.replace("$username",username);
+        var email = require('email');
+        var sender;
+        if (tls == "true") {
+            sender = new email.Sender(senderHost, senderPort, senderEmail,senderPassword,"tls");
+        } else {
+            sender = new email.Sender(senderHost, senderPort, senderEmail,senderPassword);
+        }
+
+        sender.from = from;
+        sender.to = to;
+        sender.subject = subject;
+        sender.text = body;
+        sender.send();
+        log.info("email successfully sent to " + to);
+    } else {
+        log.info("Sending emails upon registration is disabled");
     }
-;
+};
 %>
 
