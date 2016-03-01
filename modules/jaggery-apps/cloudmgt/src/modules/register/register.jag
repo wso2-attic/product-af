@@ -304,7 +304,7 @@ var sendRegisterOrganizationEmail = function (organizationDomain,firstName,email
 
 
 var sendEmail = function(name,adminName, domain,to) {
-    if(enableRegEmail){
+    if(enableRegEmail && enableRegEmail==="true"){
         var username= adminName+"@"+domain;
         body = body.replace("$name",name);
         body = body.replace("$adminName",adminName);
