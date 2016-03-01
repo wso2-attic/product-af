@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <registrationEmail>
+   <enabled>false</enabled>
    <from>amani.soysa@gmail.com</from>
-   <subject>WSO2 Cloud Services - Registration completed</subject>
+   <subject>WSO2 App Factory - Registration completed</subject>
    <body>
 Hi $name,
  
-Congratulations! You have successfully created an account in WSO2 Cloud Services. 
+Congratulations! You have successfully created an account in WSO2 App Factory.
 
 Your Admin Name: $adminName
 Your Domain: $tenant
@@ -13,8 +14,8 @@ Your Domain: $tenant
 Your User Name: $username
 
 Best Regards,
-WSO2 Cloud Services Team
-http://cloudpreview.wso2.com/
+WSO2 App Factory
+https://apps.appfactory.private.wso2.com:9443/appmgt
    </body>
 
    <sender>
@@ -22,6 +23,6 @@ http://cloudpreview.wso2.com/
      <password>password</password>
      <host>smtp.gmail.com</host>
      <port>587</port>
-     <tls>false</tls>
+     <tls>true</tls>
    </sender>
 </registrationEmail>
