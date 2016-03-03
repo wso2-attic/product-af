@@ -72,6 +72,7 @@ if [ $(dpkg-query -W --showformat='${Status}\n' whois 2>/dev/null | grep -c "ins
   sudo apt-get --force-yes --yes install whois
 fi
 
+mkdir -p /var/log/af-setup-log
 # The user’s password, in encrypted format(sha-512) which is used by the latests
 # ubuntu releases (10.04 LTS ,12.04LTS, 14.04 LTS, 14.10,15.04 ).
 PUPPET_PW_SHA=`mkpasswd -m sha-512 $PUPPET_PW`
@@ -95,7 +96,7 @@ NODE_UNIQUE_ID=$(cat /dev/urandom | tr -dc $pattern | fold -w 6 | head -n 1 | tr
 for i in ${nodes[@]}; do
   NODE_UNIQUE_CERTNAME="$NODE_UNIQUE_ID-${i}"
   echo "############# Starting ${i} setup ####################"
-  puppet agent --enable ; puppet agent -vt --certname $NODE_UNIQUE_CERTNAME 2>&1 | tee -a setup-logs/puppet${TIME_STAMP}.log; puppet agent --disable;
+  puppet agent --enable ; puppet agent -vt --certname $NODE_UNIQUE_CERTNAME 2>&1 | tee -a /var/log/af-setup-log/puppet${TIME_STAMP}.log; puppet agent --disable;
 done
 puppet agent --disable
 exit 0

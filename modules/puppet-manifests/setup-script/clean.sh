@@ -40,6 +40,14 @@ echo -ne "                           [OK]\n"
 
 sudo rm -rf /mnt/packs/wso2appfactory-${APPFACTORY_VERSION}.zip
 
+echo -ne "Removing and cleaning nginx configurations."
+sudo service nginx stop
+sudo service dnsmasq stop
+sudo apt-get remove nginx
+sudo apt-get remove dnsmasq
+sudo rm /etc/dnsmasq.conf
+sudo rm -rf /etc/dhcp/dhclient.conf
+
 sudo su <<'EOF'
 
 . ./config.properties
