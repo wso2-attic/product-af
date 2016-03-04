@@ -45,7 +45,7 @@ sudo service nginx stop
 sudo service dnsmasq stop
 sudo apt-get remove nginx
 sudo apt-get remove dnsmasq
-sudo rm /etc/dnsmasq.conf
+sudo rm -rf /etc/dnsmasq.conf
 sudo rm -rf /etc/dhcp/dhclient.conf
 
 sudo su <<'EOF'
