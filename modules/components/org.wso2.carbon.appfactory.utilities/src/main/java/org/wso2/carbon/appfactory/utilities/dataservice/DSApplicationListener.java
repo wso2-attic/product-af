@@ -20,6 +20,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
@@ -106,9 +107,9 @@ public class DSApplicationListener extends ApplicationEventsHandler {
 	            AppFactoryUtil.setAuthHeaders(authorizationMgtClient.getStub()._getServiceClient(), tenantUserName);
 
                 client = new ServiceClient();
-
                 client.getOptions()
                         .setTo(new EndpointReference(serviceURL));
+                client.getOptions().setProperty(org.apache.axis2.transport.http.HTTPConstants.CHUNKED, Boolean.FALSE);
                 client.getOptions().setAction("addDataSource");
                 AppFactoryUtil.setAuthHeaders(client, tenantUserName);
 

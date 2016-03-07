@@ -47,6 +47,7 @@ sudo apt-get remove nginx
 sudo apt-get remove dnsmasq
 sudo rm -rf /etc/dnsmasq.conf
 sudo rm -rf /etc/dhcp/dhclient.conf
+sudo rm -rf /tmp/nginx.cfg
 
 sudo su <<'EOF'
 

@@ -1046,12 +1046,21 @@ public class RestBasedJenkinsCIConnector {
 	 * @param applicationTypeBean application type bean object
 	 */
 	private void addAppTypeParameters(List<NameValuePair> parameters, ApplicationTypeBean applicationTypeBean) {
-		parameters.add(new BasicNameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
-		                                      applicationTypeBean.getExtension()));
+
+        String serverDeploymentPath = applicationTypeBean.getServerDeploymentPath();
+        String extension = applicationTypeBean.getExtension();
+        if(!StringUtils.isBlank(extension) &&
+           AppFactoryConstants.SERVER_DEPLOYMENT_PATH_JAGGERY.equalsIgnoreCase(serverDeploymentPath) ){
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
+                                                  ""));
+        } else {
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
+                                                  extension));
+        }
 		parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOYER_CLASSNAME,
 		                                      applicationTypeBean.getDeployerClassName()));
 		parameters.add(new BasicNameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
-		                                      applicationTypeBean.getServerDeploymentPath()));
+                                              serverDeploymentPath));
 	}
 
 	/**

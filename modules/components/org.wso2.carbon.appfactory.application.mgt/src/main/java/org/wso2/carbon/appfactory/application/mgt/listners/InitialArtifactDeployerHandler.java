@@ -25,6 +25,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
@@ -92,9 +93,11 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			deployInfoMap.put("tenantId", new String[] { Integer.toString(tenantId) });
 			deployInfoMap.put(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,new String[]{paasRepositoryProviderClassName});
 			deployInfoMap.put(AppFactoryConstants.TENANT_MGT_URL,new String[]{stratosServerURL});
-			initialDeployerClassName = ApplicationTypeManager.getInstance()
-			                                                        .getApplicationTypeBean(application.getType())
-			                                                        .getInitialDeployerClassName();
+			ApplicationTypeBean applicationTypeBean =
+					ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType());
+			deployInfoMap.put(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
+			                  new String[] {applicationTypeBean.getServerDeploymentPath()});
+			initialDeployerClassName = applicationTypeBean.getInitialDeployerClassName();
 			InitialArtifactDeployer deployer;
 			if(initialDeployerClassName != null){
 				ClassLoader loader = getClass().getClassLoader();
