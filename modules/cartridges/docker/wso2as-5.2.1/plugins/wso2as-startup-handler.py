@@ -158,3 +158,11 @@ class WSO2ASStartupHandler(ICartridgeAgentPlugin):
         p = subprocess.Popen(entry_command, env=env_var, shell=True)
         output, errors = p.communicate()
         WSO2ASStartupHandler.log.info("App Factory host entry added successfully")
+
+        apimDomain = values.get("APIM_DOMAIN")
+        apimIP = values.get("APIM_IP")
+        entry_command = "echo '"+ apimIP + " "+  apimDomain + "' >> /etc/hosts"
+        env_var = os.environ.copy()
+        p = subprocess.Popen(entry_command, env=env_var, shell=True)
+        output, errors = p.communicate()
+        WSO2ASStartupHandler.log.info("Api Manager host entry added successfully")
