@@ -165,7 +165,7 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 		return jobConfigTemplate;
 	}
 
-    private void copyUploadedAppToLocation(String uploadedFileName, String workingDirectory) throws IOException {
+    public void copyUploadedAppToLocation(String uploadedFileName, String workingDirectory) throws IOException {
         File sourceFile =
                 new File(getUploadedApplicationTmpPath() + File.separator +
                          uploadedFileName);

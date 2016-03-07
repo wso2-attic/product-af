@@ -285,6 +285,7 @@ public class AppFactoryConstants {
 	public static final String APP_TYPE = "ApplicationType";
 	public static final String DEPLOYMENT_SERVER_URLS = "DeploymentServerURL";
 	public static final String SERVER_DEPLOYMENT_PATHS = "ServerDeploymentPaths";
+	public static final String SERVER_DEPLOYMENT_PATH_JAGGERY = "jaggeryapps";
 	public static final String DEPLOY_ACTION = "deployAction";
 	public static final String DEPLOY_ACTION_LABEL_ARTIFACT = "labelArtifactAsPromoted";
 	public static final String DEPLOY_ACTION_AUTO_DEPLOY = "autoDeployAction";
