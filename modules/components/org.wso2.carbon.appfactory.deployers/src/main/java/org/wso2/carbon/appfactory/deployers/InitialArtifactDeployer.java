@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.appfactory.deployers;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
@@ -66,6 +68,11 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 //	}
 
 	protected File[] getLastBuildArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
+		String[] serverDeploymentPaths = parameters.get(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
+		if(!StringUtils.isBlank(extension) &&
+		   ArrayUtils.contains(serverDeploymentPaths, AppFactoryConstants.SERVER_DEPLOYMENT_PATH_JAGGERY)){
+			return getArtifact(path, null, stage, applicationId, isForLabel);
+		}
 		return getArtifact(path, extension, stage, applicationId, isForLabel);
 	}
 
