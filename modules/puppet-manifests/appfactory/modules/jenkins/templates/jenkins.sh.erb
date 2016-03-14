@@ -92,7 +92,7 @@ else
   JAVA_CMD="java -jar "
   LOGS_OPTS=""
 fi
-
+export GIT_SSL_NO_VERIFY=1
 echo "JENKINS_HOME "${JENKINS_HOME}
 echo "Running jenkins.war..."
 RUN_JENKINS_CMD=${JAVA_CMD}" "${DEFAULT_JAVA_OPTS}" "${OPTIONAL_JAVA_OPTS}" ${NAME}.war  "${DEFAULT_JENKINS_OPTS}" "${LOGS_OPTS}
