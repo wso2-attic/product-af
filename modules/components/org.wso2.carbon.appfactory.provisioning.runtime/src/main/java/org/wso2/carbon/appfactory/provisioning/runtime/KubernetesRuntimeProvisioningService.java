@@ -26,6 +26,8 @@ import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.dsl.PrettyLoggable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
@@ -182,21 +184,17 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
-            Deployment currentDeployement = kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
-                    .deployments().withName(config.getDeploymentName().toLowerCase()).get();
+            Deployment currentDeployement = kubClient
+                    .inNamespace(namespace.getMetadata().getName()).extensions()
+                    .deployments()
+                    .withName(config.getDeploymentName().toLowerCase())
+                    .get();
             if (currentDeployement != null) {
                 //Redeployment
                 //Deployment recreation should happen after comparing the new Deployment config with
                 // running service configs.
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().withName(config.getDeploymentName().toLowerCase()).replace(deployment);
-
-                //todo need to change service replacement because need to check whether service object is available
-                //Service recreation should happen after comparing the new service config with running service configs.
-//                for (Service service : serviceList) {
-//                    kubClient.inNamespace(namespace.getMetadata().getName()).services().replace(service);
-//                    serviceNameList.add(service.getMetadata().getName());
-//                }
             } else {
                 //New Deployment
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
@@ -379,7 +377,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 break;
             case ENVIRONMENT:
                 if (log.isDebugEnabled()) {
-                    String message = "Creating property type environment for the application:"
+                    String message = "Creating property type environment for the application: "
                             + applicationContext.getId() + " for the tenant domain : "
                             + applicationContext.getTenantInfo().getTenantDomain();
                     log.debug(message);
@@ -411,25 +409,27 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     private void setSecuredRuntimeProperties(List secrets, KubernetesClient kubernetesClient,
             List<VolumeMount> volumeMounts, RuntimeProperty runtimeProperty) {
+        String namespace = this.namespace.getMetadata().getName();
+
         if (log.isDebugEnabled()) {
             String message = "Creating property type secret for the application:" + applicationContext.getId()
                     + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
             log.debug(message);
         }
 
-        Secret currentSecret = kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
+        Secret currentSecret = kubernetesClient.secrets().inNamespace(namespace)
                 .withName(runtimeProperty.getName()).get();
 
         //if secrete exists then replace the same secrete, otherwise create a new secrete
         if (currentSecret != null) {
-            kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
+            kubernetesClient.secrets().inNamespace(namespace)
                     .withName(runtimeProperty.getName()).replace(currentSecret);
         } else {
             Secret secret = new SecretBuilder()
                     .withKind(KubernetesPovisioningConstants.KIND_SECRETS)
                     .withApiVersion(Secret.ApiVersion.V_1)
                     .withNewMetadata()
-                    .withNamespace(namespace.getMetadata().getName())
+                    .withNamespace(namespace)
                     .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext))
                     .withName(runtimeProperty.getName())
                     .endMetadata().withData(runtimeProperty.getProperties())
@@ -448,12 +448,17 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         secrets.add(volume);
 
         //create volume mount for the secretes
-        VolumeMount volumeMount = new VolumeMountBuilder()
-                .withName(runtimeProperty.getName())
-                .withMountPath(KubernetesPovisioningConstants.VOLUME_MOUNT_PATH + applicationContext.getId())
-                .withReadOnly(true)
-                .build();
-
+        VolumeMount volumeMount = null;
+        try {
+            volumeMount = new VolumeMountBuilder()
+                    .withName(runtimeProperty.getName())
+                    .withMountPath(AppFactoryUtil.getAppfactoryConfiguration()
+                                    .getFirstProperty(KubernetesPovisioningConstants.PROPERTY_KUB_VOLUME_MOUNT_PATH)
+                                    + applicationContext.getId()).withReadOnly(true).build();
+        } catch (AppFactoryException e) {
+            String message = "Unable to read Kubernetes configuration for domain : " + namespace + " from appfactory.xml";
+            log.error(message, e);
+        }
         volumeMounts.add(volumeMount);
     }
 
