@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
+import io.fabric8.kubernetes.api.model.VolumeMount;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +33,7 @@ public class Container {
     private String probe;
     private List<ServiceProxy> serviceProxies;
     private List<String> labels;
-    private List volumeMounts;
+    private List<VolumeMount> volumeMounts;
 
     public List<ServiceProxy> getServiceProxies() {
         return serviceProxies;
@@ -117,7 +119,7 @@ public class Container {
         return volumeMounts;
     }
 
-    public void setVolumeMounts(List volumeMounts) {
+    public void setVolumeMounts(List<VolumeMount> volumeMounts) {
         this.volumeMounts = volumeMounts;
     }
 }
