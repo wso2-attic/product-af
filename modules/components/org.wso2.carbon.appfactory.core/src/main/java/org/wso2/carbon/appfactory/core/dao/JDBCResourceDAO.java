@@ -409,7 +409,9 @@ public class JDBCResourceDAO {
                     connection.rollback();
                 }
             } catch (SQLException rollbackExcpetion) {
-                log.error("Error while rolling back the added application", rollbackExcpetion);
+                String message = "Error while rolling back the added deployment : "
+                        + deploymentConfig.getDeploymentName();
+                log.error(message, rollbackExcpetion);
             }
             String message = "Error while adding database for deployement config : "
                     + deploymentConfig.getDeploymentName();

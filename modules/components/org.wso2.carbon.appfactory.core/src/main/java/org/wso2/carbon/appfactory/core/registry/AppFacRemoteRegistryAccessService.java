@@ -557,7 +557,8 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
      * @param isSecured          property is secured or not
      * @param applicationVersion applicationVersion of the application
      */
-    @Override public void addRuntimeProperty(String applicationKey, String applicationVersion, String stage,
+    @Override
+    public void addRuntimeProperty(String applicationKey, String applicationVersion, String stage,
             String applicationType, String key, String value, boolean isSecured) throws AppFactoryException {
         String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
 
@@ -569,7 +570,6 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
 
         RuntimeProperty runtimeProperty = new RuntimeProperty();
         Map<String, String> properties = new HashMap<String, String>();
-
         boolean isChecked = isSecured;
 
         //Checked whether the property applicationType is secured
@@ -603,7 +603,6 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
             log.error(message, e);
             throw new AppFactoryException(message, e);
         }
-
     }
 
     /**
@@ -616,7 +615,8 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
      * @return list of resources as runtime properties
      * @throws AppFactoryException
      */
-    @Override public List<org.wso2.carbon.appfactory.core.dto.Resource> getRuntimeProperties(String applicationKey,
+    @Override
+    public List<org.wso2.carbon.appfactory.core.dto.Resource> getRuntimeProperties(String applicationKey,
             String stage, String applicationVersion, String applicationType) throws AppFactoryException {
         String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
 
@@ -636,14 +636,11 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
                 new ArrayList<org.wso2.carbon.appfactory.core.dto.Resource>();
 
         try {
-
             List<RuntimeProperty> runtimeProperties = kubernetesRuntimeProvisioningService.getRuntimeProperties();
             for (RuntimeProperty runtimeProperty : runtimeProperties) {
-
                 for (Map.Entry<String, String> entry : runtimeProperty.getProperties().entrySet()) {
                     org.wso2.carbon.appfactory.core.dto.Resource resource =
                             new org.wso2.carbon.appfactory.core.dto.Resource();
-
                     resource.setName(entry.getKey());
                     resource.setDescription(entry.getValue());
                     resources.add(resource);
