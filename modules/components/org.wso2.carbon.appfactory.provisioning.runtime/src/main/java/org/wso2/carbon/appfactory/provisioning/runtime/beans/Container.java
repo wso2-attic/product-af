@@ -115,7 +115,7 @@ public class Container {
         this.labels = labels;
     }
 
-    public List getVolumeMounts() {
+    public List<VolumeMount> getVolumeMounts() {
         return volumeMounts;
     }
 

@@ -108,15 +108,6 @@ public interface RuntimeProvisioningService {
             throws RuntimeProvisioningException;
 
     /**
-     * Update existing runtime properties
-     *
-     * @param runtimeProperty runtime property
-     * @throws RuntimeProvisioningException
-     */
-    void updateRuntimeProperties(List<RuntimeProperty> runtimeProperty, DeploymentConfig deploymentConfig)
-            throws RuntimeProvisioningException;
-
-    /**
      * Provide application specific runtime properties
      *
      * @return List of runtime properties
