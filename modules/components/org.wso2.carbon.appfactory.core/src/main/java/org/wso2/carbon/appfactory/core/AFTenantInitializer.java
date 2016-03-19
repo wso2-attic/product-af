@@ -45,6 +45,9 @@ public class AFTenantInitializer {
     // TODO: Get this claims from a config file
     private static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
     private static String LAST_NAME_CLAIM_URI = "http://wso2.org/claims/lastname";
+    private static final String SUCCESS_KEY = "key";
+    private static final String USAGE_PLAN = "Demo";
+    private static final String ORIGINATED_SERVICE = "WSO2 Stratos Manager";
 
     public static void initializeAFTenant(String tenantDomain) throws UserStoreException, AppFactoryException {
         int tenantId = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenantId(tenantDomain);
@@ -113,10 +116,6 @@ public class AFTenantInitializer {
 
     private static TenantInfoBean populateTenantInfoBean(String tenantDomain, int tenantId, Tenant tenant,
             String firstName, String lastName) {
-        String successKey = "key";
-        String usagePlan = "Demo";
-        String originatedService = "WSO2 Stratos Manager";
-
         TenantInfoBean bean = new TenantInfoBean();
         bean.setAdmin(tenant.getAdminName());
         bean.setFirstname(firstName);
@@ -126,9 +125,9 @@ public class AFTenantInitializer {
         bean.setTenantId(tenantId);
         bean.setEmail(tenant.getEmail());
         bean.setActive(true);
-        bean.setSuccessKey(successKey);
-        bean.setUsagePlan(usagePlan);
-        bean.setOriginatedService(originatedService);
+        bean.setSuccessKey(SUCCESS_KEY);
+        bean.setUsagePlan(USAGE_PLAN);
+        bean.setOriginatedService(ORIGINATED_SERVICE);
         return bean;
     }
 

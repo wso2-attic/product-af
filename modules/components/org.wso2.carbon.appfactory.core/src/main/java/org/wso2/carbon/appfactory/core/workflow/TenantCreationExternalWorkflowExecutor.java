@@ -63,7 +63,6 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
      * @throws AppFactoryException AppFactoryException exception throws if not success the execution
      */
     @Override public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
-
         if (log.isDebugEnabled()) {
             String message = "Executing tenant creation external workflow for the tenant domain : " +
                     workflowDTO.getTenantDomain();
@@ -104,14 +103,14 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
             ConfigurationContext context = ServiceHolder.getInstance().getConfigContextService()
                     .getClientConfigContext();
             serviceClient = new ServiceClient(context, null);
-            serviceClient.engageModule("rampart");
-            serviceClient.engageModule("addressing");
+            serviceClient.engageModule(WorkflowConstant.MODULE_RAMPART);
+            serviceClient.engageModule(WorkflowConstant.MODULE_ADDRESSING);
 
             Options options = serviceClient.getOptions();
             options.setTo(new EndpointReference(EPR));
-            options.setAction("http://wso2.org/bps/sample/process");
+            options.setAction(WorkflowConstant.BPS_ACTION_URI);
 
-            Policy policy = loadPolicy(CarbonUtils.getCarbonConfigDirPath() + "/appfactory/bpel-policy.xml");
+            Policy policy = loadPolicy(CarbonUtils.getCarbonConfigDirPath() + WorkflowConstant.BPEL_POLICY_FILE_PATH);
 
             options.setProperty(RampartMessageData.KEY_RAMPART_POLICY, policy);
 
@@ -135,8 +134,11 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
             closeServiceClient(serviceClient);
         }
 
-        log.info("The BPEL ran successfully to create tenant in the cloud. Tenant domain is : " +
-                tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is : " + tenantCreationWorkflow.getTenantId());
+        if (log.isDebugEnabled()) {
+            log.debug("The BPEL ran successfully to create tenant in the cloud. Tenant domain is : " +
+                    tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is : " + tenantCreationWorkflow
+                    .getTenantId());
+        }
     }
 
     private void closeServiceClient(ServiceClient serviceClient) {
@@ -151,7 +153,6 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
     }
 
     private String createPayload(TenantCreationWorkflowDTO tenantCreationWorkflow) {
-
         String value = "<p:CreateTenantRequest xmlns:p=\"http://wso2.org/bps/sample\">" +
                 "<admin xmlns=\"http://wso2.org/bps/sample\">{0}</admin>" +
                 "<firstName xmlns=\"http://wso2.org/bps/sample\">{1}</firstName>" +

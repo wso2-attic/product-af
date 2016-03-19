@@ -49,10 +49,6 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
         if (!(workflowDTO instanceof TenantCreationWorkflowDTO)) {
             String message = "TenantCreationWorkflowDTO type is expected but unexpected type is passed to the execute"
                     + " method for the tenant domain : " + workflowDTO.getTenantDomain();
-            if (log.isDebugEnabled()) {
-                log.debug(message);
-            }
-
             throw new IllegalArgumentException(message);
         }
 
@@ -102,9 +98,11 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
             throw new AppFactoryException(message, e);
         }
 
-        log.info("The default tenant creation workflow executed successfully.Tenant domain is : " +
-                tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is : " + tenantCreationWorkflow.getTenantId());
-
+        if (log.isDebugEnabled()) {
+            log.debug("The default tenant creation workflow executed successfully.Tenant domain is : "
+                    + tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is : " + tenantCreationWorkflow
+                    .getTenantId());
+        }
     }
 
 }
