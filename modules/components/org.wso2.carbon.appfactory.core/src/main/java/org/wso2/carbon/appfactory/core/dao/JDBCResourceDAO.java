@@ -48,6 +48,7 @@ public class JDBCResourceDAO {
 
     private static final String RESOURCE_NAME = "RESOURCE_NAME";
     private static final String DESCRIPTION = "DESCRIPTION";
+    public static final String DEPLOYMENT_NAME_SEPARATOR = "-";
     private static JDBCResourceDAO jdbcResourceDAO = new JDBCResourceDAO();
 
     private JDBCResourceDAO() {
@@ -441,7 +442,7 @@ public class JDBCResourceDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             getDeploymentPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_DEPLOYEMENET);
 
-            String deploymentName = applicationId + "-" + stage;
+            String deploymentName = applicationId + DEPLOYMENT_NAME_SEPARATOR + stage;
             getDeploymentPreparedStatement.setString(1, deploymentName);
 
             deployementResultSet = getDeploymentPreparedStatement.executeQuery();
@@ -492,7 +493,7 @@ public class JDBCResourceDAO {
                 addServiceProxy(serviceProxyList, container, deployementName, connection);
             }
         } catch (SQLException e) {
-            String message = "Error while adding the database for container to deployment : " + deployementName;
+            String message = "Error while adding container for a deployment : " + deployementName;
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {
@@ -525,7 +526,7 @@ public class JDBCResourceDAO {
                 addProxiesPreparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            String message = "Error while adding the database for service proxies to deployement : " + deploymentName;
+            String message = "Error while adding service proxies for a deployement : " + deploymentName;
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {

@@ -575,7 +575,8 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
         //Checked whether the property applicationType is secured
         if (isChecked) {
             runtimeProperty.setPropertyType(RuntimeProperty.PropertyType.SECURED);
-            //the value is encoding base64 
+            //the value is encoding to base64,
+            // because in kuberenetes it will requre as base64 encoded string to sotre in a secret
             byte[] encodedValue = Base64.encodeBase64(value.getBytes(Charset.forName(CharEncoding.UTF_8)));
             properties.put(key, new String(encodedValue, Charset.forName(CharEncoding.UTF_8)));
         } else {
