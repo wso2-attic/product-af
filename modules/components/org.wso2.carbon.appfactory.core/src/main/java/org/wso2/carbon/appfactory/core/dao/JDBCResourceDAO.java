@@ -400,7 +400,7 @@ public class JDBCResourceDAO {
 
             List<Container> containerList = deploymentConfig.getContainers();
             addContainer(containerList, deploymentConfig.getDeploymentName(), connection);
-            if(addDeploymentPreparedStatement.getUpdateCount() > 0){
+            if (addDeploymentPreparedStatement.getUpdateCount() > 0) {
                 connection.commit();
             }
 
@@ -410,12 +410,12 @@ public class JDBCResourceDAO {
                     connection.rollback();
                 }
             } catch (SQLException rollbackExcpetion) {
-                String message = "Error while rolling back the added deployment : "
-                        + deploymentConfig.getDeploymentName();
+                String message =
+                        "Error while rolling back the added deployment : " + deploymentConfig.getDeploymentName();
                 log.error(message, rollbackExcpetion);
             }
-            String message = "Error while adding database for deployement config : "
-                    + deploymentConfig.getDeploymentName();
+            String message =
+                    "Error while adding database for deployement config : " + deploymentConfig.getDeploymentName();
             log.error(message, e);
             throw new AppFactoryException(message, e);
         } finally {
@@ -435,18 +435,14 @@ public class JDBCResourceDAO {
         Connection databaseConnection = null;
         PreparedStatement getDeploymentPreparedStatement = null;
         ResultSet deployementResultSet = null;
-
         DeploymentConfig deploymentConfig = new DeploymentConfig();
 
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             getDeploymentPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_DEPLOYEMENET);
-
             String deploymentName = applicationId + DEPLOYMENT_NAME_SEPARATOR + stage;
             getDeploymentPreparedStatement.setString(1, deploymentName);
-
             deployementResultSet = getDeploymentPreparedStatement.executeQuery();
-
             int deployementId = 0;
 
             while (deployementResultSet.next()) {
@@ -455,7 +451,6 @@ public class JDBCResourceDAO {
                         deployementResultSet.getString(SQLParameterConstants.COLUMN_NAME_DEPLOYMENT_NAME));
                 deploymentConfig.setReplicas(deployementResultSet.getInt(SQLParameterConstants.COLUMN_NAME_REPLICAS));
             }
-
             List<Container> containers = getContainers(deployementId, databaseConnection);
             deploymentConfig.setContainers(containers);
 

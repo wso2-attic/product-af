@@ -559,7 +559,7 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
      */
     @Override
     public void addRuntimeProperty(String applicationKey, String applicationVersion, String stage,
-            String applicationType, String key, String value, boolean isSecured) throws AppFactoryException {
+            String applicationType, String key, String value, boolean isChecked) throws AppFactoryException {
         String tenantDomain = PrivilegedCarbonContext.getCurrentContext().getTenantDomain();
 
         if (log.isDebugEnabled()) {
@@ -570,7 +570,6 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
 
         RuntimeProperty runtimeProperty = new RuntimeProperty();
         Map<String, String> properties = new HashMap<String, String>();
-        boolean isChecked = isSecured;
 
         //Checked whether the property applicationType is secured
         if (isChecked) {
