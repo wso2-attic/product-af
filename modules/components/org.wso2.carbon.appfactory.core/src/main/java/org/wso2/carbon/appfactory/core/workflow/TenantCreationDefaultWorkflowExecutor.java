@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *   WSO2 Inc. licenses this file to you under the Apache License,
  *   Version 2.0 (the "License"); you may not use this file except
@@ -30,7 +30,7 @@ import org.wso2.carbon.appfactory.core.workflow.dto.WorkflowDTO;
  */
 public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
 
-    private static Log log = LogFactory.getLog(TenantCreationDefaultWorkflowExecutor.class);
+    private final static Log log = LogFactory.getLog(TenantCreationDefaultWorkflowExecutor.class);
 
     /**
      * Execute tenant creation workflowDTO process
@@ -47,9 +47,8 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
         }
 
         if (!(workflowDTO instanceof TenantCreationWorkflowDTO)) {
-            String message = "TenantCreationWorkflowDTO type is expected but unexpected type is passed to the execute"
-                    + " method for the tenant domain : " + workflowDTO.getTenantDomain();
-            throw new IllegalArgumentException(message);
+            throw new IllegalArgumentException("TenantCreationWorkflowDTO type is expected but unexpected type is passed to the execute"
+                    + " method for the tenant domain : " + workflowDTO.getTenantDomain());
         }
 
         TenantCreationWorkflowDTO tenantCreationWorkflow = (TenantCreationWorkflowDTO) workflowDTO;
@@ -59,43 +58,36 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
 
         try {
             if (log.isDebugEnabled()) {
-                String message = "Executing the initializeRepositoryManager for tenant domain : " +
-                        workflowDTO.getTenantDomain();
-                log.debug(message);
+                log.debug("Executing the initializeRepositoryManager for tenant domain : " +
+                        workflowDTO.getTenantDomain());
             }
             tenantInfraStructureInitializerService.initializeRepositoryManager(tenantCreationWorkflow.getTenantDomain(),
                     tenantCreationWorkflow.getTenantInfoBean().getUsagePlan());
         } catch (AppFactoryException e) {
-            String message =
-                    "Can not initialize repository manager for the tenant domain : " + workflowDTO.getTenantDomain();
-            throw new AppFactoryException(message, e);
+            throw new AppFactoryException(
+                    "Can not initialize repository manager for the tenant domain : " +
+                            workflowDTO.getTenantDomain(), e);
         }
 
         try {
             if (log.isDebugEnabled()) {
-                String message =
-                        "Executing the initializeBuildManager for tenant domain : " + workflowDTO.getTenantDomain();
-                log.debug(message);
+                log.debug("Executing the initializeBuildManager for tenant domain : " + workflowDTO.getTenantDomain());
             }
             tenantInfraStructureInitializerService.initializeBuildManager(tenantCreationWorkflow.getTenantDomain(),
                     tenantCreationWorkflow.getTenantInfoBean().getUsagePlan());
         } catch (AppFactoryException e) {
-            String message =
-                    "Can not initialize build manager for the tenant domain : " + workflowDTO.getTenantDomain();
-            throw new AppFactoryException(message, e);
+            throw new AppFactoryException(
+                    "Can not initialize build manager for the tenant domain : " + workflowDTO.getTenantDomain(), e);
         }
 
         try {
             if (log.isDebugEnabled()) {
-                String message =
-                        "Executing the initializeCloudManager for tenant domain : " + workflowDTO.getTenantDomain();
-                log.debug(message);
+                log.debug("Executing the initializeCloudManager for tenant domain : " + workflowDTO.getTenantDomain());
             }
             tenantInfraStructureInitializerService.initializeCloudManager(tenantCreationWorkflow.getTenantInfoBean());
         } catch (AppFactoryException e) {
-            String message =
-                    "Can not initialize cloud manager for the tenant domain : " + workflowDTO.getTenantDomain();
-            throw new AppFactoryException(message, e);
+            throw new AppFactoryException(
+                    "Can not initialize cloud manager for the tenant domain : " + workflowDTO.getTenantDomain(), e);
         }
 
         if (log.isDebugEnabled()) {
