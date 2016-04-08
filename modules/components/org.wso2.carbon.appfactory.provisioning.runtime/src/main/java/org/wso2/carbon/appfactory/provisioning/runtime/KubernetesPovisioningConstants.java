@@ -21,11 +21,14 @@ package org.wso2.carbon.appfactory.provisioning.runtime;
  */
 public class KubernetesPovisioningConstants {
 
-    public static final String KUB_MASTER_URL = "https://192.168.19.249/";
-    public static final String KUB_API_VERSION = "v1";
+    public static final String PROPERTY_KUB_MASTER_URL = "KubernetesClusterConfig.{0}.Property.MasterURL";
+    public static final String PROPERTY_KUB_API_VERSION = "KubernetesClusterConfig.{0}.Property.APIVersion";
+    public static final String PROPERTY_KUB_API_SERVER_USERNAME = "KubernetesClusterConfig.{0}.Property.UserName";
+    public static final String PROPERTY_KUB_API_SERVER_PASSWORD = "KubernetesClusterConfig.{0}.Property.Password";
+    public static final String PROPERTY_KUB_VOLUME_MOUNT_PATH = "KubernetesClusterConfig.Container.Property.MountPath";
 
-    public static String MASTER_USERNAME = "vagrant";
-    public static String MASTER_PASSWORD = "vagrant";
+    public static String MASTER_USERNAME;
+    public static String MASTER_PASSWORD;
 
     public static final String INGRESS_API_NAMESPACE_RESOURCE_PATH = "apis/extensions/v1beta1/namespaces/";
     public static final String INGRESS_API_RESOURCE_PATH_SUFFIX = "/ingresses/";
@@ -35,7 +38,7 @@ public class KubernetesPovisioningConstants {
     public static final String KIND_DEPLOYMENT = "Deployment";
     public static final String KIND_INGRESS = "Ingress";
     public static final String KIND_SERVICE = "Service";
-    public static final String KIND_SECRETS = "Secret";
+    public static final String KIND_SECRET = "Secret";
 
     public static final String ITEMS = "items";
     public static final String SPEC = "spec";
@@ -43,5 +46,6 @@ public class KubernetesPovisioningConstants {
     public static final String HOST = "host";
 
     public static final String VOLUME_MOUNT = "default";
-    public static final String VOLUME_MOUNT_PATH = "/etc/";
+
+    public static final String DEFAULT_STAGE = "Development";
 }

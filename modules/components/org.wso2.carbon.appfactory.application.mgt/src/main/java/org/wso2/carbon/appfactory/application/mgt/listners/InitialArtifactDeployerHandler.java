@@ -26,6 +26,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.dao.JDBCResourceDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
@@ -53,6 +54,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 	//Default replication count set to 2 to increase availability.
 	public static final int DEPLOYMET_REPLICATION_COUNT = 2;
 	public static final String DEPLOYMET_BASE_IMAGE_VERSION = "latest";
+	public static final String DEPLOYMENT_NAME_SEPARATOR = "-";
 
 	private Map<String, String> envars;
 	private List<ServiceProxy> serviceProxies;
@@ -145,16 +147,13 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			List<Container> containerList = new ArrayList<>();
 			containerList.add(container);
 			DeploymentConfig deploymentConfig = new DeploymentConfig();
-			String deploymentName = application.getName() + "-" + stage;
+			String deploymentName = application.getId() + DEPLOYMENT_NAME_SEPARATOR + stage;
 			deploymentConfig.setDeploymentName(deploymentName);
 			deploymentConfig.setContainers(containerList);
 			//Default replication count should be a user input
 			deploymentConfig.setReplicas(DEPLOYMET_REPLICATION_COUNT);
-//			Map<String,String> labels = new HashMap<>();
-//			labels.put(DEPLOYMET_NAME,deploymentName);
-//			deploymentConfig.setLables(labels);
-			
 			afKubClient.deployApplication(deploymentConfig);
+			JDBCResourceDAO.getInstance().addDeploymentConfig(deploymentConfig);
 
 		} catch (UserStoreException e) {
 			throw new AppFactoryException("Initial code committing error " + application.getName(), e);

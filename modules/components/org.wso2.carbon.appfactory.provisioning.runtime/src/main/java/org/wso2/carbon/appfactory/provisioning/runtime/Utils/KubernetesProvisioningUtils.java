@@ -22,10 +22,13 @@ import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,15 +46,42 @@ public class KubernetesProvisioningUtils {
      */
     public static KubernetesClient getFabric8KubernetesClient() {
 
-        //todo need to modify config object with master credentials properly
-        Config config = new Config();
-        config.setUsername(KubernetesPovisioningConstants.MASTER_USERNAME);
-        config.setPassword(KubernetesPovisioningConstants.MASTER_PASSWORD);
-        config.setNoProxy(new String[]{"https://192.168.19.249"});
-        config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
-        config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
+        String stage = KubernetesPovisioningConstants.DEFAULT_STAGE;
+        return getFabric8KubernetesClient(stage);
+    }
 
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient(config);
+    /**
+     * Create Kubernetes client for given stage
+     *
+     * @param stage stage of the application
+     * @return Kubernetes client
+     */
+    public static KubernetesClient getFabric8KubernetesClient(String stage) {
+        KubernetesClient kubernetesClient = null;
+        try {
+            String masterURL = AppFactoryUtil.getAppfactoryConfiguration()
+                    .getFirstProperty(MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_MASTER_URL, stage));
+            String APIVersion = AppFactoryUtil.getAppfactoryConfiguration()
+                    .getFirstProperty(MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_API_VERSION, stage));
+            String userName = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+                    MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_API_SERVER_USERNAME, stage));
+            String password = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+                    MessageFormat.format(KubernetesPovisioningConstants.PROPERTY_KUB_API_SERVER_PASSWORD, stage));
+
+            Config config = new Config();
+            config.setMasterUrl(masterURL);
+            config.setApiVersion(APIVersion);
+            config.setUsername(userName);
+            config.setPassword(password);
+            config.setNoProxy(new String[] { masterURL });
+
+            kubernetesClient = new DefaultKubernetesClient(config);
+
+        } catch (AppFactoryException e) {
+            String message = "Unable to read Kubernetes configuration for stage : " + stage + " from appfactory.xml";
+            log.error(message, e);
+        }
+
         return kubernetesClient;
     }
 

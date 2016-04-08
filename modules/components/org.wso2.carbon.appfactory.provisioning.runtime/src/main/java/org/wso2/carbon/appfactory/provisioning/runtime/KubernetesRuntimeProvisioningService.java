@@ -26,6 +26,8 @@ import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.dsl.PrettyLoggable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
@@ -132,7 +134,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             PodSpec podSpec = new PodSpecBuilder()
                     .withContainers(kubContainerList)
-                    .withVolumes(config.getSecrets())
+                    .withVolumes(config.getVolumes())
                     .build();
 
             PodTemplateSpec podTemplateSpec = new PodTemplateSpecBuilder()
@@ -182,21 +184,17 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             kubClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             DeploymentList deploymentList = kubClient.extensions().deployments().list();
 
-            Deployment currentDeployement = kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
-                    .deployments().withName(config.getDeploymentName().toLowerCase()).get();
+            Deployment currentDeployement = kubClient
+                    .inNamespace(namespace.getMetadata().getName()).extensions()
+                    .deployments()
+                    .withName(config.getDeploymentName().toLowerCase())
+                    .get();
             if (currentDeployement != null) {
                 //Redeployment
                 //Deployment recreation should happen after comparing the new Deployment config with
                 // running service configs.
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
                         .deployments().withName(config.getDeploymentName().toLowerCase()).replace(deployment);
-
-                //todo need to change service replacement because need to check whether service object is available
-                //Service recreation should happen after comparing the new service config with running service configs.
-//                for (Service service : serviceList) {
-//                    kubClient.inNamespace(namespace.getMetadata().getName()).services().replace(service);
-//                    serviceNameList.add(service.getMetadata().getName());
-//                }
             } else {
                 //New Deployment
                 kubClient.inNamespace(namespace.getMetadata().getName()).extensions()
@@ -341,218 +339,150 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     /**
-     * Set runtime properties to kubernetes environment
-     *
-     * @param runtimeProperties runtime properties
-     * @param deploymentConfig  includes deployment related details
-     * @throws RuntimeProvisioningException
+     * {@inheritDoc}
      */
     @Override
     public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties,
             DeploymentConfig deploymentConfig) throws RuntimeProvisioningException {
-
+        //adding already created runtime properties to current list
         runtimeProperties.addAll(getRuntimeProperties());
-
         //list of secretes
-        List secrets = new ArrayList();
-
+        List<Volume> volumes = new ArrayList();
         //list of env variables
         HashMap<String, String> envVariables = new HashMap<>();
-
         //create a instance of kubernetes client to invoke service call
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
-
         List<VolumeMount> volumeMounts = new ArrayList<>();
 
         for (RuntimeProperty runtimeProperty : runtimeProperties) {
             switch (runtimeProperty.getPropertyType()) {
-            case SENSITIVE:
-                if (log.isDebugEnabled()) {
-                    String message = "Creating property type secret for the application:" + applicationContext.getId()
-                            + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
-                    log.debug(message);
+            case SECURED:
+                try {
+                    setSecuredRuntimeProperties(volumes, kubernetesClient, volumeMounts, runtimeProperty);
+                }catch (KubernetesClientException e){
+                    String message = "Error while setting secured runtime properties for application : "
+                            + applicationContext.getId() + " in tenant domain "
+                            + applicationContext.getTenantInfo().getTenantDomain();
+
+                    throw new RuntimeProvisioningException(message, e);
                 }
-
-                Secret currentSecret = kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
-                        .withName(runtimeProperty.getName()).get();
-
-                //if secrete exists then replace the same secrete, otherwise create a new secrete
-                if (currentSecret != null) {
-                    kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
-                            .withName(runtimeProperty.getName()).replace(currentSecret);
-                } else {
-                    Secret secret = new SecretBuilder()
-                            .withKind(KubernetesPovisioningConstants.KIND_SECRETS)
-                            .withApiVersion(Secret.ApiVersion.V_1)
-                            .withNewMetadata()
-                            .withNamespace(namespace.getMetadata().getName())
-                            .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext))
-                            .withName(runtimeProperty.getName())
-                            .endMetadata().withData(runtimeProperty.getProperties())
-                            .build();
-
-                    kubernetesClient.secrets().create(secret);
-                }
-
-                Volume volume = new VolumeBuilder()
-                        .withName(runtimeProperty.getName())
-                        .withNewSecret()
-                        .withSecretName(runtimeProperty.getName())
-                        .endSecret()
-                        .build();
-
-                secrets.add(volume);
-
-                //create volume mount for the secretes
-                VolumeMount volumeMount = new VolumeMountBuilder()
-                        .withName(runtimeProperty.getName())
-                        .withMountPath(KubernetesPovisioningConstants.VOLUME_MOUNT_PATH + runtimeProperty.getName())
-                        .withReadOnly(true)
-                        .build();
-
-                volumeMounts.add(volumeMount);
-
                 break;
             case ENVIRONMENT:
                 if (log.isDebugEnabled()) {
-                    String message = "Creating property type environment for the application:"
+                    String message = "Creating property type environment for the application : "
                             + applicationContext.getId() + " for the tenant domain : "
                             + applicationContext.getTenantInfo().getTenantDomain();
                     log.debug(message);
                 }
-
                 envVariables.putAll(runtimeProperty.getProperties());
-
                 break;
             default:
                 String message = "Runtime property type : " + runtimeProperty.getPropertyType() + " not supported.";
-
                 throw new IllegalArgumentException(message);
-
             }
         }
 
-        //Initially assume first container is the application and set volume mounts
-        deploymentConfig.getContainers().get(0).setVolumeMounts(volumeMounts);
+        //set volume mounts and env variables for all the containers
+        List<Container> containers = deploymentConfig.getContainers();
+        for(Container container : containers){
+            container.setVolumeMounts(volumeMounts);
+            container.setEnvVariables(envVariables);
+        }
 
         //Set secretes to a pod
-        deploymentConfig.setSecrets(secrets);
-
-        //Initially assume first container is the application
-        deploymentConfig.getContainers().get(0).setEnvVariables(envVariables);
+        deploymentConfig.setVolumes(volumes);
 
         //Call deploy application to redeploy application with runtime properties
         deployApplication(deploymentConfig);
-
     }
 
     /**
-     * Update runtime properties already defined in the application
-     *
-     * @param runtimeProperties list of runtime properties
-     * @param deploymentConfig  includes deployment related details
-     * @throws RuntimeProvisioningException
+     * To create K8s secretes
+     * @param volumes volume for each secret
+     * @param kubernetesClient K8s client
+     * @param volumeMounts volume mount for each volume
+     * @param runtimeProperty key value paries
      */
-    @Override
-    public void updateRuntimeProperties(List<RuntimeProperty> runtimeProperties, DeploymentConfig deploymentConfig)
-            throws RuntimeProvisioningException {
+    private void setSecuredRuntimeProperties(List<Volume> volumes, KubernetesClient kubernetesClient,
+            List<VolumeMount> volumeMounts, RuntimeProperty runtimeProperty) {
+        String namespace = this.namespace.getMetadata().getName();
 
-        List secrets = new ArrayList();
-        Container container = new Container();
-
-        for (RuntimeProperty runtimeProperty : runtimeProperties) {
-            switch (runtimeProperty.getPropertyType()) {
-            case SENSITIVE:
-                if (log.isDebugEnabled()) {
-                    String message = "Updating property type secret for the application:" + applicationContext.getId()
-                            + " for the tenant domain:" + applicationContext.getTenantInfo().getTenantDomain();
-
-                    log.debug(message);
-                }
-                Secret secret = new SecretBuilder().withKind(KubernetesPovisioningConstants.KIND_SECRETS)
-                        .withApiVersion(Secret.ApiVersion.V_1)
-                        .withNewMetadata()
-                        .withNamespace(namespace.getMetadata().getNamespace())
-                        .withName(runtimeProperty.getName())
-                        .endMetadata()
-                        .withData(runtimeProperty.getProperties())
-                        .build();
-
-                KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
-                kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
-                        .withName(runtimeProperty.getName()).replace(secret);
-
-                Volume volume = new VolumeBuilder()
-                        .withName(KubernetesPovisioningConstants.VOLUME_MOUNT)
-                        .withNewSecret()
-                        .withSecretName(runtimeProperty.getName())
-                        .endSecret()
-                        .build();
-
-                secrets.add(volume);
-
-                break;
-            case ENVIRONMENT:
-                if (log.isDebugEnabled()) {
-                    String message = "Updating property type environment for the application:"
-                            + applicationContext.getId() + " for the tenant domain:"
-                            + applicationContext.getTenantInfo().getTenantDomain();
-
-                    log.debug(message);
-                }
-
-                //updating environment variables for container
-                container.setEnvVariables(runtimeProperty.getProperties());
-
-                break;
-            default:
-                String message = "Runtime property type is not support, property type:"
-                        + runtimeProperty.getPropertyType();
-
-                throw new IllegalArgumentException(message);
-            }
+        if (log.isDebugEnabled()) {
+            String message = "Creating property type secret for the application : " + applicationContext.getId()
+                    + " for the tenant domain : " + applicationContext.getTenantInfo().getTenantDomain();
+            log.debug(message);
         }
 
-        List<Container> containers = new ArrayList<>();
-        containers.add(container);
-        deploymentConfig.setContainers(containers);
+        Secret currentSecret = kubernetesClient.secrets().inNamespace(namespace)
+                .withName(runtimeProperty.getName()).get();
 
-        //call application deployment to re deploy the application with update variables
-        deployApplication(deploymentConfig);
+        //if secrete exists then replace the same secrete, otherwise create a new secrete
+        if (currentSecret != null) {
+            kubernetesClient.secrets().inNamespace(namespace)
+                    .withName(runtimeProperty.getName()).replace(currentSecret);
+        } else {
+            Secret secret = new SecretBuilder()
+                    .withKind(KubernetesPovisioningConstants.KIND_SECRET)
+                    .withApiVersion(Secret.ApiVersion.V_1)
+                    .withNewMetadata()
+                    .withNamespace(namespace)
+                    .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext))
+                    .withName(runtimeProperty.getName())
+                    .endMetadata().withData(runtimeProperty.getProperties())
+                    .build();
+
+            kubernetesClient.secrets().create(secret);
+        }
+
+        Volume volume = new VolumeBuilder()
+                .withName(runtimeProperty.getName())
+                .withNewSecret()
+                .withSecretName(runtimeProperty.getName())
+                .endSecret()
+                .build();
+
+        volumes.add(volume);
+
+        //create volume mount for the secretes
+        VolumeMount volumeMount = null;
+        try {
+            volumeMount = new VolumeMountBuilder()
+                    .withName(runtimeProperty.getName())
+                    .withMountPath(AppFactoryUtil.getAppfactoryConfiguration()
+                                    .getFirstProperty(KubernetesPovisioningConstants.PROPERTY_KUB_VOLUME_MOUNT_PATH)
+                                    + applicationContext.getId()).withReadOnly(true).build();
+        } catch (AppFactoryException e) {
+            String message = "Unable to read Kubernetes configuration for domain : " + namespace
+                    + "from appfactory.xml";
+            log.error(message, e);
+        }
+        volumeMounts.add(volumeMount);
     }
 
     /**
-     * Provide runtime properties for given application context
-     *
-     * @return list of runtime properties
-     * @throws RuntimeProvisioningException
+     * {@inheritDoc}
      */
     @Override
     public List<RuntimeProperty> getRuntimeProperties() throws RuntimeProvisioningException {
-
         KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
         SecretList secretList = kubernetesClient.secrets().inNamespace(namespace.getMetadata().getName())
                 .withLabels(KubernetesProvisioningUtils.getLableMap(applicationContext)).list();
-
         List<RuntimeProperty> runtimeProperties = new ArrayList<>();
 
         for (Secret secret : secretList.getItems()) {
             RuntimeProperty sensitiveRuntimeProperty = new RuntimeProperty();
-            sensitiveRuntimeProperty.setPropertyType(RuntimeProperty.PropertyType.SENSITIVE);
+            sensitiveRuntimeProperty.setPropertyType(RuntimeProperty.PropertyType.SECURED);
             sensitiveRuntimeProperty.setName(secret.getMetadata().getName());
             sensitiveRuntimeProperty.setProperties(secret.getData());
             runtimeProperties.add(sensitiveRuntimeProperty);
-
         }
 
         PodList podList = KubernetesProvisioningUtils.getPods(applicationContext);
-
         HashMap<String, String> data = new HashMap<>();
 
         for (Pod pod : podList.getItems()) {
             //get only first container from the container list
             List<EnvVar> envVarList = pod.getSpec().getContainers().get(0).getEnv();
-
             for (EnvVar envVar : envVarList) {
                 data.put(envVar.getName(), envVar.getValue());
             }
@@ -564,7 +494,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         }
 
         return runtimeProperties;
-
     }
 
     /**

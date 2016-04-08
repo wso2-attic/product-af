@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
+import io.fabric8.kubernetes.api.model.Volume;
+
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +30,7 @@ public class DeploymentConfig {
     private Container container;
     private String servicePort;
     private Integer proxyPort;
-    private List secrets;
+    private List<Volume> volumes;
 
     public void setDeploymentName(String deploymentName) {
         this.deploymentName = deploymentName;
@@ -74,12 +76,12 @@ public class DeploymentConfig {
         return proxyPort;
     }
 
-    public List getSecrets() {
-        return secrets;
+    public List<Volume> getVolumes() {
+        return volumes;
     }
 
-    public void setSecrets(List secrets) {
-        this.secrets = secrets;
+    public void setVolumes(List<Volume> volumes) {
+        this.volumes = volumes;
     }
 
     public Container getContainer() {

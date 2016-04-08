@@ -20,7 +20,7 @@ import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 import java.util.List;
 import java.util.Set;
 
-public interface RuntimeProvisioningService {
+interface RuntimeProvisioningService {
 
     /**
      * Set application details for the context
@@ -105,15 +105,6 @@ public interface RuntimeProvisioningService {
      * @throws RuntimeProvisioningException
      */
     void setRuntimeProperties(List<RuntimeProperty> runtimeProperties, DeploymentConfig deploymentConfig)
-            throws RuntimeProvisioningException;
-
-    /**
-     * Update existing runtime properties
-     *
-     * @param runtimeProperty runtime property
-     * @throws RuntimeProvisioningException
-     */
-    void updateRuntimeProperties(List<RuntimeProperty> runtimeProperty, DeploymentConfig deploymentConfig)
             throws RuntimeProvisioningException;
 
     /**
