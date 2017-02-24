@@ -145,6 +145,11 @@ node basenode {
   $esb_prod_cartridge_alias     = "esbproduction"
   $esb_prod_cartridge_type      = "${dev_id}esbproduction"
 
+############## Workflow Configuration values ####################
+
+#Tenant Creation
+  $tenant_creation_wf_java_class = "org.wso2.carbon.appfactory.core.workflow.TenantCreationDefaultWorkflowExecutor"
+
 
 ############## Stratos DBS for Dev Setup #########################
 
