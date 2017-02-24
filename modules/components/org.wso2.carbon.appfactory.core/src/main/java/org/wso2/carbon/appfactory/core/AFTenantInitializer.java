@@ -16,25 +16,19 @@
 
 package org.wso2.carbon.appfactory.core;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.om.util.AXIOMUtil;
-import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.neethi.Policy;
-import org.apache.neethi.PolicyEngine;
-import org.apache.rampart.RampartMessageData;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.RoleBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.workflow.WorkflowConstant;
+import org.wso2.carbon.appfactory.core.workflow.WorkflowExecutor;
+import org.wso2.carbon.appfactory.core.workflow.WorkflowExecutorFactory;
+import org.wso2.carbon.appfactory.core.workflow.dto.TenantCreationWorkflowDTO;
+import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.user.api.*;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.util.Map;
 import java.util.Set;
@@ -80,69 +74,67 @@ public class AFTenantInitializer {
                 AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
                 AppFactoryUtil.addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
 
-                //call BPEL
+                executeTenantCreationWorkflow(tenantDomain, tenantId, tenantInfoBean, firstName, lastName);
 
-                String EPR = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-                                                   AppFactoryConstants.BPS_SERVER_URL) + "CreateTenant";
-
-                String value = "<p:CreateTenantRequest xmlns:p=\"http://wso2.org/bps/sample\">" +
-                               "<admin xmlns=\"http://wso2.org/bps/sample\">" + tenantInfoBean.getAdminName() + "</admin>" +
-                               "<firstName xmlns=\"http://wso2.org/bps/sample\">" + firstName + "</firstName>" +
-                               "<lastName xmlns=\"http://wso2.org/bps/sample\">" + lastName + "</lastName>" +
-                               "<adminPassword xmlns=\"http://wso2.org/bps/sample\">" + tenantInfoBean.getAdminPassword() + "</adminPassword>" +
-                               "<tenantDomain xmlns=\"http://wso2.org/bps/sample\">" + tenantDomain + "</tenantDomain>" +
-                               "<tenantId xmlns=\"http://wso2.org/bps/sample\">" + tenantId +
-                               "</tenantId>" +
-                               "<email xmlns=\"http://wso2.org/bps/sample\">" + tenantInfoBean.getEmail() + "</email>" +
-                               "<active xmlns=\"http://wso2.org/bps/sample\">true</active>" +
-                               "<successKey xmlns=\"http://wso2.org/bps/sample\">key</successKey>" +
-                               "<createdDate xmlns=\"http://wso2.org/bps/sample\">2001-12-31T12:00:00</createdDate>" +
-                               "<originatedService xmlns=\"http://wso2.org/bps/sample\">WSO2 Stratos Manager</originatedService>" +
-                               "<usagePlan xmlns=\"http://wso2.org/bps/sample\">Demo</usagePlan>" +
-                               "</p:CreateTenantRequest>";
-
-                try {
-
-                    ConfigurationContext context =
-                            ServiceHolder.getInstance().getConfigContextService().getClientConfigContext();
-                    ServiceClient serviceClient = new ServiceClient(context, null);
-                    serviceClient.engageModule("rampart");
-                    serviceClient.engageModule("addressing");
-
-                    Options options = serviceClient.getOptions();
-                    options.setTo(new EndpointReference(EPR));
-                    options.setAction("http://wso2.org/bps/sample/process");
-
-                    Policy policy = loadPolicy(
-                            CarbonUtils.getCarbonConfigDirPath() + "/appfactory/bpel-policy.xml");
-
-                    options.setProperty(RampartMessageData.KEY_RAMPART_POLICY, policy);
-
-                    options.setUserName(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-                                                              AppFactoryConstants.SERVER_ADMIN_NAME));
-                    options.setPassword(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-                                                              AppFactoryConstants.SERVER_ADMIN_PASSWORD));
-                    OMElement payload = AXIOMUtil.stringToOM(value);
-                    serviceClient.sendReceive(payload);
-
-                } catch (Exception e) {
-                    log.error("Error while calling tenant creation BPEL", e);
-                    throw new AppFactoryException(
-                            "Unable to initialize tenant. Please contact administrator");
-                }
-
-                log.info(
-                        "The BPEL ran successfully to create tenant in all Clouds. Tenant domain is " +
-                        tenantDomain + ". Tenant Id is " + tenantId);
             }
         }
     }
 
-    private static Policy loadPolicy(String xmlPath) throws Exception {
-        StAXOMBuilder builder = new StAXOMBuilder(xmlPath);
-        return PolicyEngine.getPolicy(builder.getDocumentElement());
+    /**
+     * Execute tenant creation workflow according to configured workflow config type
+     *
+     * @param tenantDomain Domain of the tenant
+     * @param tenantId     id of the tenant
+     * @param tenant       The details of the tenant
+     * @param firstName    First name of the tenant
+     * @param lastName     Last name of the tenant
+     * @throws AppFactoryException
+     */
+    private static void executeTenantCreationWorkflow(String tenantDomain, int tenantId, Tenant tenant,
+            String firstName, String lastName) throws AppFactoryException {
+
+        TenantInfoBean bean = populateTenantInfoBean(tenantDomain, tenantId, tenant, firstName, lastName);
+
+        WorkflowExecutorFactory workflowExecutorFactory = WorkflowExecutorFactory.getInstance();
+
+        WorkflowExecutor tenantCreationWorkflowExecutor = workflowExecutorFactory
+                .getWorkflowExecutor(WorkflowConstant.WorkflowType.TENANT_CREATION);
+        TenantCreationWorkflowDTO tenantCreationWorkflow = getTenantCreationWorkflowDTO(tenantDomain, tenantId,
+                workflowExecutorFactory, bean);
+        tenantCreationWorkflowExecutor.execute(tenantCreationWorkflow);
     }
 
+    private static TenantInfoBean populateTenantInfoBean(String tenantDomain, int tenantId, Tenant tenant,
+            String firstName, String lastName) {
+        String successKey = "key";
+        String usagePlan = "Demo";
+        String originatedService = "WSO2 Stratos Manager";
 
+        TenantInfoBean bean = new TenantInfoBean();
+        bean.setAdmin(tenant.getAdminName());
+        bean.setFirstname(firstName);
+        bean.setLastname(lastName);
+        bean.setAdminPassword(tenant.getAdminPassword());
+        bean.setTenantDomain(tenantDomain);
+        bean.setTenantId(tenantId);
+        bean.setEmail(tenant.getEmail());
+        bean.setActive(true);
+        bean.setSuccessKey(successKey);
+        bean.setUsagePlan(usagePlan);
+        bean.setOriginatedService(originatedService);
+        return bean;
+    }
+
+    private static TenantCreationWorkflowDTO getTenantCreationWorkflowDTO(String tenantDomain, int tenantId,
+            WorkflowExecutorFactory workflowExecutorFactory, TenantInfoBean bean) {
+        String usagePlan = "Demo";
+        TenantCreationWorkflowDTO tenantCreationWorkflowDTO = (TenantCreationWorkflowDTO) workflowExecutorFactory
+                .createWorkflowDTO(WorkflowConstant.WorkflowType.TENANT_CREATION);
+        tenantCreationWorkflowDTO.setTenantDomain(tenantDomain);
+        tenantCreationWorkflowDTO.setTenantId(tenantId);
+        tenantCreationWorkflowDTO.setUsagePlan(usagePlan);
+        tenantCreationWorkflowDTO.setTenantInfoBean(bean);
+        return tenantCreationWorkflowDTO;
+    }
 
 }
