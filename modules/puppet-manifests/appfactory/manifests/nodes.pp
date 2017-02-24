@@ -126,6 +126,11 @@ node basenode {
   $php_prod_cartridge_alias  = "{@appName}"
   $php_prod_cartridge_type  = "php"
 
+############## Workflow Configuration values ####################
+
+#Tenant Creation
+  $tenant_creation_wf_java_class = "org.wso2.carbon.appfactory.core.workflow.TenantCreationExternalWorkflowExecutor"
+
 
 ############## Stratos DBS for Dev Setup #########################
 
